@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="452.0" prefWidth="732.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Box layoutX="280.0" layoutY="256.0" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#dee3e8" height="105.0" layoutX="-1.0" layoutY="350.0" stroke="BLACK" strokeType="INSIDE" width="735.0" />
+      <Button layoutX="29.0" layoutY="378.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="95.0" text="Start">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button layoutX="148.0" layoutY="378.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="95.0" text="Pause">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button layoutX="268.0" layoutY="377.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="95.0" text="Reset">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Slider layoutX="414.0" layoutY="376.0" prefHeight="21.0" prefWidth="118.0" />
+      <Label layoutX="439.0" layoutY="400.0" text="Speed">
+         <font>
+            <Font size="21.0" />
+         </font>
+      </Label>
+      <ColorPicker layoutX="566.0" layoutY="363.0" prefHeight="65.0" prefWidth="153.0" />
+      <Label layoutX="616.0" layoutY="409.0" text="Color">
+         <font>
+            <Font size="21.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>
