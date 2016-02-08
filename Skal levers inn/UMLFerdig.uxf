@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.1.1">
+  <zoom_level>8</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>624</x>
+      <y>96</y>
+      <w>168</w>
+      <h>88</h>
+    </coordinates>
+    <panel_attributes>GOLDriver
+--
+
+--
+	+ main(args : String[]) : void
+	+ start(stage : Stage) : void
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>664</x>
+      <y>16</y>
+      <w>80</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>Application
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>696</x>
+      <y>32</y>
+      <w>24</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>568</x>
+      <y>248</y>
+      <w>312</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>Controller
+--
+- Gol : GameOfLife
+- canvas : Canvas
+--
+	+ initialize(location : URL, resources : ResourceBundle)
+	+ start(stage : Stage) : void
+	+ mouseClicked(MouseEvent event : int) : void
+	+ handleStartClick() : void
+	+ handleColChngClick() : void
+	+ handlePauseClick() : void
+	+ handle(now : long): void
+	
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1008</x>
+      <y>312</y>
+      <w>72</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>GOL.fxml</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>784</x>
+      <y>128</y>
+      <w>296</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+Loads</panel_attributes>
+    <additional_attributes>310.0;230.0;310.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>872</x>
+      <y>304</y>
+      <w>152</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+Listens to
+</panel_attributes>
+    <additional_attributes>170.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>576</x>
+      <y>496</y>
+      <w>272</w>
+      <h>176</h>
+    </coordinates>
+    <panel_attributes>GameOfLife
+--
+- model : Matrix
+- canvasDrawer : CanvasDrawer
+- file : FileOb
+--
+	+ Game Of Life(model : Matrix, canvasDrawer : int)
+	+ handle(now : long) : void
+	+ cellSelected(event : MouseEvent) : void
+	+ startGame() : void
+	+ resetGame() : void
+	+ pauseGame() : void
+	+ saveGame() : void
+	+ loadGame() : void
+	
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>704</x>
+      <y>400</y>
+      <w>40</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1...1
+</panel_attributes>
+    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>952</x>
+      <y>528</y>
+      <w>168</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>CanvasDrawer
+--
+- gc : GraphicsContext
+- model : Matrix
+--
+	+ drawNextGeneration() : void
+	+ drawCell() : void
+	+ clearCanvas() : void
+	
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>840</x>
+      <y>560</y>
+      <w>128</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1...1
+</panel_attributes>
+    <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1032</x>
+      <y>328</y>
+      <w>64</w>
+      <h>216</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+Draws to</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;250.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>416</x>
+      <y>408</y>
+      <w>176</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;200.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>224</x>
+      <y>528</y>
+      <w>200</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Matrix
+--
+- currGeneration : Cell[][]
+- newGeneration : Cell[][]
+--
+	+ Matrix(width : int, height: int)
+	+ startNextGeneration() : void
+	- determineNextGeneration() : void
+	+ getCurrentGeneration() : Cell[][]
+	+ getNewGeneration() : Cell[][]
+	
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>416</x>
+      <y>576</y>
+      <w>176</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1...1
+
+</panel_attributes>
+    <additional_attributes>10.0;20.0;200.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>216</x>
+      <y>696</y>
+      <w>200</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Cell
+--
+- alive : boolean
+- color : Color
+--
+	+ setColor(Color : c) : void
+	+ getColor() : Color
+	+ setAlive(alive : boolean) : oid
+	+ getAlive() : boolean
+	
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>304</x>
+      <y>640</y>
+      <w>40</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1...*
+</panel_attributes>
+    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>640</x>
+      <y>720</y>
+      <w>128</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>FileOb
+--
+- file : File
+- sc : Scanner
+--
+	+ saveConfig()
+	+ loadConfig() 
+	- setFilePath()
+	
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>712</x>
+      <y>664</y>
+      <w>40</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1...1
+</panel_attributes>
+    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>344</x>
+      <y>344</y>
+      <w>168</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>AnimationTimer
+--
+--
++ handle(now : long)
++ start()
++ stop()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
