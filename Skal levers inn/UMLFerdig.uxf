@@ -5,7 +5,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>624</x>
-      <y>96</y>
+      <y>144</y>
       <w>168</w>
       <h>88</h>
     </coordinates>
@@ -13,20 +13,8 @@
 --
 
 --
-	+ main(args : String[]) : void
+_	+ main(args : String[]) : void_
 	+ start(stage : Stage) : void
-</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>664</x>
-      <y>16</y>
-      <w>80</w>
-      <h>24</h>
-    </coordinates>
-    <panel_attributes>Application
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -34,33 +22,35 @@
     <id>Relation</id>
     <coordinates>
       <x>696</x>
-      <y>32</y>
+      <y>88</y>
       <w>24</w>
-      <h>80</h>
+      <h>72</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
       <x>568</x>
-      <y>248</y>
+      <y>296</y>
       <w>312</w>
-      <h>160</h>
+      <h>176</h>
     </coordinates>
     <panel_attributes>Controller
+Package::Controller
 --
 - Gol : GameOfLife
 - canvas : Canvas
 --
 	+ initialize(location : URL, resources : ResourceBundle)
-	+ start(stage : Stage) : void
 	+ mouseClicked(MouseEvent event : int) : void
 	+ handleStartClick() : void
 	+ handleColChngClick() : void
 	+ handlePauseClick() : void
-	+ handle(now : long): void
+	+ handleResetClick() : void
+	+ handleSaveClick() : void
+	+ handleLoadClick() : void
 	
 </panel_attributes>
     <additional_attributes/>
@@ -69,7 +59,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>1008</x>
-      <y>312</y>
+      <y>360</y>
       <w>72</w>
       <h>24</h>
     </coordinates>
@@ -80,7 +70,7 @@
     <id>Relation</id>
     <coordinates>
       <x>784</x>
-      <y>128</y>
+      <y>176</y>
       <w>296</w>
       <h>200</h>
     </coordinates>
@@ -92,7 +82,7 @@ Loads</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>872</x>
-      <y>304</y>
+      <y>352</y>
       <w>152</w>
       <h>40</h>
     </coordinates>
@@ -104,18 +94,18 @@ Listens to
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>576</x>
-      <y>496</y>
-      <w>272</w>
+      <x>552</x>
+      <y>544</y>
+      <w>336</w>
       <h>176</h>
     </coordinates>
     <panel_attributes>GameOfLife
+Package::Controller
 --
 - model : Matrix
 - canvasDrawer : CanvasDrawer
-- file : FileOb
 --
-	+ Game Of Life(model : Matrix, canvasDrawer : int)
+	+ &lt;&lt;Game Of Life(model : Matrix, canvasDrawer : CanvasDrawer)&gt;&gt;
 	+ handle(now : long) : void
 	+ cellSelected(event : MouseEvent) : void
 	+ startGame() : void
@@ -131,30 +121,31 @@ Listens to
     <id>Relation</id>
     <coordinates>
       <x>704</x>
-      <y>400</y>
+      <y>464</y>
       <w>40</w>
-      <h>112</h>
+      <h>96</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;-
 1...1
 </panel_attributes>
-    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+    <additional_attributes>10.0;100.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>952</x>
-      <y>528</y>
-      <w>168</w>
-      <h>104</h>
+      <x>944</x>
+      <y>576</y>
+      <w>240</w>
+      <h>112</h>
     </coordinates>
     <panel_attributes>CanvasDrawer
+Package::Controller
 --
 - gc : GraphicsContext
-- model : Matrix
 --
-	+ drawNextGeneration() : void
-	+ drawCell() : void
++ &lt;&lt;CanvasDrawer(gc : GraphicsContext) &gt;&gt;
+	+ drawNextGeneration(nextGen : Cell[][]) : void
+	+ drawCell(int x, int y) : void
 	+ clearCanvas() : void
 	
 </panel_attributes>
@@ -163,21 +154,21 @@ Listens to
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>840</x>
-      <y>560</y>
-      <w>128</w>
+      <x>880</x>
+      <y>608</y>
+      <w>80</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;-
 1...1
 </panel_attributes>
-    <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
+    <additional_attributes>80.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1032</x>
-      <y>328</y>
+      <x>1024</x>
+      <y>376</y>
       <w>64</w>
       <h>216</h>
     </coordinates>
@@ -189,7 +180,7 @@ Draws to</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>416</x>
-      <y>408</y>
+      <y>456</y>
       <w>176</w>
       <h>104</h>
     </coordinates>
@@ -200,16 +191,18 @@ Draws to</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>224</x>
-      <y>528</y>
+      <y>560</y>
       <w>200</w>
-      <h>120</h>
+      <h>152</h>
     </coordinates>
     <panel_attributes>Matrix
+Package::Model
 --
 - currGeneration : Cell[][]
 - newGeneration : Cell[][]
+- file : File
 --
-	+ Matrix(width : int, height: int)
+	+ &lt;&lt;Matrix(width : int, height: int)&gt;&gt;
 	+ startNextGeneration() : void
 	- determineNextGeneration() : void
 	+ getCurrentGeneration() : Cell[][]
@@ -222,32 +215,34 @@ Draws to</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>416</x>
-      <y>576</y>
-      <w>176</w>
+      <y>624</y>
+      <w>152</w>
       <h>48</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;-
 1...1
 
 </panel_attributes>
-    <additional_attributes>10.0;20.0;200.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;170.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
       <x>216</x>
-      <y>696</y>
+      <y>760</y>
       <w>200</w>
-      <h>120</h>
+      <h>136</h>
     </coordinates>
     <panel_attributes>Cell
+Package::Model
 --
 - alive : boolean
 - color : Color
 --
+	+ &lt;&lt;Cell(alive : boolean, color : Color)&gt;&gt;
 	+ setColor(Color : c) : void
 	+ getColor() : Color
-	+ setAlive(alive : boolean) : oid
+	+ setAlive(alive : boolean) : void
 	+ getAlive() : boolean
 	
 </panel_attributes>
@@ -257,7 +252,7 @@ Draws to</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>304</x>
-      <y>640</y>
+      <y>704</y>
       <w>40</w>
       <h>72</h>
     </coordinates>
@@ -269,51 +264,54 @@ Draws to</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>640</x>
-      <y>720</y>
-      <w>128</w>
-      <h>96</h>
-    </coordinates>
-    <panel_attributes>FileOb
---
-- file : File
-- sc : Scanner
---
-	+ saveConfig()
-	+ loadConfig() 
-	- setFilePath()
-	
-</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>712</x>
-      <y>664</y>
-      <w>40</w>
-      <h>72</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
-1...1
-</panel_attributes>
-    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
       <x>344</x>
-      <y>344</y>
+      <y>392</y>
       <w>168</w>
       <h>72</h>
     </coordinates>
     <panel_attributes>AnimationTimer
 --
 --
-+ handle(now : long)
-+ start()
-+ stop()
++ handle(now : long) : void
++ start() : void
++ stop() : void
 </panel_attributes>
     <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>624</x>
+      <y>48</y>
+      <w>168</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>Application
+--
+--
+	start(stage : Stage) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>112</x>
+      <y>504</y>
+      <w>80</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>File</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>144</x>
+      <y>520</y>
+      <w>96</w>
+      <h>136</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;150.0;100.0;150.0</additional_attributes>
   </element>
 </diagram>
