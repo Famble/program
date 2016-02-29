@@ -7,6 +7,12 @@ public class Matrix
 	private int width;
 	private int height;
 	
+	/**
+	 * 
+	 * @param x width 
+	 * @param y	height
+	 * Setting up current generation array, and new generation.
+	 */
 	public Matrix(int x, int y)
 	{
 		this.width = x;
@@ -15,6 +21,9 @@ public class Matrix
 		newGeneration = new Cell[x][y];
 	}
 	
+	/**
+	 * A method to hold the determination of next generation array.
+	 */
 	public void copyNewGenToCurrGen()
 	{
 		for(int i = 0; i < 80; i++)
@@ -23,6 +32,10 @@ public class Matrix
 
 	}
 	
+	/**
+	 *  Uses method dermineNextGeneration to decide what the next Generation should 
+	 *  be like and copies it over to the current Generation. 
+	 */
 	public void startNextGeneration()
 	{
 		determineNextGeneration();
@@ -30,6 +43,9 @@ public class Matrix
 		
 	}
 	
+	/**
+	 * A method to set the rules of the game. With the logic.
+	 */
 	private void determineNextGeneration()
 	{
 		int x = width;
@@ -87,11 +103,23 @@ public class Matrix
 	}
 	
 	
+	/**
+	 * A get metode.
+	 * 
+	 * @return currGeneration
+	 * 
+	 */
 	public Cell[][] getCurrentGeneration()
 	{
 		return this.currGeneration;
 	}
 	
+	/**
+	 * A get metode.
+	 * 
+	 * @return newGeneration
+	 * 
+	 */
 	public Cell[][] getNewGeneration()
 	{
 		return this.newGeneration;

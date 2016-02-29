@@ -11,7 +11,7 @@ public class GameOfLife extends AnimationTimer
 	private Matrix model;
 	private CanvasDrawer canvasDrawer;
 	private long a = System.nanoTime();
-	private long delay = 0;
+	private long delay = 999999999;
 
 	
 	public GameOfLife(Matrix model, CanvasDrawer canvasDrawer)
