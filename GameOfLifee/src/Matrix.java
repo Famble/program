@@ -2,10 +2,11 @@
 
 public class Matrix
 {
-	private Cell[][] currGeneration;
-	private Cell[][] newGeneration;
 	private int width;
 	private int height;
+	private byte[][] currGenerationB;
+	private byte[][] newGenerationB;
+
 	
 	/**
 	 * 
@@ -17,20 +18,17 @@ public class Matrix
 	{
 		this.width = x;
 		this.height = y;
-		currGeneration = new Cell[x][y];
-		newGeneration = new Cell[x][y];
+		currGenerationB = new byte[x][y];
+		newGenerationB = new byte[x][y];	
+	
+		
 	}
+	
+	
 	
 	/**
 	 * A method to hold the determination of next generation array.
 	 */
-	public void copyNewGenToCurrGen()
-	{
-		for(int i = 0; i < 80; i++)
-			for(int j = 0; j < 50; j++)
-				this.currGeneration[i][j].setAlive(this.newGeneration[i][j].getAlive());
-
-	}
 	
 	/**
 	 *  Uses method dermineNextGeneration to decide what the next Generation should 
@@ -38,21 +36,39 @@ public class Matrix
 	 */
 	public void startNextGeneration()
 	{
-		determineNextGeneration();
-		copyNewGenToCurrGen();
-		
+		determineNextGeneration();		
 	}
 	
 	/**
 	 * A method to set the rules of the game. With the logic.
 	 */
+	
+	private int countAliveNeighbours()
+	{
+		return height;
+		
+	}
 	private void determineNextGeneration()
 	{
 		int x = width;
 		int y = height;
 		int aliveNeighbours;
-		 
-		for(int i = 0; i < x; i++)
+		
+		for(int i = 0; i < 1000; i++)
+		{
+			for(int j = 0; j < 125; j++)
+			{
+				for(int k = 0; k < 8; k++)
+				{
+					this.getCurrentGeneration()[i][j] ^= (1 << k); // flip every bit
+				}
+			}
+		}
+	}
+		
+		
+		
+		/*for(int i = 0; i < x; i++)
 		{
 			for(int j = 0; j < y; j++)
 			{
@@ -109,9 +125,10 @@ public class Matrix
 	 * @return currGeneration
 	 * 
 	 */
-	public Cell[][] getCurrentGeneration()
+			
+	public byte[][] getCurrentGeneration()
 	{
-		return this.currGeneration;
+		return this.currGenerationB;
 	}
 	
 	/**
@@ -120,9 +137,9 @@ public class Matrix
 	 * @return newGeneration
 	 * 
 	 */
-	public Cell[][] getNewGeneration()
+	public byte[][] getNewGeneration()
 	{
-		return this.newGeneration;
+		return this.newGenerationB;
 	}
 	
 	
