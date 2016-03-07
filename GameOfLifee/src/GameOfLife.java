@@ -11,7 +11,7 @@ public class GameOfLife extends AnimationTimer
 	private Matrix model;
 	private CanvasDrawer cd;
 	private long a = System.nanoTime();
-	private long delay = 10000000;
+	private long delay = (long) Math.pow(10, 9);
 	int counter = 0;
 	
 	public GameOfLife(Matrix model, CanvasDrawer cd)
@@ -89,6 +89,11 @@ public class GameOfLife extends AnimationTimer
 		this.delay = (long) delay;
 	}
 	
+	public long getDelay()
+	{
+		return this.delay;
+	}
+	
 	public void startGame()
 	{
 		this.start();
@@ -109,8 +114,7 @@ public class GameOfLife extends AnimationTimer
 	
 	public void selectCell(MouseEvent event)
 	{
-		counter++;
-		System.out.println(counter);
+
 		int x = (int)event.getX();
 		int y = (int)event.getY();
 		
@@ -120,9 +124,7 @@ public class GameOfLife extends AnimationTimer
 		
 		int x2 = (x+posX)/cellSize;
 		int y2 = (y+posY)/cellSize;
-		
-		System.out.printf("cell(%d, %d, %d)\n", x2, y2/8, y2%8);
-		
+				
 		model.getCurrentGeneration()[x2][y2/8] ^= (1 << y2%8); //XOR på biten cellen representerer
 	
 		if(((model.getCurrentGeneration()[x2][y2/8] >> y2%8) & 1) == 1) //if alive

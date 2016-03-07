@@ -34,10 +34,10 @@ public class Controller implements Initializable
 		Matrix model = new Matrix(1000, 125);//1mill celler
 		
 		GOL = new GameOfLife(model, new CanvasDrawer(model, canvas.getGraphicsContext2D()));
-		slider.setMin(-1);
-		slider.setMax(0);
+		slider.setMin(1);
+		slider.setMax(50);
 		slider.valueProperty().addListener((observable, oldV, newV) ->{
-			
+			GOL.setDelay(Math.pow(10, 9)*(1/slider.getValue()));
 		}); 
 	}
     

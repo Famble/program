@@ -80,7 +80,6 @@ public class Matrix
 			}
 		}
 		
-		System.out.printf("counter: %d", counter);
 	}
 	
 	
