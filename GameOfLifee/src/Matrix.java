@@ -2,26 +2,16 @@
 
 public class Matrix
 {
-	private int width;
-	private int height;
+
 	private byte[][] currGenerationB;
 	private byte[][] newGenerationB;
-
 	
-	/**
-	 * 
-	 * @param x width 
-	 * @param y	height
-	 * Setting up current generation array, and new generation.
-	 */
+	
 	public Matrix(int x, int y)
 	{
-		this.width = x;
-		this.height = y;
+
 		currGenerationB = new byte[x][y];
-		newGenerationB = new byte[x][y];	
-	
-		
+		newGenerationB = new byte[x][y];		
 	}
 	
 	
@@ -36,23 +26,27 @@ public class Matrix
 	 */
 	public void startNextGeneration()
 	{
-		determineNextGeneration();		
+		determineNextGeneration();	
+		
+		for(int i = 0; i < 1000; i++)
+		{
+			for(int j = 0; j < 125; j++)
+			{
+				this.getCurrentGeneration()[i][j] = this.getNewGeneration()[i][j];
+			}
+		}
+		
 	}
 	
 	/**
 	 * A method to set the rules of the game. With the logic.
 	 */
 	
-	private int countAliveNeighbours()
-	{
-		return height;
-		
-	}
 	private void determineNextGeneration()
 	{
-		int x = width;
-		int y = height;
 		int aliveNeighbours;
+		boolean alive;
+		int counter = 0;
 		
 		for(int i = 0; i < 1000; i++)
 		{
@@ -60,87 +54,114 @@ public class Matrix
 			{
 				for(int k = 0; k < 8; k++)
 				{
-					this.getCurrentGeneration()[i][j] ^= (1 << k); // flip every bit
-				}
-			}
-		}
-	}
-		
-		
-		
-		/*for(int i = 0; i < x; i++)
-		{
-			for(int j = 0; j < y; j++)
-			{
-				aliveNeighbours = 0;
-				Cell currCell = this.currGeneration[i][j];
-				Cell newCell = this.newGeneration[i][j];
-				
-				if(( i == 0 || j == 0 || i == x-1 || j == y-1 )) //if the cell is next to a border and is alive
-				{
-					if(currCell.getAlive())
-						newCell.setAlive(false);// kill cell
-				}
-				else
-				{
-					for(int k = -1; k <= 1; k++)
-					{
-						for(int l = -1; l <= 1; l++)
-						{
-							if(currGeneration[i+k][j+l].getAlive() && !(k == l && l == 0))
-							{
-								aliveNeighbours++;
-							}
-						}
-					}
+					aliveNeighbours = getAmountOfNeighbours(i, j, k);
 					
-					if(!currCell.getAlive()) //if cell is dead
-					{	if(aliveNeighbours == 3) //3 alive neighbours then ressurect
-						{
-							newCell.setAlive(true);
-						}
+					alive = (((this.getCurrentGeneration()[i][j] >> k) & 1) == 1);
+					
+					if(alive)
+						counter++;
+					
+					if(!alive)
+					{
+						if(aliveNeighbours == 3)
+							this.getNewGeneration()[i][j] |= (1 << k); // ressurct bit
 					}
 					else
 					{
-						if(aliveNeighbours < 2) // kill
-							newCell.setAlive(false);
-						else if(aliveNeighbours > 3)
-							newCell.setAlive(false);
-						else
-							newCell.setAlive(true);
+						if(aliveNeighbours < 2 || aliveNeighbours > 3)
+							this.getNewGeneration()[i][j] &= ~(1 << k); // kill bit
+						else if(aliveNeighbours == 3 || aliveNeighbours == 2)
+						{
+							this.getNewGeneration()[i][j] |= (1 << k); // ressurect bit
+						}
 					}
+						
 				}
-					
-				
-				
 			}
 		}
-	
+		
+		System.out.printf("counter: %d", counter);
 	}
 	
 	
-	/**
-	 * A get metode.
-	 * 
-	 * @return currGeneration
-	 * 
-	 */
+	
+	public int getAmountOfNeighbours(int i, int j, int k)
+	{
+		int aliveNeighbours = 0;
+		
+		if(i == 0 || i == 999 || (j == 0 && k == 0) || (j == 124 && k == 7)) // on the border
+		{
+			this.getNewGeneration()[i][j] &= ~(1 << k); // kill bit
+			return 0;
+		}
+		
+		else //not on the border
+		{
+			if(k > 0 && k < 7)
+			{
+				for(int x = -1; x <= 1; x++)
+					for(int y = -1; y <= 1; y++)
+					{
+						//does AND operator on the neighboring bits(will return and add one if cell is alive)
+						if(!( x == 0 && y == 0))
+							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1);
+					}
+			}
+			else if(k == 0)
+			{
 			
+				for(int x = -1; x <= 1; x++)
+					for(int y = -1; y <= 1; y++)
+					{
+						if(y == -1)
+						{
+							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j-1] >> (7)) & 1);
+						}
+						else
+						{
+							//does AND operator on the neighboring bits(will return and add one if cell is alive)
+							if(!( x == 0 && y == 0))
+								aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1);
+						}
+						
+					}
+			}else//(k == 7)
+			{
+				for(int x = -1; x <= 1; x++)
+					for(int y = -1; y <= 1; y++)
+					{
+						if(y == 1)
+						{
+							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j+1] >> (0)) & 1);
+						}
+						else
+						{
+							//does AND operator on the neighboring bits(will return and add one if cell is alive)
+							if(!( x == 0 && y == 0))
+								aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1);
+						}
+						
+					}
+			}
+			
+		}
+		
+		return aliveNeighbours;
+			
+	}
+		
+
 	public byte[][] getCurrentGeneration()
 	{
 		return this.currGenerationB;
 	}
 	
-	/**
-	 * A get metode.
-	 * 
-	 * @return newGeneration
-	 * 
-	 */
 	public byte[][] getNewGeneration()
 	{
 		return this.newGenerationB;
 	}
+
+
 	
 	
 	

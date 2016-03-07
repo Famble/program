@@ -5,14 +5,24 @@ public class CanvasDrawer
 {
 	private GraphicsContext gc;
     Matrix model;
-    int cellSize = 1;
-    int posX = 0;
-    int posY = 0;
+    private int cellSize = 1;
+    private int posX = 0;
+    private int posY = 0;
     
     public CanvasDrawer(Matrix model, GraphicsContext gc)
     {
     	this.model = model;
     	this.gc = gc;
+    }
+    
+    public int getpositionX()
+    {
+    	return posX;
+    }
+    
+    public int getpositionY()
+    {
+    	return posY;
     }
     
     public void setCellSize(int size)
@@ -25,6 +35,21 @@ public class CanvasDrawer
     	return this.cellSize;
     }
     
+    public void setPosX(int x)
+    {
+    	this.posX = x;
+    	if(this.posX < 0)
+    		this.posX = 0;
+    }
+    
+    public void setPosY(int y)
+    {
+    	this.posY = y;
+    	if(this.posY < 0)
+    		this.posY = 0;
+    }
+    
+    
     public void clearCanvas()
     {
 		gc.setFill(Color.BLACK);
@@ -34,52 +59,25 @@ public class CanvasDrawer
     public void drawCell(int x, int y, Color color)
     {
     	gc.setFill(color);
-    	gc.fillRect(cellSize*x, y*cellSize, cellSize, cellSize);
-    }
-    
-    public void drawNextGeneration(int x, int y)
-    {
-    	this.posX += x;
-    	this.posY += y;
-    	
-    	clearCanvas();
-
-		for(int i = 0; i < 1000; i++)
-			for(int j = 0; j < 125; j++)
-			{
-				for(int k = 0; k < 8; k++)
-				{
-					if(((model.getCurrentGeneration()[i][j] >> k)& 1) == 1) //if alive
-					{	
-						if(i >= this.posX)
-						{
-							gc.setFill(Color.WHITE);
-							gc.fillRect(i*cellSize-this.posX*cellSize, ((j*8) + k)*cellSize-this.posY*cellSize, cellSize, cellSize);
-						}
-							
-					}
-					else//else dead
-					{
-						
-					}
-				}
-			}	
+    	gc.fillRect(x, y, cellSize, cellSize);
     }
     
     public void drawNextGeneration()
-	{
+    {
     	
     	clearCanvas();
+    	
 
-		for(int i = 0; i < 1000; i++)
+		for(int x = 0; x < 1000; x++)
 			for(int j = 0; j < 125; j++)
 			{
 				for(int k = 0; k < 8; k++)
 				{
-					if(((model.getCurrentGeneration()[i][j] >> k)& 1) == 1) //if alive
-					{	
+					if(((model.getCurrentGeneration()[x][j] >> k)& 1) == 1) //if alive
+					{		
+						int y = 8*j + k;
 						gc.setFill(Color.WHITE);
-						gc.fillRect(i*cellSize, ((j*8) + k)*cellSize, cellSize, cellSize);	
+						gc.fillRect(cellSize*(x)-posX, cellSize*(y)-posY, cellSize, cellSize);		
 					}
 					else//else dead
 					{
@@ -87,8 +85,9 @@ public class CanvasDrawer
 					}
 				}
 			}	
-			
-	}
+    }
+    
+ 
     
     
     

@@ -2,6 +2,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,8 +22,10 @@ public class Controller implements Initializable
     @FXML private Canvas canvas;
     @FXML private ColorPicker colorPicker;
     @FXML private Pane pane;
+    @FXML private Slider slider;
 
     private GameOfLife GOL;
+    
    
     
     @Override
@@ -30,8 +34,11 @@ public class Controller implements Initializable
 		Matrix model = new Matrix(1000, 125);//1mill celler
 		
 		GOL = new GameOfLife(model, new CanvasDrawer(model, canvas.getGraphicsContext2D()));
-		
-		
+		slider.setMin(-1);
+		slider.setMax(0);
+		slider.valueProperty().addListener((observable, oldV, newV) ->{
+			
+		}); 
 	}
     
     public void handleSliderChnge()
@@ -62,24 +69,32 @@ public class Controller implements Initializable
            });
               
 		if(event.getCode() == KeyCode.RIGHT)
-			GOL.movePosition(1, 0);
+			GOL.movePosition(10, 0);
 		else if(event.getCode() == KeyCode.DOWN)
-			GOL.movePosition(0, 1);
+			GOL.movePosition(0, 10);
 		else if(event.getCode() == KeyCode.LEFT)
-			GOL.movePosition(-1, 0);
+			GOL.movePosition(-10, 0);
 		else if(event.getCode() == KeyCode.UP)
-			GOL.movePosition(0, -1);
+			GOL.movePosition(0, -10);
 		else if(event.getCode() == KeyCode.PLUS)
 			GOL.zoom(1);
 		else if(event.getCode() == KeyCode.MINUS)
 			GOL.zoom(-1);
 		
+		
 			
 	}
 	
 	public void mouseClicked(MouseEvent event) 
-	{	
-		GOL.selectCell(event);
+	{
+		if(event.isControlDown())
+			GOL.zoom(1, event);
+		else if(event.isShiftDown())
+		{
+			GOL.zoom(-1, event);
+		}
+		else
+			GOL.selectCell(event);
 	}
 	
 	public void handlePauseClick()
