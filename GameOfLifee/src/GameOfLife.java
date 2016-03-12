@@ -133,13 +133,21 @@ public class GameOfLife extends AnimationTimer
 			cd.drawCell(cellSize*(x2)-posX, cellSize*(y2)-posY, Color.BLACK);
 	}
 	
-	
+
 	public void resetGame()
 	{
-		
-		
+		System.out.println(model.getX());
+		for( int i= 0; i < 1000;i++){
+			for(int j = 0; j < 125;j++){
+				model.getCurrentGeneration()[i][j] = 0;
+			}
+		}
+
+		cd.drawNextGeneration();
+
+
 	}
-	
+
 	
 	
 }
