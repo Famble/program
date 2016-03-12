@@ -38,35 +38,31 @@ public class CanvasDrawer
     public void setPosX(int x)
     {
     	this.posX = x;
-    	if(this.posX < 0)
-    		this.posX = 0;
+
     }
     
     public void setPosY(int y)
     {
     	this.posY = y;
-    	if(this.posY < 0)
-    		this.posY = 0;
+
     }
     
     
     public void clearCanvas()
     {
-		gc.setFill(Color.BLACK);
-    	gc.fillRect(0, 0, 1000, 1000);
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(0, 0, model.getX(), model.getY()*8);
     }
     
     public void drawCell(int x, int y, Color color)
-    {
+    {	
     	gc.setFill(color);
     	gc.fillRect(x, y, cellSize, cellSize);
     }
     
     public void drawNextGeneration()
     {
-    	
     	clearCanvas();
-    	
 
 		for(int x = 0; x < 1000; x++)
 			for(int j = 0; j < 125; j++)
@@ -86,8 +82,6 @@ public class CanvasDrawer
 				}
 			}	
     }
-    
- 
     
     
     

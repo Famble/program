@@ -5,32 +5,49 @@ public class Matrix
 
 	private byte[][] currGenerationB;
 	private byte[][] newGenerationB;
+	private int x;
+	private int y;
+	private int[] survivalRules;
+	private int[] birthRules;
+
 	
 	
 	public Matrix(int x, int y)
 	{
 
 		currGenerationB = new byte[x][y];
-		newGenerationB = new byte[x][y];		
+		newGenerationB = new byte[x][y];	
+		this.x = x;
+		this.y = y;
 	}
 	
+	public void setSurvivalRules(int[] array)
+	{
+		this.survivalRules = array;
+	}
 	
+	public void setBirthRules(int[] array)
+	{
+		this.birthRules = array;
+	}
 	
-	/**
-	 * A method to hold the determination of next generation array.
-	 */
+	public int getX()
+	{
+		return this.x;
+	}
 	
-	/**
-	 *  Uses method dermineNextGeneration to decide what the next Generation should 
-	 *  be like and copies it over to the current Generation. 
-	 */
+	public int getY()
+	{
+		return this.y;
+	}
+	
 	public void startNextGeneration()
 	{
 		determineNextGeneration();	
 		
-		for(int i = 0; i < 1000; i++)
+		for(int i = 0; i < this.x; i++)
 		{
-			for(int j = 0; j < 125; j++)
+			for(int j = 0; j < this.y; j++)
 			{
 				this.getCurrentGeneration()[i][j] = this.getNewGeneration()[i][j];
 			}
@@ -46,34 +63,42 @@ public class Matrix
 	{
 		int aliveNeighbours;
 		boolean alive;
-		int counter = 0;
 		
-		for(int i = 0; i < 1000; i++)
+		for(int i = 0; i < this.x; i++)
 		{
-			for(int j = 0; j < 125; j++)
+			for(int j = 0; j < this.y; j++)
 			{
 				for(int k = 0; k < 8; k++)
 				{
-					aliveNeighbours = getAmountOfNeighbours(i, j, k);
+					aliveNeighbours = countNeighbours(i, j, k);
 					
 					alive = (((this.getCurrentGeneration()[i][j] >> k) & 1) == 1);
 					
-					if(alive)
-						counter++;
 					
-					if(!alive)
-					{
-						if(aliveNeighbours == 3)
+					if(!alive) //if cell is dead
+					{				
+						
+						boolean birth = false; 
+						
+						for(int l = 0; l < this.birthRules.length; l++ )
+							if(aliveNeighbours == birthRules[l])
+								birth = true;
+						
+						if(birth)
 							this.getNewGeneration()[i][j] |= (1 << k); // ressurct bit
+	
 					}
-					else
+					else //if cell is alive
 					{
-						if(aliveNeighbours < 2 || aliveNeighbours > 3)
-							this.getNewGeneration()[i][j] &= ~(1 << k); // kill bit
-						else if(aliveNeighbours == 3 || aliveNeighbours == 2)
-						{
-							this.getNewGeneration()[i][j] |= (1 << k); // ressurect bit
-						}
+						boolean survive = false;
+						
+						for(int l = 0; l < this.survivalRules.length; l++)
+							if(aliveNeighbours == survivalRules[l])
+								survive = true;
+						
+						if(!survive)
+							this.getNewGeneration()[i][j] &= ~(1 << k); // kill bit*/
+
 					}
 						
 				}
@@ -84,11 +109,11 @@ public class Matrix
 	
 	
 	
-	public int getAmountOfNeighbours(int i, int j, int k)
+	private int countNeighbours(int i, int j, int k)
 	{
 		int aliveNeighbours = 0;
 		
-		if(i == 0 || i == 999 || (j == 0 && k == 0) || (j == 124 && k == 7)) // on the border
+		if(i == 0 || i == this.x-1 || (j == 0 && k == 0) || (j == this.y-1 && k == 7)) // on the border
 		{
 			this.getNewGeneration()[i][j] &= ~(1 << k); // kill bit
 			return 0;

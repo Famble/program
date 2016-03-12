@@ -14,12 +14,11 @@ public class GameOfLife extends AnimationTimer
 	private long delay = (long) Math.pow(10, 9);
 	int counter = 0;
 	
+	
 	public GameOfLife(Matrix model, CanvasDrawer cd)
 	{
 		this.model = model;
-		this.cd = cd;
-		
-		
+		this.cd = cd;	
 		cd.clearCanvas();
 	}
 	
@@ -45,38 +44,12 @@ public class GameOfLife extends AnimationTimer
 	
 	}
 	
-	public void zoom(int zoom, MouseEvent event)
-	{
-		if((cd.getCellSize() + zoom) > 0)
-		{
-		int cellSize = cd.getCellSize();
-		
-		cd.setCellSize(cd.getCellSize() + zoom);
-		
-		int x = (int) event.getX();
-		int y = (int) event.getY();
-	
-		
-		int x2 = (x+cd.getpositionX())/cellSize;
-		int y2 = (y+cd.getpositionY())/cellSize;
-		
-		cd.setPosX(x2*(cellSize+zoom) - x);
-		cd.setPosY(y2*(cellSize+zoom) - y);
-	
-		cd.drawNextGeneration();
-		}
-		
-	}
-	
-	
 	public void zoom(int zoom)
 	{
-	
-		if((cd.getCellSize() + zoom) > 0)
-		{
-			cd.setCellSize(cd.getCellSize() + zoom);
-			cd.drawNextGeneration();
-		}
+			cd.setCellSize(zoom);
+			cd.setPosX(0	);
+			cd.setPosY(0);
+			cd.drawNextGeneration();	
 	}
 	
 	public void loadFile()
@@ -124,6 +97,8 @@ public class GameOfLife extends AnimationTimer
 		
 		int x2 = (x+posX)/cellSize;
 		int y2 = (y+posY)/cellSize;
+		
+
 				
 		model.getCurrentGeneration()[x2][y2/8] ^= (1 << y2%8); //XOR på biten cellen representerer
 	
@@ -133,21 +108,19 @@ public class GameOfLife extends AnimationTimer
 			cd.drawCell(cellSize*(x2)-posX, cellSize*(y2)-posY, Color.BLACK);
 	}
 	
-
+	
 	public void resetGame()
 	{
-		System.out.println(model.getX());
-		for( int i= 0; i < 1000;i++){
-			for(int j = 0; j < 125;j++){
+		for(int i = 0; i < model.getX(); i++)
+			for(int j = 0; j < model.getY(); j++)
+			{
 				model.getCurrentGeneration()[i][j] = 0;
+				model.getNewGeneration()[i][j] = 0;
 			}
-		}
-
+		
 		cd.drawNextGeneration();
-
-
 	}
-
+	
 	
 	
 }
