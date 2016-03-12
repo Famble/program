@@ -7,8 +7,8 @@ public class Matrix
 	private byte[][] newGenerationB;
 	private int x;
 	private int y;
-	private int[] survivalRules;
-	private int[] birthRules;
+	private int[] survivalRules = {2, 3};
+	private int[] birthRules = {3};
 
 	
 	

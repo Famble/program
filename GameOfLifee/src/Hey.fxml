@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -13,7 +14,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -42,31 +43,67 @@
                      <padding>
                         <Insets top="5.0" />
                      </padding>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
                   </Label>
-                  <TextField fx:id="survival" prefHeight="26.0" prefWidth="71.0" />
+                  <TextField fx:id="survival" prefHeight="26.0" prefWidth="71.0" text="23" />
                   <Label layoutX="10.0" layoutY="10.0" style="text-ali: center;" text="Birth">
                      <padding>
                         <Insets top="5.0" />
                      </padding>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
                   </Label>
-                  <TextField fx:id="birth" prefHeight="26.0" prefWidth="67.0" />
+                  <TextField fx:id="birth" prefHeight="26.0" prefWidth="67.0" text="3" />
                    
-               </children>
+                           </children>
             </HBox>
          </children>
       </VBox>
    </top>
    <bottom>
-      <HBox prefWidth="600.0" BorderPane.alignment="CENTER">
+      <VBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartClick" text="Play" />
-            <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleResetClick" text="Reset" />
-            <Label text="Speed" />
-            <Slider fx:id="sliderSpeed" min="1.0" onMouseDragged="#sliderDragged" value="30.0" />
-            <Label text="Zoom" />
-            <Slider fx:id="sliderZoom" blockIncrement="1.0" max="10.0" min="1.0" onMouseDragged="#sliderDragged" value="1.0" />
+            <HBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0" VBox.vgrow="NEVER">
+               <children>
+                  <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartClick" prefHeight="40.0" prefWidth="120.0" text="Play">
+                     <HBox.margin>
+                        <Insets left="50.0" top="30.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleResetClick" prefHeight="40.0" prefWidth="120.0" text="Reset">
+                     <HBox.margin>
+                        <Insets left="50.0" top="30.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Label text="Speed:">
+                     <HBox.margin>
+                        <Insets left="10.0" top="40.0" />
+                     </HBox.margin></Label>
+                  <Slider fx:id="sliderSpeed" min="1.0" onMouseDragged="#sliderDragged" showTickMarks="true" value="30.0">
+                     <HBox.margin>
+                        <Insets top="40.0" />
+                     </HBox.margin>
+                  </Slider>
+                  <Label text="Zoom:">
+                     <HBox.margin>
+                        <Insets left="10.0" top="40.0" />
+                     </HBox.margin></Label>
+                  <Slider fx:id="sliderZoom" blockIncrement="1.0" max="10.0" min="1.0" onMouseDragged="#sliderDragged" orientation="VERTICAL" showTickMarks="true" value="1.0" />
+                  <ColorPicker>
+                     <HBox.margin>
+                        <Insets left="70.0" top="35.0" />
+                     </HBox.margin>
+                  </ColorPicker>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </HBox>
          </children>
-      </HBox>
+      </VBox>
    </bottom>
    <center>
       <VBox fx:id="canvasParent" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: black;" BorderPane.alignment="CENTER">
