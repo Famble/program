@@ -51,7 +51,7 @@ public class Controller implements Initializable
 		
 		canvas.setOnZoom(new EventHandler<ZoomEvent>() {
             @Override public void handle(ZoomEvent event) {
-               System.out.println("hey");
+
             }
         });
 		
@@ -110,7 +110,8 @@ public class Controller implements Initializable
     
     public void handleZoom(ZoomEvent event)
     {
-    	GOL.startGame();
+    	GOL.zoom(1,event);
+        System.out.println(event.getTotalZoomFactor());
     }
     public void sliderDragged()
     {

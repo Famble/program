@@ -4,7 +4,8 @@ import java.util.Scanner;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
+    import javafx.scene.input.ZoomEvent;
+    import javafx.scene.paint.Color;
 
 public class GameOfLife extends AnimationTimer
 {
@@ -51,8 +52,32 @@ public class GameOfLife extends AnimationTimer
 			cd.setPosY(0);
 			cd.drawNextGeneration();	
 	}
-	
-	public CanvasDrawer getCanvasDrawer()
+
+    public void zoom(int zoom, ZoomEvent event)
+    {
+        if((cd.getCellSize() + zoom) > 0)
+        {
+            int cellSize = cd.getCellSize();
+
+            cd.setCellSize(cd.getCellSize() + zoom);
+
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+
+
+            int x2 = (x+cd.getpositionX())/cellSize;
+            int y2 = (y+cd.getpositionY())/cellSize;
+
+            cd.setPosX(x2*(cellSize+zoom) - x);
+            cd.setPosY(y2*(cellSize+zoom) - y);
+
+            cd.drawNextGeneration();
+        }
+
+    }
+
+
+    public CanvasDrawer getCanvasDrawer()
 	{
 		return this.cd;
 	}
