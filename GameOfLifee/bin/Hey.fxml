@@ -10,106 +10,102 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
-   <top>
-      <VBox BorderPane.alignment="CENTER">
+<VBox style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+   <children>
+      <MenuBar VBox.vgrow="NEVER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <HBox spacing="10.0" style="-fx-background-color: white;">
          <children>
-            <MenuBar>
-              <menus>
-                <Menu mnemonicParsing="false" text="File">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="Close" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="Delete" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="About" />
-                  </items>
-                </Menu>
-              </menus>
-            </MenuBar>
-            <HBox>
-               <children>
-                  <Label style="text-ali: center;" text="Survival">
-                     <padding>
-                        <Insets top="5.0" />
-                     </padding>
-                     <HBox.margin>
-                        <Insets right="10.0" />
-                     </HBox.margin>
-                  </Label>
-                  <TextField fx:id="survival" prefHeight="26.0" prefWidth="71.0" text="23" />
-                  <Label layoutX="10.0" layoutY="10.0" style="text-ali: center;" text="Birth">
-                     <padding>
-                        <Insets top="5.0" />
-                     </padding>
-                     <HBox.margin>
-                        <Insets right="10.0" />
-                     </HBox.margin>
-                  </Label>
-                  <TextField fx:id="birth" prefHeight="26.0" prefWidth="67.0" text="3" />
-                   
-                           </children>
-            </HBox>
-         </children>
-      </VBox>
-   </top>
-   <bottom>
-      <VBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0" BorderPane.alignment="CENTER">
-         <children>
-            <HBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0" VBox.vgrow="NEVER">
-               <children>
-                  <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartClick" prefHeight="40.0" prefWidth="120.0" text="Play">
-                     <HBox.margin>
-                        <Insets left="50.0" top="30.0" />
-                     </HBox.margin>
-                  </Button>
-                  <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleResetClick" prefHeight="40.0" prefWidth="120.0" text="Reset">
-                     <HBox.margin>
-                        <Insets left="50.0" top="30.0" />
-                     </HBox.margin>
-                  </Button>
-                  <Label text="Speed:">
-                     <HBox.margin>
-                        <Insets left="10.0" top="40.0" />
-                     </HBox.margin></Label>
-                  <Slider fx:id="sliderSpeed" min="1.0" onMouseDragged="#sliderDragged" showTickMarks="true" value="30.0">
-                     <HBox.margin>
-                        <Insets top="40.0" />
-                     </HBox.margin>
-                  </Slider>
-                  <Label text="Zoom:">
-                     <HBox.margin>
-                        <Insets left="10.0" top="40.0" />
-                     </HBox.margin></Label>
-                  <Slider fx:id="sliderZoom" blockIncrement="1.0" max="10.0" min="1.0" onMouseDragged="#sliderDragged" orientation="VERTICAL" showTickMarks="true" value="1.0" />
-                  <ColorPicker>
-                     <HBox.margin>
-                        <Insets left="70.0" top="35.0" />
-                     </HBox.margin>
-                  </ColorPicker>
-               </children>
-               <VBox.margin>
+            <Label text="Survival:">
+               <HBox.margin>
+                  <Insets top="6.0" />
+               </HBox.margin>
+            </Label>
+            <TextField fx:id="survival" prefHeight="26.0" prefWidth="76.0" text="23">
+               <HBox.margin>
                   <Insets />
-               </VBox.margin>
-            </HBox>
-         </children>
-      </VBox>
-   </bottom>
-   <center>
-      <VBox fx:id="canvasParent" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: black;" BorderPane.alignment="CENTER">
+               </HBox.margin>
+            </TextField>
+            <Label layoutX="10.0" layoutY="28.0" text="Birth:">
+               <HBox.margin>
+                  <Insets top="6.0" />
+               </HBox.margin>
+            </Label>
+            <TextField fx:id="birth" layoutX="87.0" layoutY="23.0" prefHeight="26.0" prefWidth="76.0" text="3">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </TextField>
+         </children></HBox>
+      <HBox fx:id="canvasParent" minHeight="10.0" minWidth="10.0" onMouseDragged="#mouseDragged" prefHeight="400.0" VBox.vgrow="ALWAYS">
          <children>
-            <Canvas fx:id="canvas" height="200.0" onMouseClicked="#mouseClicked" onMouseDragged="#mouseDragged" onMousePressed="#handleMouseEntered" width="200.0" VBox.vgrow="ALWAYS" />
+            <Canvas fx:id="canvas" height="10.0" nodeOrientation="INHERIT" onMouseClicked="#mouseClicked" onMouseEntered="#handleMouseEntered" onMousePressed="#handleMouseEntered" onMouseReleased="#handleMouseEntered" onZoom="#handleZoom" onZoomFinished="#handleZoom" onZoomStarted="#handleZoom" width="10.0" />
          </children>
-      </VBox>
-   </center>
-</BorderPane>
+      </HBox>
+      <HBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0" spacing="60.0" style="-fx-background-color: #e9e9e9;" VBox.vgrow="NEVER">
+         <children>
+            <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartClick" prefHeight="40.0" prefWidth="120.0" text="Play">
+               <HBox.margin>
+                  <Insets left="50.0" top="30.0" />
+               </HBox.margin>
+            </Button>
+            <Button layoutX="60.0" layoutY="40.0" mnemonicParsing="false" onAction="#handleResetClick" prefHeight="40.0" prefWidth="120.0" text="Reset">
+               <HBox.margin>
+                  <Insets top="30.0" />
+               </HBox.margin>
+            </Button>
+            <VBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0">
+               <HBox.margin>
+                  <Insets top="20.0" />
+               </HBox.margin>
+               <children>
+                  <Label text="Speed">
+                     <VBox.margin>
+                        <Insets left="50.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Slider fx:id="sliderSpeed" min="1.0" onMouseDragged="#sliderDragged" showTickMarks="true" value="30.0" />
+               </children>
+            </VBox>
+            <VBox>
+               <HBox.margin>
+                  <Insets left="10.0" top="20.0" />
+               </HBox.margin>
+               <children>
+                  <Label text="Zoom:">
+                     <VBox.margin>
+                        <Insets left="40.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Slider fx:id="sliderZoom" min="1.0" onMouseDragged="#sliderDragged" showTickMarks="true" value="1.0" />
+               </children>
+            </VBox>
+            <ColorPicker fx:id="colorPicker" onAction="#changeColor">
+               <HBox.margin>
+                  <Insets right="20.0" top="35.0" />
+               </HBox.margin>
+            </ColorPicker>
+         </children>
+      </HBox>
+   </children>
+</VBox>

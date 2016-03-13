@@ -1,4 +1,4 @@
-
+import javafx.scene.paint.Color;
 
 public class Matrix
 {
@@ -9,6 +9,7 @@ public class Matrix
 	private int y;
 	private int[] survivalRules = {2, 3};
 	private int[] birthRules = {3};
+	private Color color = Color.WHITE;
 
 	
 	
@@ -19,6 +20,16 @@ public class Matrix
 		newGenerationB = new byte[x][y];	
 		this.x = x;
 		this.y = y;
+	}
+	
+	public void setColor(Color color)
+	{
+		this.color = color;
+	}
+	
+	public Color getColor()
+	{
+		return this.color;
 	}
 	
 	public void setSurvivalRules(int[] array)

@@ -7,47 +7,55 @@ import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Slider;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.ZoomEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+
 
 public class Controller implements Initializable
 {
 	
     @FXML private Canvas canvas;
-    @FXML private ColorPicker colorPicker;
     @FXML private Slider sliderSpeed;
     @FXML private Slider sliderZoom;
-    @FXML private VBox canvasParent;
+    @FXML private HBox canvasParent;
     @FXML private Button startButton;
     @FXML private TextField survival;
     @FXML private TextField birth;
+    @FXML private ColorPicker colorPicker;
     private GameOfLife GOL;
     boolean start = true;
     int offsetX = 0;
     int offsetY = 0;
+    Matrix model;
    
     
     @Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		Matrix model = new Matrix(1000, 125);//1mill celler
+		model = new Matrix(1000, 125);//1mill celler
 		
 		GOL = new GameOfLife(model, new CanvasDrawer(model, canvas.getGraphicsContext2D()));
 			
+		
+		canvas.setOnZoom(new EventHandler<ZoomEvent>() {
+            @Override public void handle(ZoomEvent event) {
+               System.out.println("hey");
+            }
+        });
+		
 		survival.textProperty().addListener((observable, oldValue, newValue) -> 
 		{
 		   int[] array = new int[newValue.length()];
@@ -100,13 +108,24 @@ public class Controller implements Initializable
 	}
     
     
-  
+    
+    public void handleZoom(ZoomEvent event)
+    {
+    	System.out.println("hey");
+    }
     public void sliderDragged()
     {
     	GOL.setDelay(Math.pow(10, 9)*(1/sliderSpeed.getValue()));
     	GOL.zoom((int) sliderZoom.getValue());
     	
     }
+    
+    public void changeColor()
+    {
+    	model.setColor(colorPicker.getValue());
+    	GOL.getCanvasDrawer().drawNextGeneration();
+    }
+    
     
 	public void handleStartClick()
 	{	

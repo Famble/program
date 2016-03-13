@@ -52,9 +52,9 @@ public class GameOfLife extends AnimationTimer
 			cd.drawNextGeneration();	
 	}
 	
-	public void loadFile()
+	public CanvasDrawer getCanvasDrawer()
 	{
-		
+		return this.cd;
 	}
 	
 	public void setDelay(double delay)
@@ -103,7 +103,7 @@ public class GameOfLife extends AnimationTimer
 		model.getCurrentGeneration()[x2][y2/8] ^= (1 << y2%8); //XOR på biten cellen representerer
 	
 		if(((model.getCurrentGeneration()[x2][y2/8] >> y2%8) & 1) == 1) //if alive
-			cd.drawCell(cellSize*(x2)-posX, cellSize*(y2)-posY, Color.WHITE);
+			cd.drawCell(cellSize*(x2)-posX, cellSize*(y2)-posY, model.getColor());
 		else
 			cd.drawCell(cellSize*(x2)-posX, cellSize*(y2)-posY, Color.BLACK);
 	}

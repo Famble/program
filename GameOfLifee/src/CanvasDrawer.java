@@ -72,7 +72,7 @@ public class CanvasDrawer
 					if(((model.getCurrentGeneration()[x][j] >> k)& 1) == 1) //if alive
 					{		
 						int y = 8*j + k;
-						gc.setFill(Color.WHITE);
+						gc.setFill(model.getColor());
 						gc.fillRect(cellSize*(x)-posX, cellSize*(y)-posY, cellSize, cellSize);		
 					}
 					else//else dead
