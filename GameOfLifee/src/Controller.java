@@ -110,8 +110,16 @@ public class Controller implements Initializable
     
     public void handleZoom(ZoomEvent event)
     {
-    	GOL.zoom(1,event);
-        System.out.println(event.getTotalZoomFactor());
+
+        if(event.getZoomFactor() > 1)
+        {
+            GOL.zoom(1,event);
+        }
+        else
+        {
+            GOL.zoom(-1,event);
+        }
+
     }
     public void sliderDragged()
     {
