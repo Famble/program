@@ -45,10 +45,9 @@ public class Controller implements Initializable
     @Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		model = new Matrix(1000, 125);//1mill celler
-		
+		model = new Matrix(1000, 16);//1mill celler
 		GOL = new GameOfLife(model, new CanvasDrawer(model, canvas.getGraphicsContext2D()));
-			
+		
 		
 		canvas.setOnZoom(new EventHandler<ZoomEvent>() {
             @Override public void handle(ZoomEvent event) {
@@ -111,7 +110,7 @@ public class Controller implements Initializable
     
     public void handleZoom(ZoomEvent event)
     {
-    	System.out.println("hey");
+    	GOL.startGame();
     }
     public void sliderDragged()
     {

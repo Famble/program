@@ -51,7 +51,7 @@ public class CanvasDrawer
     public void clearCanvas()
     {
     	gc.setFill(Color.BLACK);
-    	gc.fillRect(0, 0, model.getX(), model.getY()*8);
+    	gc.fillRect(0, 0, model.getX(), model.getY()*64l);
     }
     
     public void drawCell(int x, int y, Color color)
@@ -64,14 +64,14 @@ public class CanvasDrawer
     {
     	clearCanvas();
 
-		for(int x = 0; x < 1000; x++)
-			for(int j = 0; j < 125; j++)
+		for(int x = 0; x < model.getX(); x++)
+			for(int j = 0; j < model.getY(); j++)
 			{
-				for(int k = 0; k < 8; k++)
+				for(int k = 0; k < 64; k++)
 				{
 					if(((model.getCurrentGeneration()[x][j] >> k)& 1) == 1) //if alive
 					{		
-						int y = 8*j + k;
+						long y = 64l*j + k;
 						gc.setFill(model.getColor());
 						gc.fillRect(cellSize*(x)-posX, cellSize*(y)-posY, cellSize, cellSize);		
 					}

@@ -3,8 +3,8 @@ import javafx.scene.paint.Color;
 public class Matrix
 {
 
-	private byte[][] currGenerationB;
-	private byte[][] newGenerationB;
+	private long[][] currGenerationB;
+	private long[][] newGenerationB;
 	private int x;
 	private int y;
 	private int[] survivalRules = {2, 3};
@@ -16,8 +16,8 @@ public class Matrix
 	public Matrix(int x, int y)
 	{
 
-		currGenerationB = new byte[x][y];
-		newGenerationB = new byte[x][y];	
+		currGenerationB = new long[x][y];
+		newGenerationB = new long[x][y];	
 		this.x = x;
 		this.y = y;
 	}
@@ -79,7 +79,7 @@ public class Matrix
 		{
 			for(int j = 0; j < this.y; j++)
 			{
-				for(int k = 0; k < 8; k++)
+				for(int k = 0; k < 64; k++)
 				{
 					aliveNeighbours = countNeighbours(i, j, k);
 					
@@ -96,7 +96,7 @@ public class Matrix
 								birth = true;
 						
 						if(birth)
-							this.getNewGeneration()[i][j] |= (1 << k); // ressurct bit
+							this.getNewGeneration()[i][j] |= (1L << k); // ressurct bit
 	
 					}
 					else //if cell is alive
@@ -108,7 +108,7 @@ public class Matrix
 								survive = true;
 						
 						if(!survive)
-							this.getNewGeneration()[i][j] &= ~(1 << k); // kill bit*/
+							this.getNewGeneration()[i][j] &= ~(1L << k); // kill bit*/
 
 					}
 						
@@ -124,22 +124,22 @@ public class Matrix
 	{
 		int aliveNeighbours = 0;
 		
-		if(i == 0 || i == this.x-1 || (j == 0 && k == 0) || (j == this.y-1 && k == 7)) // on the border
+		if(i == 0 || i == this.x-1 || (j == 0 && k == 0) || (j == this.y-1 && k == 63)) // on the border
 		{
-			this.getNewGeneration()[i][j] &= ~(1 << k); // kill bit
+			this.getNewGeneration()[i][j] &= ~(1L << k); // kill bit
 			return 0;
 		}
 		
 		else //not on the border
 		{
-			if(k > 0 && k < 7)
+			if(k > 0 && k < 63)
 			{
 				for(int x = -1; x <= 1; x++)
 					for(int y = -1; y <= 1; y++)
 					{
 						//does AND operator on the neighboring bits(will return and add one if cell is alive)
 						if(!( x == 0 && y == 0))
-							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1);
+							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1L);
 					}
 			}
 			else if(k == 0)
@@ -150,30 +150,30 @@ public class Matrix
 					{
 						if(y == -1)
 						{
-							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j-1] >> (7)) & 1);
+							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j-1] >> (63)) & 1L);
 						}
 						else
 						{
 							//does AND operator on the neighboring bits(will return and add one if cell is alive)
 							if(!( x == 0 && y == 0))
-								aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1);
+								aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1L);
 						}
 						
 					}
-			}else//(k == 7)
+			}else//(k == 63)
 			{
 				for(int x = -1; x <= 1; x++)
 					for(int y = -1; y <= 1; y++)
 					{
 						if(y == 1)
 						{
-							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j+1] >> (0)) & 1);
+							aliveNeighbours += ((this.getCurrentGeneration()[i+x][j+1] >> (0)) & 1L);
 						}
 						else
 						{
 							//does AND operator on the neighboring bits(will return and add one if cell is alive)
 							if(!( x == 0 && y == 0))
-								aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1);
+								aliveNeighbours += ((this.getCurrentGeneration()[i+x][j] >> (y+k)) & 1L);
 						}
 						
 					}
@@ -186,12 +186,12 @@ public class Matrix
 	}
 		
 
-	public byte[][] getCurrentGeneration()
+	public long[][] getCurrentGeneration()
 	{
 		return this.currGenerationB;
 	}
 	
-	public byte[][] getNewGeneration()
+	public long[][] getNewGeneration()
 	{
 		return this.newGenerationB;
 	}

@@ -47,7 +47,7 @@ public class GameOfLife extends AnimationTimer
 	public void zoom(int zoom)
 	{
 			cd.setCellSize(zoom);
-			cd.setPosX(0	);
+			cd.setPosX(0);
 			cd.setPosY(0);
 			cd.drawNextGeneration();	
 	}
@@ -94,15 +94,15 @@ public class GameOfLife extends AnimationTimer
 		int cellSize = cd.getCellSize();
 		int posX = cd.getpositionX();
 		int posY = cd.getpositionY();
+
 		
 		int x2 = (x+posX)/cellSize;
 		int y2 = (y+posY)/cellSize;
 		
-
-				
-		model.getCurrentGeneration()[x2][y2/8] ^= (1 << y2%8); //XOR på biten cellen representerer
+						
+		(model.getCurrentGeneration()[x2][y2/64]) ^= (1L << y2%64); //XOR på biten cellen representerer
 	
-		if(((model.getCurrentGeneration()[x2][y2/8] >> y2%8) & 1) == 1) //if alive
+		if(((model.getCurrentGeneration()[x2][y2/64] >> y2%64) & 1) == 1) //if alive
 			cd.drawCell(cellSize*(x2)-posX, cellSize*(y2)-posY, model.getColor());
 		else
 			cd.drawCell(cellSize*(x2)-posX, cellSize*(y2)-posY, Color.BLACK);
