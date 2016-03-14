@@ -68,6 +68,7 @@ public class CanvasDrawer
 		for(int x = 0; x < model.getX(); x++)
 			for(int j = 0; j < model.getY(); j++)
 			{
+			    if(!(model.getCurrentGeneration()[x][j] == 0))
 				for(int k = 0; k < 64; k++)
 				{
 					if(((model.getCurrentGeneration()[x][j] >> k)& 1L) == 1) //if alive

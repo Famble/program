@@ -49,7 +49,7 @@ public class Controller implements Initializable
     	rules = new Rules();
     	
     	
-		model = new Matrix(1000, 16, rules);//1mill celler
+		model = new Matrix(10000, 160, rules);//1mill celler
 		GOL = new GameOfLife(model, new CanvasDrawer(model, canvas.getGraphicsContext2D()));
 		
 		
