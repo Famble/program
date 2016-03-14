@@ -248,8 +248,36 @@ public class Matrix
 		return this.newGenerationB;
 	}
 
-
+	public String toString()
+	{
+		String bitString ="";
+		for(int i = 0; i < this.getY(); i++)
+		{
+			for(int k = 0; k < 4; k++)
+			{
+				for(int j = 0; i < this.getX(); j++)
+				{
+					bitString += ((this.getCurrentGeneration()[j][i] >> k) & 1);
+				}
+			}
+		}
+		
+		return bitString;
+	}
 	
-	
+	public void setBoard (long[][] board)
+	{
+		for (int i = 0; i < 4;i++)
+		{
+			for (int j = 0; j < 4;j++)
+			{
+				//if alive
+				if((board[i][0] >> j) == 1)
+					this.getCurrentGeneration()[i][0] |= (1L << j);
+				else
+					this.getCurrentGeneration()[i][0] &= ~(1L << j);
+			}
+		}
+	}
 	
 }
