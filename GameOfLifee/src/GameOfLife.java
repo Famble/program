@@ -123,9 +123,10 @@ public class GameOfLife extends AnimationTimer
 		
 		int x2 = (x+posX)/cellSize;
 		int y2 = (y+posY)/cellSize;
-		
-						
+
+								
 		(model.getCurrentGeneration()[x2][y2/64]) ^= (1L << y2%64); //XOR på biten cellen representerer
+		model.getInactiveCells()[x2][y2/64] ^= (1L << y2%64);
 	
 		if(((model.getCurrentGeneration()[x2][y2/64] >> y2%64) & 1) == 1) //if alive
 			cd.drawCell(cellSize*(x2)-posX, cellSize*(y2)-posY, model.getColor());

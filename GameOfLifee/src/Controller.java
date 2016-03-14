@@ -35,6 +35,7 @@ public class Controller implements Initializable
     @FXML private TextField survival;
     @FXML private TextField birth;
     @FXML private ColorPicker colorPicker;
+    Rules rules;
     private GameOfLife GOL;
     boolean start = true;
     int offsetX = 0;
@@ -45,7 +46,10 @@ public class Controller implements Initializable
     @Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		model = new Matrix(1000, 16);//1mill celler
+    	rules = new Rules();
+    	
+    	
+		model = new Matrix(1000, 16, rules);//1mill celler
 		GOL = new GameOfLife(model, new CanvasDrawer(model, canvas.getGraphicsContext2D()));
 		
 		
@@ -55,27 +59,15 @@ public class Controller implements Initializable
             }
         });
 		
-		survival.textProperty().addListener((observable, oldValue, newValue) -> 
+		survival.textProperty().addListener((observable, oldValue, survivalString) -> 
 		{
-		   int[] array = new int[newValue.length()];
-		   for(int l = 0; l < newValue.length(); l++)
-		   {
-			   array[l] = (int)Character.getNumericValue(newValue.charAt(l));
-		   }
-		   
-		   model.setSurvivalRules(array);
+		   this.rules.setSurvivalRules(survivalString);
 		   
 		});
 		
-		birth.textProperty().addListener((observable, oldValue, newValue) -> 
+		birth.textProperty().addListener((observable, oldValue, birthString) -> 
 		{
-		   int[] array = new int[newValue.length()];
-		   for(int l = 0; l < newValue.length(); l++)
-		   {
-			   array[l] = (int)Character.getNumericValue(newValue.charAt(l));
-		   }
-		   
-		   model.setBirthRules(array);
+		   this.rules.setBirthRules(birthString);
 		  
 		   
 		});
@@ -121,9 +113,17 @@ public class Controller implements Initializable
         }
 
     }
-    public void sliderDragged()
+    public void speedSliderDragged()
     {
-    	GOL.setDelay(Math.pow(10, 9)*(1/sliderSpeed.getValue()));
+    	System.out.println(sliderSpeed.getValue());
+    	System.out.println(sliderSpeed.getMax());
+    	int a = (int) (sliderSpeed.getMax() - sliderSpeed.getValue());
+		GOL.setDelay(Math.pow(10, 9)*(1/sliderSpeed.getValue()));
+    	
+    }
+    
+    public void zoomSliderDragged()
+    {
     	GOL.zoom((int) sliderZoom.getValue());
     	
     }

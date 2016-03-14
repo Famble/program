@@ -63,16 +63,17 @@ public class CanvasDrawer
     public void drawNextGeneration()
     {
     	clearCanvas();
+    	gc.setFill(model.getColor());
 
 		for(int x = 0; x < model.getX(); x++)
 			for(int j = 0; j < model.getY(); j++)
 			{
 				for(int k = 0; k < 64; k++)
 				{
-					if(((model.getCurrentGeneration()[x][j] >> k)& 1) == 1) //if alive
+					if(((model.getCurrentGeneration()[x][j] >> k)& 1L) == 1) //if alive
 					{		
-						long y = 64l*j + k;
-						gc.setFill(model.getColor());
+						//6 bitshift til vestre tilsvarer å gang med 64, men er raskere for CPU
+						long y = (j << 6) + k;
 						gc.fillRect(cellSize*(x)-posX, cellSize*(y)-posY, cellSize, cellSize);		
 					}
 					else//else dead
