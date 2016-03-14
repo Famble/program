@@ -142,7 +142,7 @@
                         <Insets left="40.0" />
                      </VBox.margin>
                   </Label>
-                  <Slider fx:id="sliderZoom" min="1.0" onMouseDragged="#zoomSliderDragged" showTickMarks="true" value="1.0" />
+                  <Slider fx:id="sliderZoom" min="1.0" onMouseDragged="#zoomSliderDragged" showTickMarks="true" value="4.0" />
                </children>
             </VBox>
             <ColorPicker fx:id="colorPicker" onAction="#changeColor">

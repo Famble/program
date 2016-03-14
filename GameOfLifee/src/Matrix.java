@@ -12,12 +12,10 @@ public class Matrix
 
     private int x;
     private int y;
-    private int[] survivalRules =
-    { 2, 3 };
-    private int[] birthRules =
-    { 3 };
+    private int[] survivalRules = { 2, 3 };
+    private int[] birthRules = { 3 };
     private Rules rules;
-    private Color color = Color.WHITE;
+    private Color color = Color.web("#42dd50");
 
     public Matrix(int x, int y, Rules rules)
     {
@@ -111,18 +109,20 @@ public class Matrix
 	{
 	    for (int j = 0; j < this.y; j++)
 	    {
-		if(!(this.getInactiveCells()[i][j] == 0)) //if the long is not zero then check each bit
+		if (!(this.getInactiveCells()[i][j] == 0)) // if the long is not
+							   // zero then check
+							   // each bit
 		    for (int k = 0; k < 64; k++)
+		    {
+			// if cell is active
+			if (((this.getInactiveCells()[i][j] >> k) & 1L) == 1)
 			{
-			    // if cell is active
-			    if (((this.getInactiveCells()[i][j] >> k) & 1L) == 1)
-			    {
-				aliveNeighbours = countNeighbours(i, j, k, true);
-				setCell(i, j, k, aliveNeighbours);
-			    }
+			    aliveNeighbours = countNeighbours(i, j, k, true);
+			    setCell(i, j, k, aliveNeighbours);
+			}
 
-			}    
-		
+		    }
+
 	    }
 	}
 
@@ -165,7 +165,7 @@ public class Matrix
 		    } else if (y == 1 && k == 63)
 		    {
 
-			if (((this.getCurrentGeneration()[i + x][j + 1] >> (0)) & 1L) == 1) 
+			if (((this.getCurrentGeneration()[i + x][j + 1] >> (0)) & 1L) == 1)
 			{
 			    aliveNeighbours++;
 
@@ -182,7 +182,7 @@ public class Matrix
 		    {
 			if (!(x == 0 && y == 0))
 			{
-			    if (((this.getCurrentGeneration()[i + x][j] >> (y + k)) & 1L) == 1) 
+			    if (((this.getCurrentGeneration()[i + x][j] >> (y + k)) & 1L) == 1)
 			    {
 				aliveNeighbours++;
 			    }
