@@ -14,6 +14,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Slider;
@@ -31,10 +33,12 @@ public class Controller implements Initializable
     @FXML private Slider sliderSpeed;
     @FXML private Slider sliderZoom;
     @FXML private HBox canvasParent;
+    @FXML private ComboBox comboBox;
     @FXML private Button startButton;
     @FXML private TextField survival;
     @FXML private TextField birth;
     @FXML private ColorPicker colorPicker;
+    @FXML private Label amountOfCells;
     Rules rules;
     private GameOfLife GOL;
     boolean start = true;
@@ -49,7 +53,7 @@ public class Controller implements Initializable
     	rules = new Rules();
     	
     	
-		model = new Matrix(10000, 160, rules);//1mill celler
+		model = new Matrix(2500, 160, rules);//25mill celler
 		GOL = new GameOfLife(model, new CanvasDrawer(model, canvas.getGraphicsContext2D()));
 		
 		
@@ -61,13 +65,13 @@ public class Controller implements Initializable
 		
 		survival.textProperty().addListener((observable, oldValue, survivalString) -> 
 		{
-		   this.rules.setSurvivalRules(survivalString);
+		   this.rules.setUserDefinedSurvivalRules(survivalString);
 		   
 		});
 		
 		birth.textProperty().addListener((observable, oldValue, birthString) -> 
 		{
-		   this.rules.setBirthRules(birthString);
+		   this.rules.setUserDefinedBirthRules(birthString);
 		  
 		   
 		});
@@ -94,10 +98,23 @@ public class Controller implements Initializable
 	     }
 	     });
 		
+		 comboBox.valueProperty().addListener(new ChangeListener<String>() {
+		        @Override public void changed(ObservableValue ov, String t, String t1) {
+			    rules.setRules(comboBox.getValue().toString());
+
+		        }    
+		    });
+		
+		 amountOfCells.setText(String.format("%.2f Million Cells", (model.getX()*model.getY()*64)/1000000.0));
+
+		
 		
 			
 	}
     
+    
+    
+
     
     
     public void handleZoom(ZoomEvent event)
