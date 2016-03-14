@@ -115,9 +115,6 @@ public class Controller implements Initializable
     }
     public void speedSliderDragged()
     {
-    	System.out.println(sliderSpeed.getValue());
-    	System.out.println(sliderSpeed.getMax());
-    	int a = (int) (sliderSpeed.getMax() - sliderSpeed.getValue());
 		GOL.setDelay(Math.pow(10, 9)*(1/sliderSpeed.getValue()));
     	
     }
