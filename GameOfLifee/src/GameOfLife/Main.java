@@ -1,3 +1,4 @@
+package GameOfLife;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,7 +18,7 @@ public class Main extends Application
     {
 	primaryStage.setTitle("Game of Life");
 	Parent root = FXMLLoader.load(getClass().getResource("Hey.fxml"));
-	primaryStage.setScene(new Scene(root, 1024, 700));
+	primaryStage.setScene(new Scene(root, 1000, 700));
 	primaryStage.show();
     }
 

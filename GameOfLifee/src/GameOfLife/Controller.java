@@ -1,3 +1,4 @@
+package GameOfLife;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.Arrays;
@@ -49,10 +50,14 @@ public class Controller implements Initializable
     private ColorPicker colorPicker;
     @FXML
     private Label amountOfCells;
+    @FXML
+    private Label position;
+    @FXML
     Rules rules;
     private GameOfLife GOL;
     boolean start = true;
     int offsetX = 0;
+    CanvasDrawer cd;
     int offsetY = 0;
     Matrix model;
 
@@ -60,23 +65,24 @@ public class Controller implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {
 	rules = new Rules();
+	model = new Matrix(10000, 10000, rules);// 100mill celler
+	
+	cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
 
-	model = new Matrix(1000, 16, rules);// 25mill celler
-	GOL = new GameOfLife(model, new CanvasDrawer(model, canvas.getGraphicsContext2D()));
+	GOL = new GameOfLife(model, cd);
 
-	canvas.setOnZoom(new EventHandler<ZoomEvent>()
+	canvas.setOnZoom((zoomEvent) ->
 	{
-	    @Override
-	    public void handle(ZoomEvent event)
-	    {
-
-	    }
+	    
 	});
+	
+	colorPicker.setValue(Color.web("#42dd50"));
+	
+	
 
 	survival.textProperty().addListener((observable, oldValue, survivalString) ->
 	{
 	    this.rules.setUserDefinedSurvivalRules(survivalString);
-
 	});
 
 	birth.textProperty().addListener((observable, oldValue, birthString) ->
@@ -84,59 +90,56 @@ public class Controller implements Initializable
 	    this.rules.setUserDefinedBirthRules(birthString);
 
 	});
+	
 
-	canvasParent.widthProperty().addListener(new ChangeListener<Number>()
+	canvasParent.widthProperty().addListener((a, b, c) ->
 	{
-
-	    public void changed(ObservableValue<? extends Number> ov, Number t, Number t1)
-	    {
-		canvas.setWidth((double) t1);
-
-	    }
+	    canvas.setWidth((double) c);
+	    cd.setWindowWidth((double)c);
 	});
-
-	canvasParent.heightProperty().addListener(new ChangeListener<Number>()
+	 
+	
+	
+	canvasParent.heightProperty().addListener((a,b,c) ->
 	{
-
-	    public void changed(ObservableValue<? extends Number> ov, Number t, Number t1)
-	    {
-		canvas.setHeight((double) t1);
-	    }
+	    canvas.setHeight((double) c);
+	    cd.setWindowHeight((double)c);
 	});
 
 	comboBox.valueProperty().addListener((observable, oldValue, survivalString) ->
 	{
-	    {
-		survival.setText("");
-		birth.setText("");
-		rules.setRules(comboBox.getValue().toString());
+	    
+	    survival.setText("");
+	    birth.setText("");
+	    rules.setRules(comboBox.getValue().toString());
 
-		for (int i : rules.getSurvivalRules())
-		    survival.setText(survival.getText() + i);
+	    for (int i : rules.getSurvivalRules())
+		survival.setText(survival.getText() + i);
 
-		for (int i : rules.getSurvivalRules())
-		    birth.setText(birth.getText() + i);
+	    for (int i : rules.getSurvivalRules())
+		birth.setText(birth.getText() + i);
 
-	    }
+	    
 	});
 
-	amountOfCells.setText(String.format("%.2f Million Cells", (model.getX() * model.getY() * 64) / 1000000.0));
-
+	amountOfCells.setText(String.format("%d Million Cells", ((int)model.getX()*model.getRealY()/(int)Math.pow(10, 6))));
+	position.setText(String.format("(x, y): (%d,%d)", cd.getpositionX(), cd.getpositionY()));
     }
 
     public void handleZoom(ZoomEvent event)
     {
 
-	if (event.getZoomFactor() > 1)
+	if (event.getZoomFactor() > 2)
 	{
 	    GOL.zoom(1, event);
-	} else
+	} else if(event.getZoomFactor() < 0.7)
 	{
 	    GOL.zoom(-1, event);
 	}
 
     }
 
+    
     public void speedSliderDragged()
     {
 	GOL.setDelay(Math.pow(10, 9) * (1 / sliderSpeed.getValue()));
@@ -144,9 +147,12 @@ public class Controller implements Initializable
     }
 
     public void zoomSliderDragged()
-    {
-	GOL.zoom((int) sliderZoom.getValue());
-
+    {	
+	if(cd.getCellSize() - (int)sliderZoom.getValue() == -1)
+	    GOL.zoom((int) 1);
+	else
+	    if(cd.getCellSize() - (int)sliderZoom.getValue() == 1)
+		GOL.zoom(-1);
     }
 
     public void changeColor()
@@ -162,6 +168,7 @@ public class Controller implements Initializable
 
 	    GOL.startGame();
 	    startButton.setText("Stop");
+	    
 	} else
 	{
 	    GOL.stop();
@@ -184,26 +191,27 @@ public class Controller implements Initializable
 	    GOL.movePosition(offsetX - (int) event.getX(), offsetY - (int) event.getY());
 	    offsetX = (int) event.getX();
 	    offsetY = (int) event.getY();
-	} else
+	    position.setText(String.format("(x, y): (%d,%d)", (int)cd.getpositionX(), (int)cd.getpositionY()));    
+	} 
+	else
+	  {
 	    GOL.selectCell(event);
+	  }
 
     }
 
     public void keyListener(KeyEvent event)
     {
-	Platform.runLater(new Runnable()
+	Platform.runLater(() ->
 	{
-	    @Override
-	    public void run()
-	    {
 		canvas.requestFocus();
-	    }
 	});
+	    
     }
 
     public void mouseClicked(MouseEvent event)
     {
-	GOL.selectCell(event);
+	    GOL.selectCell(event);
     }
 
     public void handlePauseClick()

@@ -1,53 +1,63 @@
+package GameOfLife;
+
+import java.util.Arrays;
+
 import javafx.scene.paint.Color;
 
 public class Matrix
 {
 
-    private long[][] currGenerationB;
-    private long[][] newGenerationB;
-    private long[][] inactiveCells; // is 0 if cell is active and 1 if its
-				    // inactive(every cell starts as active)!
-    private long[][] newInactiveCells; // is 0 if cell is active and 1 if its
-				       // inactive(every cell starts as active)!
-
-    private int x;
+    private long[][] CurrGeneration;
+    private long[][] newGeneration;
+    private long[][] activeCells; // is 0 if cell is active and 1 if its
+				  // inactive(every cell starts as active)!
+    private long[][] newActiveCells; // is 0 if cell is active and 1 if its
+				     // inactive(every cell starts as active)!
     private int y;
-    private int[] survivalRules = { 2, 3 };
-    private int[] birthRules = { 3 };
-    private Rules rules;
+    private int x;
+    private int yDiv64;
+    private int yMod64;
     private Color color = Color.web("#42dd50");
+    private Rules rules;
+    private int aliveCells = 0;
 
     public Matrix(int x, int y, Rules rules)
     {
-	currGenerationB = new long[x][y];
-	newGenerationB = new long[x][y];
-	inactiveCells = new long[x][y];
-	newInactiveCells = new long[x][y];
-
-	this.rules = rules;
-
-	this.x = x;
 	this.y = y;
+	this.rules = rules;
+	this.x = x;
+	this.yDiv64 = (y / 64) + 1;
+	this.yMod64 = y % 64;
+
+	CurrGeneration = new long[x][yDiv64];
+	newGeneration = new long[x][yDiv64];
+	activeCells = new long[x][yDiv64];
+	newActiveCells = new long[x][yDiv64];
     }
 
-    public long[][] getNewInactiveCells()
+    public void setBoard(long board[][])
     {
-	return newInactiveCells;
+	activeCells = board;
     }
 
-    public void setNewInactiveCells(long[][] newInactiveCells)
+    public long[][] getActiveCells()
     {
-	this.newInactiveCells = newInactiveCells;
+	return activeCells;
     }
 
-    public long[][] getInactiveCells()
+    public void setActiveCells(long[][] activeCells)
     {
-	return inactiveCells;
+	this.activeCells = activeCells;
     }
 
-    public void setInactiveCells(long[][] inactiveCells)
+    public long[][] getNewActiveCells()
     {
-	this.inactiveCells = inactiveCells;
+	return newActiveCells;
+    }
+
+    public void setNewActiveCells(long[][] newActiveCells)
+    {
+	this.newActiveCells = newActiveCells;
     }
 
     public void setColor(Color color)
@@ -60,22 +70,17 @@ public class Matrix
 	return this.color;
     }
 
-    public void setSurvivalRules(int[] array)
-    {
-	this.survivalRules = array;
-    }
-
-    public void setBirthRules(int[] array)
-    {
-	this.birthRules = array;
-    }
-
     public int getX()
     {
 	return this.x;
     }
 
     public int getY()
+    {
+	return this.yDiv64;
+    }
+    
+    public int getRealY()
     {
 	return this.y;
     }
@@ -87,10 +92,10 @@ public class Matrix
 
 	for (int i = 0; i < this.x; i++)
 	{
-	    for (int j = 0; j < this.y; j++)
+	    for (int j = 0; j < this.yDiv64; j++)
 	    {
 		this.getCurrentGeneration()[i][j] = this.getNewGeneration()[i][j];
-		this.getInactiveCells()[i][j] = this.getNewInactiveCells()[i][j];
+		this.getActiveCells()[i][j] = this.getNewActiveCells()[i][j];
 	    }
 	}
 
@@ -104,19 +109,28 @@ public class Matrix
     private void determineNextGeneration()
     {
 	int aliveNeighbours;
+	int cellsInLong = 64;
+
+	// System.out.println(Arrays.deepToString(this.getActiveCells()));
+
+;
 
 	for (int i = 0; i < this.x; i++)
 	{
-	    for (int j = 0; j < this.y; j++)
+	    for (int j = 0; j < this.yDiv64; j++)
 	    {
-		if (!(this.getInactiveCells()[i][j] == 0)) // if the long is not
-							   // zero then check
-							   // each bit
-		    for (int k = 0; k < 64; k++)
-		    {
-			// if cell is active
-			if (((this.getInactiveCells()[i][j] >> k) & 1L) == 1)
+		if (j == this.yDiv64 - 1) // på siste long colonne
+		    cellsInLong = yMod64;
+		else
+		    cellsInLong = 64;
+
+		if (!(this.getActiveCells()[i][j] == 0))// if long is zero then
+							// no need to check
+		    for (int k = 0; k < cellsInLong; k++)
+		    { // if cell is active
+			if (((this.getActiveCells()[i][j] >> k) & 1L) == 1)
 			{
+
 			    aliveNeighbours = countNeighbours(i, j, k, true);
 			    setCell(i, j, k, aliveNeighbours);
 			}
@@ -135,12 +149,10 @@ public class Matrix
     {
 	int aliveNeighbours = 0;
 
-	if (i == 0 || i == this.x - 1 || (j == 0 && k == 0) || (j == this.y - 1 && k == 63)) // on
-											     // the
-											     // border
+	if (i == 0 || i == this.x - 1 || (j == 0 && k == 0) || ((j == this.yDiv64 - 1) && k == this.yMod64)) // // border
 	{
 	    this.getNewGeneration()[i][j] &= ~(1L << k); // kill bit
-	    this.getInactiveCells()[i][j] |= (1L << k); // make active
+	    this.getNewActiveCells()[i][j] |= (1L << k); // make active
 	    return 0;
 	} else // not on the border
 	{
@@ -168,14 +180,13 @@ public class Matrix
 			if (((this.getCurrentGeneration()[i + x][j + 1] >> (0)) & 1L) == 1)
 			{
 			    aliveNeighbours++;
-
 			}
 			if (checkForInactive)
 			{
 			    // finds the amount of neighbours to the cell and
 			    // changes the state of the cell if the rules are
 			    // satisfied
-			    setCell(i + x, j + 1, 0, countNeighbours((i + x), j, (0), false));
+			    setCell(i + x, j + 1, 0, countNeighbours((i + x), j + 1, (0), false));
 			}
 
 		    } else
@@ -220,14 +231,14 @@ public class Matrix
 
 	    if (birth)
 	    {
-		this.getNewInactiveCells()[i][j] |= (1L << k); // make
-							       // active(set bit
-							       // to 0)
+		aliveCells++;
+		this.getNewActiveCells()[i][j] |= (1L << k); // make
+		// to 0)
 		this.getNewGeneration()[i][j] |= (1L << k);
 	    } else
 	    {
-		this.getNewInactiveCells()[i][j] &= ~(1L << k); // add as
-								// inactive
+		this.getNewActiveCells()[i][j] &= ~(1L << k); // add as
+							      // inactive
 		this.getNewGeneration()[i][j] &= ~(1L << k);
 	    }
 	} else // if cell is alive
@@ -240,59 +251,65 @@ public class Matrix
 
 	    if (!survive)
 	    {
+		aliveCells--;
 		this.getNewGeneration()[i][j] &= ~(1L << k); // kill bit*/
-		this.getNewInactiveCells()[i][j] |= (1L << k); // add to active
+		this.getNewActiveCells()[i][j] |= (1L << k); // add to active
 	    } else
 	    {
 		this.getNewGeneration()[i][j] |= (1L << k);
-		this.getNewInactiveCells()[i][j] &= ~(1L << k); // add as
-								// inactive
+		this.getNewActiveCells()[i][j] &= ~(1L << k); // add as
+							      // inactive
 
 	    }
 
 	}
+    }
+
+    public int getAliveCells()
+    {
+        return aliveCells;
+    }
+
+    public void setAliveCells(int aliveCells)
+    {
+        this.aliveCells = aliveCells;
     }
 
     public long[][] getCurrentGeneration()
     {
-	return this.currGenerationB;
+	return this.CurrGeneration;
     }
 
     public long[][] getNewGeneration()
     {
-	return this.newGenerationB;
+	return this.newGeneration;
     }
 
     public String toString()
     {
+	int cellsInLong = 64;
 	String bitString = "";
-	for (int i = 0; i < this.getY(); i++)
+
+	for (int y = 0; y < this.yDiv64; y++)
 	{
-	    for (int k = 0; k < 4; k++)
+
+	    if (y == this.yDiv64 - 1)
+		cellsInLong = this.yMod64;
+	    else
+		cellsInLong = 64;
+
+	    for (int k = 0; k < cellsInLong; k++)
 	    {
-		for (int j = 0; i < this.getX(); j++)
+		for (int x = 0; x < this.x; x++)
 		{
-		    bitString += ((this.getCurrentGeneration()[j][i] >> k) & 1);
+		    // System.out.printf("x, y, k: %d,%d,%d\n", x, y, k);
+		    bitString += ((this.getCurrentGeneration()[x][y] >> k) & 1);
 		}
 	    }
 	}
 
+	//
 	return bitString;
-    }
-
-    public void setBoard(long[][] board)
-    {
-	for (int i = 0; i < 4; i++)
-	{
-	    for (int j = 0; j < 4; j++)
-	    {
-		// if alive
-		if ((board[i][0] >> j) == 1)
-		    this.getCurrentGeneration()[i][0] |= (1L << j);
-		else
-		    this.getCurrentGeneration()[i][0] &= ~(1L << j);
-	    }
-	}
     }
 
 }

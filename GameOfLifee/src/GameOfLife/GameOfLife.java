@@ -1,3 +1,4 @@
+package GameOfLife;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -46,15 +47,29 @@ public class GameOfLife extends AnimationTimer
 
     public void zoom(int zoom)
     {
-	cd.setCellSize(zoom);
-	cd.setPosX(0);
-	cd.setPosY(0);
+	int cellSize = cd.getCellSize();
+
+	System.out.println("direction" + zoom);
+	
+	int middleOfScreenX = (int)cd.getWindowWidth()/2;
+	int middleOfScreenY = (int)cd.getWindowHeight()/2;
+	
+	int x = ((middleOfScreenX + cd.getpositionX())/cellSize);
+	int y = ((middleOfScreenY + cd.getpositionY()) / cellSize);
+	
+	cd.setPosX(x * (cd.getCellSize() + zoom) -middleOfScreenX);
+	cd.setPosY(y * (cd.getCellSize() + zoom)  -middleOfScreenY);
+	
+	cd.setCellSize(cd.getCellSize()+ zoom);
+	
 	cd.drawNextGeneration();
+	
+
     }
 
     public void zoom(int zoom, ZoomEvent event)
     {
-	if ((cd.getCellSize() + zoom) > 0)
+	if ((cd.getCellSize() + zoom) > 0 && (cd.getCellSize() + zoom) <= 35)
 	{
 	    int cellSize = cd.getCellSize();
 
@@ -63,11 +78,11 @@ public class GameOfLife extends AnimationTimer
 	    int x = (int) event.getX();
 	    int y = (int) event.getY();
 
-	    int x2 = (x + cd.getpositionX()) / cellSize;
-	    int y2 = (y + cd.getpositionY()) / cellSize;
+	    int xDivCell = (x + cd.getpositionX()) / cellSize;
+	    int yDivCell = (y + cd.getpositionY()) / cellSize;
 
-	    cd.setPosX(x2 * (cellSize + zoom) - x);
-	    cd.setPosY(y2 * (cellSize + zoom) - y);
+	    cd.setPosX(xDivCell * (cellSize + zoom) - x +  (x + cd.getpositionX()) % cellSize);
+	    cd.setPosY(yDivCell * (cellSize + zoom) - y + (y + cd.getpositionY()) % cellSize);
 
 	    cd.drawNextGeneration();
 	}
@@ -112,32 +127,45 @@ public class GameOfLife extends AnimationTimer
 
 	int x = (int) event.getX();
 	int y = (int) event.getY();
+	
 
 	int cellSize = cd.getCellSize();
 	int posX = cd.getpositionX();
 	int posY = cd.getpositionY();
 
-	int x2 = (x + posX) / cellSize;
-	int y2 = (y + posY) / cellSize;
+	int xDivCell = (x + posX) / cellSize;
+	int yDivCell = (y + posY) / cellSize;
 
-	(model.getCurrentGeneration()[x2][y2 / 64]) ^= (1L << y2 % 64); // XOR
-									// på
-									// biten
-									// cellen
-									// representerer
-	model.getInactiveCells()[x2][y2 / 64] ^= (1L << y2 % 64);
+	System.out.printf("(x,y): (%d,%d)\n", x, y);
 
-	if (((model.getCurrentGeneration()[x2][y2 / 64] >> y2 % 64) & 1) == 1) // if
-									       // alive
-	    cd.drawCell(cellSize * (x2) - posX, cellSize * (y2) - posY, model.getColor());
+	if(! (xDivCell > model.getX() || yDivCell > model.getRealY()))
+	{
+	    (model.getCurrentGeneration()[xDivCell][yDivCell / 64]) ^= (1L << yDivCell % 64); 
+	
+	
+	
+	model.getActiveCells()[xDivCell][yDivCell / 64] ^= (1L << yDivCell % 64);
+
+	if (((model.getCurrentGeneration()[xDivCell][yDivCell / 64] >> yDivCell % 64) & 1) == 1) // if									       // alive
+	{
+	    cd.drawCell(cellSize * (xDivCell) - posX, cellSize * (yDivCell) - posY, model.getColor());
+	    model.setAliveCells(model.getAliveCells() + 1);
+	}
 	else
-	    cd.drawCell(cellSize * (x2) - posX, cellSize * (y2) - posY, Color.BLACK);
+	{
+	    cd.drawCell(cellSize * (xDivCell) - posX, cellSize * (yDivCell) - posY, Color.BLACK);
+	    model.setAliveCells(model.getAliveCells() - 1);
+
+	}
+	}
+	
+	  
     }
 
     public void resetGame()
     {
 	for (int i = 0; i < model.getX(); i++)
-	    for (int j = 0; j < model.getY(); j++)
+	    for (int j = 0; j < model.getRealY(); j++)
 	    {
 		model.getCurrentGeneration()[i][j] = 0;
 		model.getNewGeneration()[i][j] = 0;

@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox onZoom="#handleZoom" onZoomStarted="#handleZoom" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<VBox onZoom="#handleZoom" onZoomStarted="#handleZoom" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameOfLife.Controller">
    <children>
       <MenuBar VBox.vgrow="NEVER">
         <menus>
@@ -95,16 +95,21 @@
 		        </FXCollections>
 		      </items>
 		     </ComboBox>
-            <Region maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="328.0" />
             <Label fx:id="amountOfCells" style="-fx-font-family: Consolas;">
                <HBox.margin>
                   <Insets top="5.0" />
                </HBox.margin>
             </Label>
+            <Region maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="103.0" />
          </children></HBox>
       <HBox fx:id="canvasParent" minHeight="10.0" minWidth="10.0" onMouseDragged="#mouseDragged" onZoom="#handleZoom" onZoomFinished="#handleZoom" onZoomStarted="#handleZoom" prefHeight="400.0" VBox.vgrow="ALWAYS">
          <children>
             <Canvas fx:id="canvas" height="10.0" nodeOrientation="INHERIT" onMouseClicked="#mouseClicked" onMouseEntered="#handleMouseEntered" onMousePressed="#handleMouseEntered" onMouseReleased="#handleMouseEntered" onZoom="#handleZoom" onZoomFinished="#handleZoom" onZoomStarted="#handleZoom" width="10.0" />
+         </children>
+      </HBox>
+      <HBox style="-fx-background-color: #e9e9e9;">
+         <children>
+            <Label fx:id="position" text="Label" />
          </children>
       </HBox>
       <HBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0" spacing="40.0" style="-fx-background-color: #e9e9e9;" VBox.vgrow="NEVER">
@@ -129,7 +134,7 @@
                         <Insets left="50.0" />
                      </VBox.margin>
                   </Label>
-                  <Slider fx:id="sliderSpeed" blockIncrement="100" max="1500.0" min="1.0" onMouseDragged="#speedSliderDragged" showTickMarks="true" value="10.0" />
+                  <Slider fx:id="sliderSpeed" blockIncrement="100" max="50.0" min="1.0" onMouseDragged="#speedSliderDragged" showTickMarks="true" value="0.1" />
                </children>
             </VBox>
             <VBox>
@@ -142,7 +147,7 @@
                         <Insets left="40.0" />
                      </VBox.margin>
                   </Label>
-                  <Slider fx:id="sliderZoom" min="1.0" onMouseDragged="#zoomSliderDragged" showTickMarks="true" value="4.0" />
+                  <Slider fx:id="sliderZoom" max="10.0" min="1.0" onMouseDragged="#zoomSliderDragged" showTickMarks="true" value="5.0" />
                </children>
             </VBox>
             <ColorPicker fx:id="colorPicker" onAction="#changeColor">

@@ -1,12 +1,14 @@
+package GameOfLife;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Rules
 {
     private int[] survivalRules = { 2, 3 };
     private int[] birthRules = { 3 };
 
-    HashMap<String, int[][]> hmap = new HashMap<String, int[][]>();
+    Map<String, int[][]> hmap = new HashMap<>();
 
     public Rules()
     {
@@ -16,7 +18,7 @@ public class Rules
 	hmap.put("Amoeba", new int[][] { { 1, 3, 5, 8 }, { 3, 5, 7 } });
 	hmap.put("Assimilation", new int[][] { { 4, 5, 6, 7 }, { 3, 4, 5 } });
 	hmap.put("Coagulations", new int[][] { { 2, 3, 5, 6, 7, 8 }, { 3, 7, 8 } });
-	hmap.put("Conway's Life", new int[][] { { 2, 3 }, { 3 } });
+    	hmap.put("Conway's Life", new int[][] { { 2, 3 }, { 3 } });
 	hmap.put("Coral", new int[][] { { 4, 5, 6, 7, 8 }, { 3 } });
 	hmap.put("Day and Night", new int[][] { { 3, 4, 6, 7, 8 }, { 3, 6, 7, 8 } });
 	hmap.put("Diamoeba", new int[][] { { 5, 6, 7, 8 }, { 3, 5, 6, 7, 8 } });
