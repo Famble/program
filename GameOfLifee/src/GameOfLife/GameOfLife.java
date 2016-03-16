@@ -20,7 +20,6 @@ public class GameOfLife extends AnimationTimer
     {
 	this.model = model;
 	this.cd = cd;
-	cd.clearCanvas();
     }
 
     @Override

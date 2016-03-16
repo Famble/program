@@ -8,8 +8,8 @@ public class CanvasDrawer
     private GraphicsContext gc;
     Matrix model;
     private int cellSize = 5;
-    private int posX = 5000;
-    private int posY = 5000;
+    private int posX;
+    private int posY;
     private double windowWidth;
     private double windowHeight;
 
@@ -95,21 +95,26 @@ public class CanvasDrawer
 	for (int x = 0; x < model.getX(); x++)
 	    for (int j = 0; j < model.getY(); j++)
 	    {
-		if (!(model.getCurrentGeneration()[x][j] == 0))
-		    for (int k = 0; k < cellsInLong; k++)
-		    {
-			if (((model.getCurrentGeneration()[x][j] >> k) & 1L) == 1) // if
-										   // alive
+		//forsikrer at vi bare tegner i vinduet til programmet
+		if(x*cellSize < posX || x*cellSize > posX+windowWidth || cellSize*(j*64 + 64) < posY || cellSize*(j*64)  > posY + windowHeight) 
+		{
+		    //hvis cellen er utenform skjermen
+		}
+		else
+		    if (!(model.getCurrentGeneration()[x][j] == 0))
+			for (int k = 0; k < cellsInLong; k++)
 			{
-			    // 6 bitshift til vestre tilsvarer å gang med 64,
-			    // men er raskere for CPU
-			    long y = (j << 6) + k;
-			    gc.fillRect(cellSize * (x) - posX, cellSize * (y) - posY, cellSize, cellSize);
-			} else// else dead
-			{
-
-			}
-		    }
+			    if (((model.getCurrentGeneration()[x][j] >> k) & 1L) == 1) // if										   // alive
+			    {
+				// 6 bitshift til vestre tilsvarer å gang med 64,
+				// men er raskere for CPU
+				long y = (j << 6) + k;
+				gc.fillRect(cellSize * (x) - posX, cellSize * (y) - posY, cellSize, cellSize);
+			    } else// else dead
+			    {
+        
+			    }
+        		 }
 	    }
     }
 

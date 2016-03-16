@@ -65,12 +65,12 @@ public class Controller implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {
 	rules = new Rules();
-	model = new Matrix(10000, 10000, rules);// 100mill celler
+	model = new Matrix(10000, (100000), rules);// 100mill celler
 	
 	cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
 
 	GOL = new GameOfLife(model, cd);
-
+	
 	canvas.setOnZoom((zoomEvent) ->
 	{
 	    
@@ -118,6 +118,13 @@ public class Controller implements Initializable
 
 	    for (int i : rules.getSurvivalRules())
 		birth.setText(birth.getText() + i);
+	    
+	    
+	    for(int i = 0; i < model.getX(); i++)
+		for(int j = 0; j < model.getY(); j++)
+		    model.getActiveCells()[i][j] = 0;
+	    
+	    model.startNextGeneration();
 
 	    
 	});
