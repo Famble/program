@@ -1,6 +1,7 @@
 package GameOfLife;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Box;
 
@@ -82,6 +83,25 @@ public class CanvasDrawer
 	this.posY = y;
 
     }
+    
+    public void zoom(int zoom)
+    {
+	int cellSize = this.getCellSize();
+
+	int middleOfScreenX = (int) this.getWindowWidth() / 2;
+	int middleOfScreenY = (int) this.getWindowHeight() / 2;
+
+	int x = ((middleOfScreenX + this.getpositionX()) / cellSize);
+	int y = ((middleOfScreenY + this.getpositionY()) / cellSize);
+
+	this.setPosX(x * (this.getCellSize() + zoom) - middleOfScreenX);
+	this.setPosY(y * (this.getCellSize() + zoom) - middleOfScreenY);
+
+	this.setCellSize(this.getCellSize() + zoom);
+
+	this.drawNextGeneration();
+
+    }
 
     public void clearCanvas()
     {
@@ -91,13 +111,36 @@ public class CanvasDrawer
 
     public void drawCell(int x, int y, Color color)
     {
-	gc.setFill(model.getColor());
-	gc.setStroke(model.getColor());
-	gc.strokeOval(x, y,cellSize, cellSize);
+	gc.setFill(color);
 	gc.fillOval(x, y, cellSize, cellSize);
-	System.out.println("hey");
+    }
+    
+    public void movePosition(int x, int y)
+    {
+	this.setPosX(this.getpositionX() + x);
+	this.setPosY(this.getpositionY() + y);
+	this.drawNextGeneration();
+    }
+    
+    public void zoom(int zoom, ScrollEvent event)
+    {
+	if ((this.getCellSize() + zoom) > 0 && (this.getCellSize() + zoom) <= 35)
+	{
+	    int cellSize = this.getCellSize();
 
-	
+	    this.setCellSize(this.getCellSize() + zoom);
+
+	    int x = (int) event.getX();
+	    int y = (int) event.getY();
+
+	    int xDivCell = (x + this.getpositionX()) / cellSize;
+	    int yDivCell = (y + this.getpositionY()) / cellSize;
+
+	    this.setPosX(xDivCell * (cellSize + zoom) - x + (x + this.getpositionX()) % cellSize);
+	    this.setPosY(yDivCell * (cellSize + zoom) - y + (y + this.getpositionY()) % cellSize);
+
+	    this.drawNextGeneration();
+	}
 
     }
 
@@ -105,6 +148,7 @@ public class CanvasDrawer
     {
 	clearCanvas();
 	gc.setFill(model.getColor());
+	gc.setStroke(Color.WHITE);
 	int cellsInLong = 64;
 
 	for (int x = 0; x < model.getX(); x++)
@@ -124,7 +168,6 @@ public class CanvasDrawer
 				// 6 bitshift til vestre tilsvarer å gang med 64,
 				// men er raskere for CPU
 				long y = (j << 6) + k;
-				gc.strokeOval(cellSize * (x) - posX, cellSize * (y) - posY, cellSize, cellSize);
 				gc.fillOval(cellSize * (x) - posX, cellSize * (y) - posY, cellSize, cellSize);
 
 			    } else// else dead
