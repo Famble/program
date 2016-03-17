@@ -2,7 +2,9 @@ package GameOfLife;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.shape.Box;
 import javafx.stage.Stage;
 
 public class Main extends Application
@@ -16,9 +18,15 @@ public class Main extends Application
     @Override
     public void start(Stage primaryStage) throws Exception
     {
+
+
+
 	primaryStage.setTitle("Game of Life");
 	Parent root = FXMLLoader.load(getClass().getResource("Hey.fxml"));
-	primaryStage.setScene(new Scene(root, 1000, 700));
+	Scene scene = new Scene(root, 1000, 700);
+
+
+	primaryStage.setScene(scene);
 	primaryStage.show();
     }
 

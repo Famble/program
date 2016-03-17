@@ -47,8 +47,6 @@ public class GameOfLife extends AnimationTimer
     public void zoom(int zoom)
     {
 	int cellSize = cd.getCellSize();
-
-	System.out.println("direction" + zoom);
 	
 	int middleOfScreenX = (int)cd.getWindowWidth()/2;
 	int middleOfScreenY = (int)cd.getWindowHeight()/2;
@@ -135,27 +133,26 @@ public class GameOfLife extends AnimationTimer
 	int xDivCell = (x + posX) / cellSize;
 	int yDivCell = (y + posY) / cellSize;
 
-	System.out.printf("(x,y): (%d,%d)\n", x, y);
 
 	if(! (xDivCell > model.getX() || yDivCell > model.getRealY()))
 	{
 	    (model.getCurrentGeneration()[xDivCell][yDivCell / 64]) ^= (1L << yDivCell % 64); 
 	
 	
-	
-	model.getActiveCells()[xDivCell][yDivCell / 64] ^= (1L << yDivCell % 64);
-
-	if (((model.getCurrentGeneration()[xDivCell][yDivCell / 64] >> yDivCell % 64) & 1) == 1) // if									       // alive
-	{
-	    cd.drawCell(cellSize * (xDivCell) - posX, cellSize * (yDivCell) - posY, model.getColor());
-	    model.setAliveCells(model.getAliveCells() + 1);
-	}
-	else
-	{
-	    cd.drawCell(cellSize * (xDivCell) - posX, cellSize * (yDivCell) - posY, Color.BLACK);
-	    model.setAliveCells(model.getAliveCells() - 1);
-
-	}
+        	
+        	model.getActiveCells()[xDivCell][yDivCell / 64] ^= (1L << yDivCell % 64);
+        
+        	if (((model.getCurrentGeneration()[xDivCell][yDivCell / 64] >> yDivCell % 64) & 1) == 1) // if									       // alive
+        	{
+        	    cd.drawCell(cellSize * (xDivCell) - posX, cellSize * (yDivCell) - posY, model.getColor());
+        	    model.setAliveCells(model.getAliveCells() + 1);
+        	}
+        	else
+        	{
+        	    cd.drawCell(cellSize * (xDivCell) - posX, cellSize * (yDivCell) - posY, Color.BLACK);
+        	    model.setAliveCells(model.getAliveCells() - 1);
+        
+        	}
 	}
 	
 	  
@@ -164,10 +161,11 @@ public class GameOfLife extends AnimationTimer
     public void resetGame()
     {
 	for (int i = 0; i < model.getX(); i++)
-	    for (int j = 0; j < model.getRealY(); j++)
+	    for (int j = 0; j < model.getY(); j++)
 	    {
 		model.getCurrentGeneration()[i][j] = 0;
 		model.getNewGeneration()[i][j] = 0;
+		model.getActiveCells()[i][j] = 0;
 	    }
 
 	cd.drawNextGeneration();

@@ -2,6 +2,7 @@ package GameOfLife;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Box;
 
 public class CanvasDrawer
 {
@@ -20,6 +21,8 @@ public class CanvasDrawer
 	this.gc = gc;
 	posX = model.getX() * cellSize / 2;
 	posY = model.getRealY() * cellSize / 2;
+	gc.setStroke(Color.GRAY);
+	
     }
 
     public double getWindowWidth()
@@ -67,6 +70,12 @@ public class CanvasDrawer
 	this.posX = x;
 
     }
+    
+    public void setStroke(Color c)
+    {
+	gc.setStroke(c);
+
+    }
 
     public void setPosY(int y)
     {
@@ -82,8 +91,14 @@ public class CanvasDrawer
 
     public void drawCell(int x, int y, Color color)
     {
-	gc.setFill(color);
-	gc.fillRect(x, y, cellSize, cellSize);
+	gc.setFill(model.getColor());
+	gc.setStroke(model.getColor());
+	gc.strokeOval(x, y,cellSize, cellSize);
+	gc.fillOval(x, y, cellSize, cellSize);
+	System.out.println("hey");
+
+	
+
     }
 
     public void drawNextGeneration()
@@ -109,7 +124,9 @@ public class CanvasDrawer
 				// 6 bitshift til vestre tilsvarer å gang med 64,
 				// men er raskere for CPU
 				long y = (j << 6) + k;
-				gc.fillRect(cellSize * (x) - posX, cellSize * (y) - posY, cellSize, cellSize);
+				gc.strokeOval(cellSize * (x) - posX, cellSize * (y) - posY, cellSize, cellSize);
+				gc.fillOval(cellSize * (x) - posX, cellSize * (y) - posY, cellSize, cellSize);
+
 			    } else// else dead
 			    {
         

@@ -101,25 +101,44 @@ public class Matrix
 
     }
 
-    /**
-     * A method to set the rules of the game. With the logic.
-     */
+   
 
-    // 0 if cell is active and 1 if its inactive(every cell starts as active)!
-    private void determineNextGeneration()
+
+    /* The GOL algorithm:
+     *
+     * A cell becomes active in two ways: 1. the cell is clicked by the user, 2. The cell changed state in the previous call to determineNextGeneration()
+     * We only need to check the active cells and its neighbors in order to determine the next generation(next game board). The nested for loop in determineNextGeneration()
+     * Loops the activeCells array to determine whether each cell is alive or not. bit = 1 means active, and bit = 0 inactive. 
+     * Since the cells in each long represents 64 cells going in the vertical direction, we can simply check if each long equals zero.
+     * If the long equals zero, then we know 64 of the cells are inactive, if not, then we loop through every bit in the long value(same principle applies in the nextGeneration method).
+     * 
+     * 
+    */private void determineNextGeneration()
     {
 	int aliveNeighbours;
 	int cellsInLong = 64;
 
-	// System.out.println(Arrays.deepToString(this.getActiveCells()));
-
-;
+	/*
+	We need to be able to support an array of any size, but since we're working with bit arrays it gets trickier(the vertical length of the board becomes a multiple of 64)
+	In the nested for loop below, we loop through the array going column by column. When the cell height of the board is not divisible by 64(e.g. 65, 12 125) 
+	the if sentence below the (j) for loop ensures that we don't exceed the game board.
+	
+	the if statement: if (((this.getActiveCells()[i][j] >> k) & 1L) == 1), determines which cell is active. The left side of the boolean expression is the long value
+	that represents 64 cells. We get the value of every bit by using two bitwise operations and an equality test. 
+	By shifting the long pattern k positions to the right, the  bit at position k will be the rightmost bit(LSB). 
+	throughout the loop every bit will be the rightmost bit once. We perform the logical AND operation on the bitshifted long valued and a
+	long equal to 1. Since the long equal to 1 has a pattern with only zeros followed by one bit
+	
+	
+	
+	*/
+	
 
 	for (int i = 0; i < this.x; i++)
 	{
 	    for (int j = 0; j < this.yDiv64; j++)
 	    {
-		if (j == this.yDiv64 - 1) // på siste long colonne
+		if (j == this.yDiv64 - 1) 
 		    cellsInLong = yMod64;
 		else
 		    cellsInLong = 64;
@@ -127,10 +146,9 @@ public class Matrix
 		if (!(this.getActiveCells()[i][j] == 0))// if long is zero then
 							// no need to check
 		    for (int k = 0; k < cellsInLong; k++)
-		    { // if cell is active
+		    {
 			if (((this.getActiveCells()[i][j] >> k) & 1L) == 1)
 			{
-
 			    aliveNeighbours = countNeighbours(i, j, k, true);
 			    setCell(i, j, k, aliveNeighbours);
 			}
@@ -141,10 +159,7 @@ public class Matrix
 	}
 
     }
-
-    // en aktiv celle er en celle som har endret på seg
-    // is 0 if cell is active and 1 if its inactive(every cell starts as
-    // active)!
+   
     private int countNeighbours(int i, int j, int k, boolean checkForInactive)
     {
 	int aliveNeighbours = 0;
