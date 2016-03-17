@@ -132,11 +132,16 @@ public class Controller implements Initializable
 	amountOfCells.setText(String.format("%d Million Cells", ((int)model.getX()*model.getRealY()/(int)Math.pow(10, 6))));
 	position.setText(String.format("(x, y): (%d,%d)", cd.getpositionX(), cd.getpositionY()));
     }
+    
+    public void handleOpen()
+    {
+	FileHandler file = new FileHandler();
+    }
 
     public void handleZoom(ZoomEvent event)
     {
     	System.out.println("Iuhnjk");
-		if (event.getZoomFactor() > 1)
+		if (event.getZoomFactor() > 1) 
 		{
 			System.out.println("1");
 		    GOL.zoom(1, event);
