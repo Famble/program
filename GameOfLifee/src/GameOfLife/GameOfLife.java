@@ -69,7 +69,9 @@ public class GameOfLife extends AnimationTimer
 	if ((cd.getCellSize() + zoom) > 0 && (cd.getCellSize() + zoom) <= 35)
 	{
 	    int cellSize = cd.getCellSize();
-
+	    
+	    
+	    
 	    cd.setCellSize(cd.getCellSize() + zoom);
 
 	    int x = (int) event.getX();

@@ -26,8 +26,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.MeshView;
 
 public class Controller implements Initializable
 {
@@ -56,26 +54,22 @@ public class Controller implements Initializable
     private Label position;
     @FXML
     Rules rules;
-    MeshView mesh;
     private GameOfLife GOL;
     boolean start = true;
     int offsetX = 0;
     CanvasDrawer cd;
     int offsetY = 0;
-    Box BOX;
     Matrix model;
 
     @Override
     public void initialize(URL location, ResourceBundle resources)
     {
 	rules = new Rules();
-	model = new Matrix(10000, (10000), rules);// 100mill celler
+	model = new Matrix(1000, (1000), rules);// 1000mill celler
+	
 	cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
-	
+
 	GOL = new GameOfLife(model, cd);
-	
-	
-	
 	
 	canvas.setOnZoom((zoomEvent) ->
 	{
@@ -141,14 +135,16 @@ public class Controller implements Initializable
 
     public void handleZoom(ZoomEvent event)
     {
-
-	if (event.getZoomFactor() > 2)
-	{
-	    GOL.zoom(1, event);
-	} else if(event.getZoomFactor() < 0.7)
-	{
-	    GOL.zoom(-1, event);
-	}
+    	System.out.println("Iuhnjk");
+		if (event.getZoomFactor() > 1)
+		{
+			System.out.println("1");
+		    GOL.zoom(1, event);
+		} else if(event.getZoomFactor() < 1)
+		{
+			System.out.println("-1");
+		    GOL.zoom(-1, event);
+		}
 
     }
 
