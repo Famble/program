@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.paint.Color;
 
@@ -64,13 +65,11 @@ public class GameOfLife extends AnimationTimer
 
     }
 
-    public void zoom(int zoom, ZoomEvent event)
+    public void zoom(int zoom, ScrollEvent event)
     {
 	if ((cd.getCellSize() + zoom) > 0 && (cd.getCellSize() + zoom) <= 35)
 	{
 	    int cellSize = cd.getCellSize();
-	    
-	    
 	    
 	    cd.setCellSize(cd.getCellSize() + zoom);
 

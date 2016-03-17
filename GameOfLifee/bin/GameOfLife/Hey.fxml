@@ -104,7 +104,7 @@
          </children></HBox>
       <HBox fx:id="canvasParent" minHeight="10.0" minWidth="10.0" onMouseDragged="#mouseDragged" onZoom="#handleZoom" onZoomFinished="#handleZoom" onZoomStarted="#handleZoom" prefHeight="400.0" style="-fx-background-color: black;" VBox.vgrow="ALWAYS">
          <children>
-            <Canvas fx:id="canvas" height="10.0" nodeOrientation="INHERIT" onMouseClicked="#mouseClicked" onMouseEntered="#handleMouseEntered" onMousePressed="#handleMouseEntered" onMouseReleased="#handleMouseEntered" onZoom="#handleZoom" onZoomFinished="#handleZoom" onZoomStarted="#handleZoom" width="10.0" />
+            <Canvas fx:id="canvas" height="10.0" nodeOrientation="INHERIT" onMouseClicked="#mouseClicked" onMouseEntered="#handleMouseEntered" onMousePressed="#handleMouseEntered" onMouseReleased="#handleMouseEntered" onScroll="#handleZoom" width="10.0" />
          </children>
       </HBox>
       <HBox style="-fx-background-color: #e9e9e9;">

@@ -23,6 +23,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Slider;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -138,19 +139,22 @@ public class Controller implements Initializable
 	FileHandler file = new FileHandler();
     }
 
-    public void handleZoom(ZoomEvent event)
+    public void handleZoom(ScrollEvent event)
     {
-    	System.out.println("Iuhnjk");
-		if (event.getZoomFactor() > 1) 
-		{
-			System.out.println("1");
-		    GOL.zoom(1, event);
-		} else if(event.getZoomFactor() < 1)
-		{
+	System.out.println(event.getDeltaY());
+    	
+    	
+    	
+		if (event.getDeltaY() > 1)
+		{	
+			sliderZoom.setValue(cd.getCellSize()+1);
+			GOL.zoom(1, event);	
+		} else if(event.getDeltaY() < 1)
+ 		{
 			System.out.println("-1");
-		    GOL.zoom(-1, event);
-		}
-
+			sliderZoom.setValue(cd.getCellSize()-1);
+ 		    GOL.zoom(-1, event);
+ 		}
     }
 
     
