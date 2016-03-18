@@ -1,17 +1,9 @@
 package GameOfLife;
 
-import java.awt.event.ActionEvent;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 
-import javax.rmi.ssl.SslRMIClientSocketFactory;
-
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -67,7 +59,7 @@ public class Controller implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {
 	rules = new Rules();
-	model = new Matrix(10000, (10000), rules);// 1000mill celler
+	model = new Matrix(5000, (5000), rules);// 1000mill celler
 
 	cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
 
@@ -201,7 +193,6 @@ public class Controller implements Initializable
     {
 	if (event.isControlDown())
 	{
-
 	    cd.movePosition(offsetX - (int) event.getX(), offsetY - (int) event.getY());
 	    offsetX = (int) event.getX();
 	    offsetY = (int) event.getY();

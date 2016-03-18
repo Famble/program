@@ -33,8 +33,15 @@ public class Matrix
     }
 
     public void setBoard(long board[][])
-    {
-	activeCells = board;
+    {	
+	
+	for(int i = 0; i < board.length;i++)
+	    for(int j = 0; j < board[i].length;j++)
+	    {
+		this.getActiveCells()[i][j] = board[i][j];
+		this.getCurrentGeneration()[i][j] = board[i][j];
+	    }
+	    
     }
 
     public long[][] getActiveCells()
@@ -162,7 +169,7 @@ public class Matrix
 			if (((this.getActiveCells()[x][y] >> bitPos) & 1L) == 1)
 			{
 			    aliveNeighbours = countNeighbours(x, y, bitPos, true);
-			    setCell(x, y, bitPos, aliveNeighbours);
+			    setCellState(x, y, bitPos, aliveNeighbours);
 			}
 
 		    }
@@ -210,7 +217,7 @@ public class Matrix
 		for (int j = -1; j <= 1; j++)
 		{
 		    if (!(i == 0 && j == 0))// (3)
-		    {
+		    {	
 			if (j == -1 && bitPos == 0) // (4)
 			{
 
@@ -220,7 +227,7 @@ public class Matrix
 			    }
 			    if (countNeighbors)// (6)
 			    {
-				setCell(i + x, y - 1, 63, countNeighbours((i + x), y - 1, (63), false));
+				setCellState(i + x, y - 1, 63, countNeighbours((i + x), y - 1, (63), false));
 			    }
 			} else if (j == 1 && bitPos == 63)
 			{
@@ -231,19 +238,19 @@ public class Matrix
 			    }
 			    if (countNeighbors)
 			    {
-				setCell(i + x, y + 1, 0, countNeighbours((i + x), y + 1, (0), false));
+				setCellState(i + x, y + 1, 0, countNeighbours((i + x), y + 1, (0), false));
 			    }
 
 			} else
 			{
 
-			    if (((this.getCurrentGeneration()[i + x][y] >> (j + bitPos)) & 1L) == 1)
+		    if (((this.getCurrentGeneration()[i + x][y] >> (j + bitPos)) & 1L) == 1)
 			    {
 				aliveNeighbours++;
 			    }
 			    if (countNeighbors)
 			    {
-				setCell(i + x, y, j + bitPos, countNeighbours((i + x), y, (j + bitPos), false));
+				setCellState(i + x, y, j + bitPos, countNeighbours((i + x), y, (j + bitPos), false));
 			    }
 
 			}
@@ -267,7 +274,7 @@ public class Matrix
     /*
      * 
      */
-    private void setCell(int x, int y, int bitPos, int aliveNeighbours)
+    private void setCellState(int x, int y, int bitPos, int aliveNeighbours)
     {
 	boolean alive = (((this.getCurrentGeneration()[x][y] >> bitPos) & 1) == 1); // (1)
 
@@ -304,6 +311,7 @@ public class Matrix
 		this.getNewActiveCells()[x][y] |= (1L << bitPos); // set active
 	    } else
 	    {
+		this.getNextGeneration()[x][y] |= (1L << bitPos);
 		this.getNewActiveCells()[x][y] &= ~(1L << bitPos); // set
 								   // inactive
 
@@ -344,7 +352,6 @@ public class Matrix
 	    {
 		for (int x = 0; x < this.x; x++)
 		{
-		    // System.out.printf("x, y, k: %d,%d,%d\n", x, y, k);
 		    bitString += ((this.getCurrentGeneration()[x][y] >> k) & 1);
 		}
 	    }

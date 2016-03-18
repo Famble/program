@@ -1,13 +1,7 @@
 package GameOfLife;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
 
 import javafx.animation.AnimationTimer;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.ZoomEvent;
-import javafx.scene.paint.Color;
+
 
 public class GameOfLife extends AnimationTimer
 {
@@ -53,10 +47,4 @@ public class GameOfLife extends AnimationTimer
 	this.stop();
 
     }
-
- 
-    
-
-    
-
 }
