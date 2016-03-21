@@ -59,11 +59,12 @@ public class Controller implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {
 	rules = new Rules();
-	model = new Matrix(5000, (5000), rules);// 1000mill celler
+	model = new Matrix(100, (100), rules);// 1000mill celler
 
 	cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
 
 	GOL = new GameOfLife(model, cd);
+	
 
 	canvas.setOnZoom((zoomEvent) ->
 	{
@@ -118,7 +119,7 @@ public class Controller implements Initializable
 
 	amountOfCells.setText(
 		String.format("%d Million Cells", ((int) model.getX() * model.getRealY() / (int) Math.pow(10, 6))));
-	position.setText(String.format("(x, y): (%d,%d)", cd.getpositionX(), cd.getpositionY()));
+	position.setText(String.format("(x, y): (%d,%d)", cd.getCanvasDisplacedX(), cd.getCanvasDisplacedY()));
     }
 
     public void handleOpen()
@@ -135,10 +136,10 @@ public class Controller implements Initializable
     public void handleZoom(ScrollEvent event)
     {
 
-	if (event.getDeltaY() < 1)
+	if (event.getDeltaY() > 1)
 	{
 	    cd.zoom(1, event);
-	} else if (event.getDeltaY() > 1)
+	} else if (event.getDeltaY() < 1)
 	{
 	    sliderZoom.setValue(cd.getCellSize() - 1);
 	    cd.zoom(-1, event);
@@ -147,24 +148,23 @@ public class Controller implements Initializable
 
     public void speedSliderDragged()
     {
-	GOL.setDelay(Math.pow(10, 9) * (1 / sliderSpeed.getValue()));
-
+    	GOL.setDelay(Math.pow(10, 9) * (1 / sliderSpeed.getValue()));
     }
 
     public void zoomSliderDragged()
     {
 	
-	if (cd.getCellSize() - (int) sliderZoom.getValue() == -1)
-	    cd.zoom((int) 1);
-	else if (cd.getCellSize() - (int) sliderZoom.getValue() == 1)
-	    cd.zoom(-1);
+		if (cd.getCellSize() - (int) sliderZoom.getValue() == -1)
+		    cd.zoom((int) 1);
+		else if (cd.getCellSize() - (int) sliderZoom.getValue() == 1)
+		    cd.zoom(-1);
 	    
     }
 
     public void changeColor()
     {
-	model.setColor(colorPicker.getValue());
-	cd.drawNextGeneration();
+		model.setColor(colorPicker.getValue());
+		cd.drawNextGeneration();
     }
 
     public void handleStartClick()
@@ -196,7 +196,7 @@ public class Controller implements Initializable
 	    cd.movePosition(offsetX - (int) event.getX(), offsetY - (int) event.getY());
 	    offsetX = (int) event.getX();
 	    offsetY = (int) event.getY();
-	    position.setText(String.format("(x, y): (%d,%d)", (int) cd.getpositionX(), (int) cd.getpositionY()));
+	    position.setText(String.format("(x, y): (%d,%d)", (int) cd.getCanvasDisplacedX(), (int) cd.getCanvasDisplacedY()));
 	} else
 	{
 	    mouseClicked(event);
@@ -214,30 +214,10 @@ public class Controller implements Initializable
     }
 
     public void mouseClicked(MouseEvent event)
-    {
-	int x = (int) event.getX();
-	int y = (int) event.getY();
-
-	int cellSize = cd.getCellSize();
-	int posX = cd.getpositionX();
-	int posY = cd.getpositionY();
-
-	int xDivCell = (x + posX) / cellSize;
-	int yDivCell = (y + posY) / cellSize;
-
-	(model.getCurrentGeneration()[xDivCell][yDivCell / 64]) ^= (1L << yDivCell % 64);
-
-	model.getActiveCells()[xDivCell][yDivCell / 64] ^= (1L << yDivCell % 64);
-
-	if (((model.getCurrentGeneration()[xDivCell][yDivCell / 64] >> yDivCell % 64) & 1) == 1)
-	{
-	    cd.drawCell(cellSize * (xDivCell) - posX, cellSize * (yDivCell) - posY, model.getColor());
-	} else
-	{
-	    cd.drawCell(cellSize * (xDivCell) - posX, cellSize * (yDivCell) - posY, Color.BLACK);
-
+    {	
+    	cd.drawCell((int)event.getX(), (int)event.getY());
 	}
-    }
+    
 
     public void handlePauseClick()
     {
@@ -246,15 +226,15 @@ public class Controller implements Initializable
 
     public void handleResetClick()
     {
-	for (int i = 0; i < model.getX(); i++)
-	    for (int j = 0; j < model.getY(); j++)
-	    {
-		model.getCurrentGeneration()[i][j] = 0;
-		model.getNextGeneration()[i][j] = 0;
-		model.getActiveCells()[i][j] = 0;
+		for (int i = 0; i < model.getX(); i++)
+		    for (int j = 0; j < model.getY(); j++)
+		    {
+				model.getCurrentGeneration()[i][j] = 0;
+				model.getNextGeneration()[i][j] = 0;
+				model.getActiveCells()[i][j] = 0;
+		    }
+	
+		cd.drawNextGeneration();
 	    }
-
-	cd.drawNextGeneration();
-    }
 
 }

@@ -20,16 +20,16 @@ public class Matrix
 
     public Matrix(int x, int y, Rules rules)
     {
-	this.y = y;
-	this.rules = rules;
-	this.x = x;
-	this.yDiv64 = (y / 64) + 1;
-	this.yMod64 = y % 64;
+	    this.rules = rules;
+		this.y = y;
+		this.x = x;
+		this.yDiv64 = (y / 64) + 1;
+		this.yMod64 = y % 64;
 
-	CurrGeneration = new long[x][yDiv64];
-	nextGeneration = new long[x][yDiv64];
-	activeCells = new long[x][yDiv64];
-	newActiveCells = new long[x][yDiv64];
+		CurrGeneration = new long[x][yDiv64];
+		nextGeneration = new long[x][yDiv64];
+		activeCells = new long[x][yDiv64];
+		newActiveCells = new long[x][yDiv64];
     }
 
     public void setBoard(long board[][])
@@ -208,8 +208,8 @@ public class Matrix
 	if (x == 0 || x == this.x - 1 || (y == 0 && bitPos == 0) || ((y == this.yDiv64 - 1) && bitPos == this.yMod64)) // (1)
 	{
 	    this.getNextGeneration()[x][y] &= ~(1L << bitPos); // kill bit
-	    this.getNewActiveCells()[x][y] |= (1L << bitPos); // make active
-	    return 0;
+	    this.getNewActiveCells()[x][y] &= ~(1L << bitPos); // make active
+	    return 1;
 	} else // not on the border
 	{
 
@@ -309,7 +309,7 @@ public class Matrix
 	    {
 		this.getNextGeneration()[x][y] &= ~(1L << bitPos); // set alive
 		this.getNewActiveCells()[x][y] |= (1L << bitPos); // set active
-	    } else
+	    }else
 	    {
 		this.getNextGeneration()[x][y] |= (1L << bitPos);
 		this.getNewActiveCells()[x][y] &= ~(1L << bitPos); // set

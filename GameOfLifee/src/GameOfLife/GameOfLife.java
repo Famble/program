@@ -21,7 +21,7 @@ public class GameOfLife extends AnimationTimer
     {
 	if (now - a > delay)
 	{
-	    model.startNextGeneration();
+		model.startNextGeneration();
 	    cd.drawNextGeneration();
 	    a = now;
 	}

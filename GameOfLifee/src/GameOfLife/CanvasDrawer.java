@@ -10,8 +10,8 @@ public class CanvasDrawer
     private GraphicsContext gc;
     Matrix model;
     private int cellSize = 5;
-    private int posX;
-    private int posY;
+    private int canvasDisplacedX;
+    private int canvasDisplacedY;
     private double windowWidth;
     private double windowHeight;
 
@@ -20,10 +20,58 @@ public class CanvasDrawer
 
 	this.model = model;
 	this.gc = gc;
-	posX = model.getX() * cellSize / 2;
-	posY = model.getRealY() * cellSize / 2;
+	canvasDisplacedX = model.getX() * cellSize / 2;
+	canvasDisplacedY = model.getRealY() * cellSize / 2;
 	gc.setStroke(Color.GRAY);
 	
+    }
+    
+    /*
+     * Receives the position (x,y) of the click relative to the top left corner of the canvas
+     * We add the displacement of the canvas to the parameters to get the position relative to the
+     * entire canvas(top left corner).
+     * We divide by the cell size to get the indices of the bit that represent the cell clicked
+     * 
+     */
+    
+    public void drawCell(int x, int y)
+    {
+    	int cellSize = this.getCellSize();
+    	
+    	int canvasDisplacedX = this.getCanvasDisplacedX();
+    	int canvasDisplacedY = this.getCanvasDisplacedY();
+    	x = (x + canvasDisplacedX) / cellSize; 
+    	y = (y + canvasDisplacedY) / cellSize;
+    	int cellsInLong = 64;
+    	
+    	int yDiv64 = y/64;
+    	int bitPos = y%64;
+    	
+    	try
+    	{
+    	
+	    	if(y > model.getRealY())
+	    		throw new ArrayIndexOutOfBoundsException();
+	  
+	    	
+	    	model.getCurrentGeneration()[x][yDiv64] ^= (1L << bitPos);
+	    	model.getActiveCells()[x][yDiv64] ^= (1L << bitPos);
+	    		
+	    	if (((model.getCurrentGeneration()[x][yDiv64] >> bitPos) & 1) == 1)
+	    	{
+	    		gc.setFill(model.getColor());
+	    		gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+	    	} else
+	    	{
+	    		gc.setFill(Color.BLACK);
+	    		gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+	    	}
+	    	
+    	}catch(ArrayIndexOutOfBoundsException e)
+    	{
+    		
+    	}
+    	
     }
 
     public double getWindowWidth()
@@ -46,14 +94,14 @@ public class CanvasDrawer
         this.windowHeight = windowHeight;
     }
 
-    public int getpositionX()
+    public int getCanvasDisplacedX()
     {
-	return posX;
+    	return canvasDisplacedX;
     }
 
-    public int getpositionY()
+    public int getCanvasDisplacedY()
     {
-	return posY;
+    	return canvasDisplacedY;
     }
 
     public void setCellSize(int size)
@@ -66,22 +114,15 @@ public class CanvasDrawer
 	return this.cellSize;
     }
 
-    public void setPosX(int x)
+    public void setCanvasDisplacedX(int x)
     {
-	this.posX = x;
-
+    	this.canvasDisplacedX = x;
     }
     
-    public void setStroke(Color c)
+
+    public void setCanvasDisplacedY(int y)
     {
-	gc.setStroke(c);
-
-    }
-
-    public void setPosY(int y)
-    {
-	this.posY = y;
-
+    	this.canvasDisplacedY = y;
     }
     
     public void zoom(int zoom)
@@ -91,11 +132,11 @@ public class CanvasDrawer
 	int middleOfScreenX = (int) this.getWindowWidth() / 2;
 	int middleOfScreenY = (int) this.getWindowHeight() / 2;
 
-	int x = ((middleOfScreenX + this.getpositionX()) / cellSize);
-	int y = ((middleOfScreenY + this.getpositionY()) / cellSize);
+	int x = ((middleOfScreenX + this.getCanvasDisplacedX()) / cellSize);
+	int y = ((middleOfScreenY + this.getCanvasDisplacedY()) / cellSize);
 
-	this.setPosX(x * (this.getCellSize() + zoom) - middleOfScreenX);
-	this.setPosY(y * (this.getCellSize() + zoom) - middleOfScreenY);
+	this.setCanvasDisplacedX(x * (this.getCellSize() + zoom) - middleOfScreenX);
+	this.setCanvasDisplacedY(y * (this.getCellSize() + zoom) - middleOfScreenY);
 
 	this.setCellSize(this.getCellSize() + zoom);
 
@@ -106,20 +147,14 @@ public class CanvasDrawer
     public void clearCanvas()
     {
 	gc.setFill(Color.BLACK);
-	gc.fillRect(0, 0, windowWidth, windowHeight);
+	gc.fillRect(0,0, windowWidth, windowHeight);
     }
 
-    public void drawCell(int x, int y, Color color)
-    {
-	gc.setFill(color);
-	gc.fillOval(x, y, cellSize, cellSize);
-    }
-    
     public void movePosition(int x, int y)
     {
-	this.setPosX(this.getpositionX() + x);
-	this.setPosY(this.getpositionY() + y);
-	this.drawNextGeneration();
+		this.setCanvasDisplacedX(this.getCanvasDisplacedX() + x);
+		this.setCanvasDisplacedY(this.getCanvasDisplacedY() + y);
+		this.drawNextGeneration();
     }
     
     public void zoom(int zoom, ScrollEvent event)
@@ -133,11 +168,11 @@ public class CanvasDrawer
 	    int x = (int) event.getX();
 	    int y = (int) event.getY();
 
-	    int xDivCell = (x + this.getpositionX()) / cellSize;
-	    int yDivCell = (y + this.getpositionY()) / cellSize;
+	    int xDivCell = (x + this.getCanvasDisplacedX()) / cellSize;
+	    int yDivCell = (y + this.getCanvasDisplacedY()) / cellSize;
 
-	    this.setPosX(xDivCell * (cellSize + zoom) - x + (x + this.getpositionX()) % cellSize);
-	    this.setPosY(yDivCell * (cellSize + zoom) - y + (y + this.getpositionY()) % cellSize);
+	    this.setCanvasDisplacedX(xDivCell * (cellSize + zoom) - x + (x + this.getCanvasDisplacedX()) % cellSize);
+	    this.setCanvasDisplacedY(yDivCell * (cellSize + zoom) - y + (y + this.getCanvasDisplacedY()) % cellSize);
 
 	    this.drawNextGeneration();
 	}
@@ -155,7 +190,8 @@ public class CanvasDrawer
 	    for (int j = 0; j < model.getY(); j++)
 	    {
 		//forsikrer at vi bare tegner i vinduet til programmet
-		if(x*cellSize < posX || x*cellSize > posX+windowWidth || cellSize*(j*64 + 64) < posY || cellSize*(j*64)  > posY + windowHeight) 
+		if(x*cellSize < canvasDisplacedX || x*cellSize > canvasDisplacedX+windowWidth
+				|| cellSize*(j*64 + 64) < canvasDisplacedY || cellSize*(j*64)  > canvasDisplacedY + windowHeight) 
 		{
 		    //hvis cellen er utenform skjermen
 		}
@@ -168,7 +204,7 @@ public class CanvasDrawer
 				// 6 bitshift til vestre tilsvarer å gang med 64,
 				// men er raskere for CPU
 				long y = (j << 6) + k;
-				gc.fillOval(cellSize * (x) - posX, cellSize * (y) - posY, cellSize, cellSize);
+				gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
 
 			    } else// else dead
 			    {
