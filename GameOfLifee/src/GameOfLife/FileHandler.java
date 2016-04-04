@@ -26,7 +26,7 @@ public class FileHandler extends Stage
 
     File f = path.toFile();
 
-    public FileHandler()
+    public FileHandler() throws IOException
     {
 
 	this.setTitle("File");
@@ -38,13 +38,15 @@ public class FileHandler extends Stage
 		if (selectedFile != null)
 		{
 		    System.out.println(selectedFile.toPath());
-		    System.out.println(readRle(selectedFile));
+		    BufferedReader rle = Files.newBufferedReader(selectedFile.toPath(),Charset.forName("UTF-8"));
+		    RleInterpreter gay = new RleInterpreter(rle);
 		}
-		
+																
     }
 
 	
-    private String readRle(File file){
+    private String readRle(File file)
+    {
     	
     	StringBuilder rleString = new StringBuilder();
     	Charset charset = Charset.forName("UTF-8");
@@ -55,8 +57,9 @@ public class FileHandler extends Stage
 			
 				while((text = reader.readLine()) != null)
 				{
-					rleString.append(text);
+					rleString.append(text + "\n	");
 				}
+				
 			
 		    }
 		catch(FileNotFoundException ex){

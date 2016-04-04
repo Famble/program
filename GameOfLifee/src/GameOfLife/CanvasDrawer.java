@@ -40,8 +40,10 @@ public class CanvasDrawer
     	
     	int canvasDisplacedX = this.getCanvasDisplacedX();
     	int canvasDisplacedY = this.getCanvasDisplacedY();
+    	
     	x = (x + canvasDisplacedX) / cellSize; 
     	y = (y + canvasDisplacedY) / cellSize;
+    	
     	int cellsInLong = 64;
     	
     	int yDiv64 = y/64;
@@ -55,14 +57,17 @@ public class CanvasDrawer
 	  
 	    	
 	    	model.getCurrentGeneration()[x][yDiv64] ^= (1L << bitPos);
-	    	model.getActiveCells()[x][yDiv64] ^= (1L << bitPos);
+	    	model.getActiveCells()[x][yDiv64] |= (1L << bitPos);
 	    		
-	    	if (((model.getCurrentGeneration()[x][yDiv64] >> bitPos) & 1) == 1)
+	    	if (((model.getCurrentGeneration()[x][yDiv64] >> bitPos) & 1L) == 1)
 	    	{
+	
 	    		gc.setFill(model.getColor());
 	    		gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
 	    	} else
 	    	{
+	    		System.out.println((((model.getCurrentGeneration()[x][yDiv64] >> bitPos) & 1) == 1));
+	    		System.out.println((((model.getActiveCells()[x][yDiv64] >> bitPos) & 1) == 1));
 	    		gc.setFill(Color.BLACK);
 	    		gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
 	    	}
@@ -73,6 +78,62 @@ public class CanvasDrawer
     	}
     	
     }
+    
+    public void drawCell(int x, int y, boolean dragDraw)
+    {
+    	int cellSize = this.getCellSize();
+    	
+    	int canvasDisplacedX = this.getCanvasDisplacedX();
+    	int canvasDisplacedY = this.getCanvasDisplacedY();
+    	
+    	x = (x + canvasDisplacedX) / cellSize; 
+    	y = (y + canvasDisplacedY) / cellSize;
+    	
+    	int cellsInLong = 64;
+    	
+    	int yDiv64 = y/64;
+    	int bitPos = y%64;
+    	
+    	try
+    	{
+    	
+	    	if(y > model.getRealY())
+	    		throw new ArrayIndexOutOfBoundsException();
+	  
+	    	
+	    	if(dragDraw)//
+	    	{
+		    	if(((model.getCurrentGeneration()[x][yDiv64] >> bitPos)& 1) != 1)
+		    	{
+		    		gc.setFill(model.getColor());
+			    	model.getCurrentGeneration()[x][yDiv64] ^= (1L << bitPos);
+			    	model.getActiveCells()[x][yDiv64] |= (1L << bitPos);
+		    		gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+		    	}
+		    	
+		    	
+	    	}
+	    	else
+	    	{
+	    		
+		    	if((((model.getCurrentGeneration()[x][yDiv64] >> bitPos)& 1) == 1))
+		    	{
+		    		System.out.println("CANCER");
+		    		gc.setFill(Color.BLACK);
+		    		model.getCurrentGeneration()[x][yDiv64] &= ~(1L << bitPos);
+		    		model.getActiveCells()[x][yDiv64] |= (1L << bitPos);
+		    		gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+		    	}	
+	    	}
+	 
+    	}catch(ArrayIndexOutOfBoundsException e)
+    	{
+    		
+    	}
+    	
+    }
+    
+    
 
     public double getWindowWidth()
     {
@@ -183,7 +244,6 @@ public class CanvasDrawer
     {
 	clearCanvas();
 	gc.setFill(model.getColor());
-	gc.setStroke(Color.WHITE);
 	int cellsInLong = 64;
 
 	for (int x = 0; x < model.getX(); x++)
@@ -208,7 +268,7 @@ public class CanvasDrawer
 
 			    } else// else dead
 			    {
-        
+			    	
 			    }
         		 }
 	    }

@@ -12,8 +12,8 @@ public class GameOfLife extends AnimationTimer
 
     public GameOfLife(Matrix model, CanvasDrawer cd)
     {
-	this.model = model;
-	this.cd = cd;
+		this.model = model;
+		this.cd = cd;
     }
 
     @Override

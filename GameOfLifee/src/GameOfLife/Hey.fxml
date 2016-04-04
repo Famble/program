@@ -110,7 +110,7 @@
       </HBox>
       <HBox style="-fx-background-color: #e9e9e9;">
          <children>
-            <ToggleButton fx:id="drawDrag" mnemonicParsing="false" onAction="#onDrawClicked" prefHeight="0.0" prefWidth="52.0" text="Draw" />
+            <ToggleButton fx:id="drawDrag" mnemonicParsing="false" onAction="#onDrawClicked" prefHeight="0.0" prefWidth="52.0" selected="true" text="Draw" />
             <Label fx:id="position" text="Label" />
          </children>
       </HBox>

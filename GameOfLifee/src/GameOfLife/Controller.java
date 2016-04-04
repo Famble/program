@@ -1,5 +1,8 @@
 package GameOfLife;
 
+import java.awt.dnd.DragSource;
+import java.awt.dnd.DragSourceDragEvent;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -47,6 +50,7 @@ public class Controller implements Initializable
     private Label position;
     @FXML
     Rules rules;
+    @FXML
     private Toggle drawDrag;
     private GameOfLife GOL;
     boolean start = true;
@@ -122,15 +126,14 @@ public class Controller implements Initializable
 	position.setText(String.format("(x, y): (%d,%d)", cd.getCanvasDisplacedX(), cd.getCanvasDisplacedY()));
     }
 
-    public void handleOpen()
+    public void handleOpen() throws IOException
     {
 	FileHandler file = new FileHandler();
     }
 
     public void onDrawClicked()
     {
-	if(drawDrag.isSelected())
-	    System.out.println();
+    	System.out.println(drawDrag.isSelected());
     }
 
     public void handleZoom(ScrollEvent event)
@@ -197,12 +200,24 @@ public class Controller implements Initializable
 	    offsetX = (int) event.getX();
 	    offsetY = (int) event.getY();
 	    position.setText(String.format("(x, y): (%d,%d)", (int) cd.getCanvasDisplacedX(), (int) cd.getCanvasDisplacedY()));
+	    
 	} else
 	{
-	    mouseClicked(event);
+	    mouseClicked(event, drawDrag.isSelected());
 	}
 
     }
+    
+
+    public void mouseClicked(MouseEvent event)
+    {	
+    	cd.drawCell((int)event.getX(), (int)event.getY());
+	}
+    
+    public void mouseClicked(MouseEvent event, boolean dragDraw)
+    {	
+    	cd.drawCell((int)event.getX(), (int)event.getY(), dragDraw);
+	}
 
     public void keyListener(KeyEvent event)
     {
@@ -213,10 +228,6 @@ public class Controller implements Initializable
 
     }
 
-    public void mouseClicked(MouseEvent event)
-    {	
-    	cd.drawCell((int)event.getX(), (int)event.getY());
-	}
     
 
     public void handlePauseClick()

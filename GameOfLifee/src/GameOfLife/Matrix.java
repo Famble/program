@@ -164,8 +164,8 @@ public class Matrix
 		    cellsInLong = 64;
 
 		if (!(this.getActiveCells()[x][y] == 0))
-		    for (int bitPos = 0; bitPos < cellsInLong; bitPos++)
-		    {
+		for (int bitPos = 0; bitPos < cellsInLong; bitPos++)
+		{
 			if (((this.getActiveCells()[x][y] >> bitPos) & 1L) == 1)
 			{
 			    aliveNeighbours = countNeighbours(x, y, bitPos, true);
@@ -204,6 +204,9 @@ public class Matrix
     private int countNeighbours(int x, int y, int bitPos, boolean countNeighbors)
     {
 	int aliveNeighbours = 0;
+	int neighborY;
+	int neighborX;
+	int neighborBitPos;
 
 	if (x == 0 || x == this.x - 1 || (y == 0 && bitPos == 0) || ((y == this.yDiv64 - 1) && bitPos == this.yMod64)) // (1)
 	{
@@ -218,44 +221,35 @@ public class Matrix
 		{
 		    if (!(i == 0 && j == 0))// (3)
 		    {	
-			if (j == -1 && bitPos == 0) // (4)
-			{
-
-			    if (((this.getCurrentGeneration()[x + i][y - 1] >> (63)) & 1L) == 1) // (5)
+		    	neighborY = y;
+			    neighborBitPos = 0;
+			  
+			    neighborX = x + i;
+				neighborBitPos = bitPos +j;
+				
+				if(j == 1 && bitPos == 63)
+				{
+					neighborY += 1;
+					neighborBitPos = 0;
+				}
+				else if(j == -1 && bitPos == 0)
+				{
+					neighborY -= 1;
+					neighborBitPos = 63;
+				}
+				
+	
+			    if (((this.getCurrentGeneration()[neighborX][neighborY] >> (neighborBitPos)) & 1L) == 1)
 			    {
-				aliveNeighbours++;
-			    }
-			    if (countNeighbors)// (6)
-			    {
-				setCellState(i + x, y - 1, 63, countNeighbours((i + x), y - 1, (63), false));
-			    }
-			} else if (j == 1 && bitPos == 63)
-			{
-
-			    if (((this.getCurrentGeneration()[x + i][y + 1] >> (0)) & 1L) == 1)
-			    {
-				aliveNeighbours++;
-			    }
-			    if (countNeighbors)
-			    {
-				setCellState(i + x, y + 1, 0, countNeighbours((i + x), y + 1, (0), false));
-			    }
-
-			} else
-			{
-
-		    if (((this.getCurrentGeneration()[i + x][y] >> (j + bitPos)) & 1L) == 1)
-			    {
-				aliveNeighbours++;
+					aliveNeighbours++;
 			    }
 			    if (countNeighbors)
 			    {
-				setCellState(i + x, y, j + bitPos, countNeighbours((i + x), y, (j + bitPos), false));
-			    }
+			    	setCellState(neighborX, neighborY, neighborBitPos, countNeighbours((neighborX), neighborY, (neighborBitPos), false));
+				}
 
-			}
 		    }
-		}
+		    }
 
 	}
 
@@ -282,19 +276,22 @@ public class Matrix
 	{
 	    boolean birth = false;
 
+
+
 	    for (int l = 0; l < rules.getBirthRules().length && birth == false; l++)// (2)
 		if (aliveNeighbours == rules.getBirthRules()[l])
 		    birth = true;
 
 	    if (birth)
 	    {
-		this.getNewActiveCells()[x][y] |= (1L << bitPos); // set active
-		this.getNextGeneration()[x][y] |= (1L << bitPos); // set alive
-	    } else
+	    	System.out.println("not here");
+			this.getNewActiveCells()[x][y] |= (1L << bitPos); // set active
+			this.getNextGeneration()[x][y] |= (1L << bitPos); // set alive
+	    } 
+	    else
 	    {
-		this.getNewActiveCells()[x][y] &= ~(1L << bitPos); // set
-								   // inactive
-		// this.getActiveCells()[x][y] &= ~(1L << bitPos); //set as
+	    	this.getNewActiveCells()[x][y] &= ~(1L << bitPos); // set
+		    this.getNextGeneration()[x][y] &= ~(1L << bitPos); //set as
 		// inactive so it wont be counter again
 	    }
 	} else // if cell is alive
