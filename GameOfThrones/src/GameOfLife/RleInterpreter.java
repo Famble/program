@@ -19,6 +19,10 @@ public class RleInterpreter
 	private String rleString;
 	private StringBuilder description = new StringBuilder();
 	private long[][] startGeneration;
+	private int lastIndexOfHeader;
+	private StringBuilder testHeader = new StringBuilder();
+	private StringBuilder testDimensionAndRule = new StringBuilder();
+	private StringBuilder testGameboard = new StringBuilder();
 	
 	
 	public String getName() {
@@ -57,6 +61,9 @@ public class RleInterpreter
 	{
 		this.rleString = rleFile;
 		readHeader();
+		readDimensionAndRule();
+		readGameboard();
+		
 		
 		int cellsInLong = 64;
 		for(int j = 0; j < this.height/64+1; j++)
@@ -94,8 +101,11 @@ public class RleInterpreter
 				System.out.println(description.toString());
 			}	
 		}
+	}
+
+	public void readDimensionAndRule(){
 		
-		regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*[0-9]*/[A-Za-z]*[0-9]*))", Pattern.MULTILINE);
+		Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*[0-9]*/[A-Za-z]*[0-9]*))", Pattern.MULTILINE);
 
 		//System.out.println(this.rleString);
 		int amountOfSpaces = 0;
@@ -117,6 +127,9 @@ public class RleInterpreter
 			System.out.printf("width, height:(%d,%d)\n", this.width, this.height);
 			System.out.println(this.ruleString);
 		
+	}
+	
+	public void readGameboard(){
 		this.startGeneration = new long[width][height/64 + 1];
 		
 		
@@ -183,17 +196,9 @@ public class RleInterpreter
 			bitPos = y%64;
 			
 		}
-		
-	
-		
-		
-
-		
-		
-		
-		
 	}
-	
-	
-	
 }
+	
+	
+	
+
