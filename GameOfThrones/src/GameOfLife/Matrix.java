@@ -32,8 +32,7 @@ public class Matrix
 		activeCells = new long[x][yDiv64];
 		newActiveCells = new long[x][yDiv64];
     }
-    
-    
+ 
 
     public void setBoard(long board[][])
     {	
@@ -68,7 +67,6 @@ public class Matrix
     public void setPatternFromRle(String rleString) throws IOException
     {
     	rle = new RleInterpreter(rleString);
-    	System.out.println(rle.getWidth());
     	
     	this.setPatternWidth(rle.getWidth());
     	this.setPatternHeight(rle.getHeight());
@@ -76,32 +74,25 @@ public class Matrix
     	for(int x = 0; x < rle.getWidth(); x++)
     	{
     		for(int y = 0; y < rle.getHeight(); y++)
-    		{    			
-    			
-    		
+    		{    				
     			if(cellIsAlive(x,y, rle.getStartGeneration()))
     			{
-    				setCellState(x+50, y+50, this.CurrGeneration, true);
-    				setCellState(x+50, y+50, this.activeCells, true);
-  
+    				setCellState(x+20, y+20, this.CurrGeneration, true);
+    				setCellState(x+20, y+20, this.activeCells, true);
     			}
     			else
     			{
-    				setCellState(x+50, y+50, this.CurrGeneration, false);
-    				setCellState(x+50, y+50, this.activeCells, true);
-    			}
-    						
-    			
+    				setCellState(x+20, y+20, this.CurrGeneration, false);
+    				setCellState(x+20, y+20, this.activeCells, true);
+    			}   							
     		}
     		
     	}
     }
     
-  
-
-  
     private void determineNextGeneration()
     {
+    	
 	int aliveNeighbours;
 
 	for (int x = 0; x < this.WIDTH; x++)
@@ -174,7 +165,6 @@ public class Matrix
 	}
 
 	return aliveNeighbours;
-
     }
 
     private void setCellStateFromRules(int x, int y, int aliveNeighbours)
@@ -253,10 +243,10 @@ public class Matrix
 
 	    for (int k = 0; k < cellsInLong; k++)
 	    {
-		for (int x = 0; x < this.WIDTH; x++)
-		{
-		    bitString += ((this.getCurrentGeneration()[x][y] >> k) & 1);
-		}
+			for (int x = 0; x < this.WIDTH; x++)
+			{
+			    bitString += ((this.getCurrentGeneration()[x][y] >> k) & 1);
+			}
 	    }
 	}
 

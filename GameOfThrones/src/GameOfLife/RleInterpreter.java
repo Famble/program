@@ -77,7 +77,6 @@ public class RleInterpreter
 	public void readHeader() throws IOException
 	{
 		
-		
 		Pattern regex = Pattern.compile("^#([N|C|O|P|R])\\s*(\\w.*)$", Pattern.MULTILINE);
 		Matcher matcher = regex.matcher(this.rleString);
 		
@@ -99,6 +98,11 @@ public class RleInterpreter
 		regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*[0-9]*/[A-Za-z]*[0-9]*))", Pattern.MULTILINE);
 
 		//System.out.println(this.rleString);
+		int amountOfSpaces = 0;
+		for(int i = 0; i < this.rleString.length(); i++)
+			if(rleString.charAt(i) == ' ')
+				amountOfSpaces++;
+				
 		matcher = regex.matcher(this.rleString.replaceAll(" ",""));
 		int lastIndexOfHeader = 0;
 	
@@ -106,21 +110,25 @@ public class RleInterpreter
 		{
 			this.width = Integer.parseInt(matcher.group(1));
 			this.height = Integer.parseInt(matcher.group(2));
-			this.ruleString = matcher.group(3);
-			System.out.println(width + "width, height " + height);
-			lastIndexOfHeader = matcher.end();													
-			
+			this.ruleString = matcher.group(3).replaceAll("[^/0-9]", "");
+			lastIndexOfHeader = matcher.end() + amountOfSpaces;				
 		}
+		
+			System.out.printf("width, height:(%d,%d)\n", this.width, this.height);
+			System.out.println(this.ruleString);
 		
 		this.startGeneration = new long[width][height/64 + 1];
 		
+		
 		String rlePattern[] = this.rleString.substring(lastIndexOfHeader).split("\\$");
+		System.out.println(this.rleString.substring(lastIndexOfHeader));
 		int aliveCells = 0;
 		int deadCells = 0;
 		int y = 0;
 		int x = 0;
 		int bitPos = 0;
 		int yDiv64 = 0;
+		
 		for(String hey : rlePattern)
 		{
 			pattern = Pattern.compile("([0-9]*)([A-Za-z])");
@@ -167,10 +175,7 @@ public class RleInterpreter
 					for(int i = 0; i < remainingCells; i++)
 						this.startGeneration[x + i][yDiv64] &= ~(1L << bitPos);
 
-				}
-		
-				
-					
+				}	
 			}
 			y++;
 			x = 0;
