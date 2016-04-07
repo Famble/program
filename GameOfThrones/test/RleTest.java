@@ -19,6 +19,9 @@ public class RleTest {
 		
 		RleInterpreter rleInt = new RleInterpreter(s);
 		
+		System.out.println("-----------------------------------------------");
+		org.junit.Assert.assertEquals(rleInt.toString(), s);
+		
 		
 	}
 

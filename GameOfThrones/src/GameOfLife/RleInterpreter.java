@@ -24,6 +24,23 @@ public class RleInterpreter
 	private StringBuilder testDimensionAndRule = new StringBuilder();
 	private StringBuilder testGameboard = new StringBuilder();
 	
+	public String getTestHeader() {
+		return testHeader.toString();
+	}
+	public String getTestDimensionAndRule() {
+		return testDimensionAndRule.toString();
+	}
+	public String getTestGameboard() {
+		return testGameboard.toString();
+	}
+	@Override
+	public String toString(){
+		
+		String rleText = testHeader.toString() + testDimensionAndRule.toString() +
+		testGameboard.toString();
+		System.out.println(rleText);
+		return rleText;
+	}
 	
 	public String getName() {
 		return name;
@@ -93,11 +110,13 @@ public class RleInterpreter
 			if(matcher.group(1).equalsIgnoreCase("N"))
 			{
 				name = matcher.group(2);
+				testHeader.append("#N"+name);
 				System.out.println(name);
 			}
 			else if(matcher.group(1).equalsIgnoreCase("C"))
 			{
 				description.append(matcher.group(2)+ "\n");
+				testHeader.append(description.toString());
 				System.out.println(description.toString());
 			}	
 		}
@@ -114,7 +133,7 @@ public class RleInterpreter
 				amountOfSpaces++;
 				
 		matcher = regex.matcher(this.rleString.replaceAll(" ",""));
-		int lastIndexOfHeader = 0;
+		
 	
 		while(matcher.find())
 		{
@@ -123,7 +142,7 @@ public class RleInterpreter
 			this.ruleString = matcher.group(3).replaceAll("[^/0-9]", "");
 			lastIndexOfHeader = matcher.end() + amountOfSpaces;				
 		}
-		
+			
 			System.out.printf("width, height:(%d,%d)\n", this.width, this.height);
 			System.out.println(this.ruleString);
 		
