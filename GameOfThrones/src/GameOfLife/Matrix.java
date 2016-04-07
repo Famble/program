@@ -5,7 +5,7 @@ import java.io.IOException;
 import javafx.scene.paint.Color;
 
 public class Matrix
-{
+{//test
     private long[][] CurrGeneration;
     private long[][] nextGeneration;
     private long[][] activeCells;
