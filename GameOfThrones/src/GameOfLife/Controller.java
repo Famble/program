@@ -68,11 +68,6 @@ public class Controller implements Initializable
 	GOL = new GameOfLife(model, cd);
 	
 
-	canvas.setOnZoom((zoomEvent) ->
-	{
-
-	});
-
 	colorPicker.setValue(Color.web("#42dd50"));
 
 	survival.textProperty().addListener((observable, oldValue, survivalString) ->
@@ -145,14 +140,14 @@ public class Controller implements Initializable
     public void handleZoom(ScrollEvent event)
     {
 
-	if (event.getDeltaY() > 1)
-	{
-	    cd.zoom(1, event);
-	} else if (event.getDeltaY() < 1)
-	{
-	    sliderZoom.setValue(cd.getCellSize() - 1);
-	    cd.zoom(-1, event);
-	}
+		if (event.getDeltaY() > 1)
+		{
+		    cd.zoom(1, event);
+		} else if (event.getDeltaY() < 1)
+		{
+		    sliderZoom.setValue(cd.getCellSize() - 1);
+		    cd.zoom(-1, event);
+		}
     }
 
     public void speedSliderDragged()

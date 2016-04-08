@@ -1,18 +1,17 @@
 package GameOfLife;
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RleInterpreter 
 {
-	private BufferedReader br;
 	private Pattern pattern;
 	private Matcher matcher;
 	private String name;
+	private String comment;
 	private int height;
 	private int width;
 	private String ruleString;
@@ -38,8 +37,12 @@ public class RleInterpreter
 		
 		String rleText = testHeader.toString() + testDimensionAndRule.toString() +
 		testGameboard.toString();
-		System.out.println(rleText);
+		//System.out.println(rleText);
 		return rleText;
+	}
+	
+	public int getCap(){
+		return testGameboard.length();
 	}
 	
 	public String getName() {
@@ -110,15 +113,17 @@ public class RleInterpreter
 			if(matcher.group(1).equalsIgnoreCase("N"))
 			{
 				name = matcher.group(2);
-				testHeader.append("#N"+name);
-				System.out.println(name);
+				testHeader.append("#N "+name+"\n");
+				//System.out.println(name);
 			}
 			else if(matcher.group(1).equalsIgnoreCase("C"))
 			{
-				description.append(matcher.group(2)+ "\n");
-				testHeader.append(description.toString());
-				System.out.println(description.toString());
+				comment = matcher.group(2);
+				description.append(comment+ "\n");
+				testHeader.append("#C "+comment+"\n");
+				//System.out.println(description.toString());
 			}	
+			
 		}
 	}
 
@@ -142,9 +147,12 @@ public class RleInterpreter
 			this.ruleString = matcher.group(3).replaceAll("[^/0-9]", "");
 			lastIndexOfHeader = matcher.end() + amountOfSpaces;				
 		}
+		
+			testDimensionAndRule.append("x = "+this.width+", y = "+this.height+
+					", rule = "+this.ruleString+"\n");
 			
-			System.out.printf("width, height:(%d,%d)\n", this.width, this.height);
-			System.out.println(this.ruleString);
+			//System.out.printf("width, height:(%d,%d)\n", this.width, this.height);
+			//System.out.println(this.ruleString);
 		
 	}
 	
@@ -153,30 +161,44 @@ public class RleInterpreter
 		
 		
 		String rlePattern[] = this.rleString.substring(lastIndexOfHeader).split("\\$");
-		System.out.println(this.rleString.substring(lastIndexOfHeader));
+		//System.out.println(this.rleString.substring(lastIndexOfHeader));
 		int aliveCells = 0;
 		int deadCells = 0;
 		int y = 0;
 		int x = 0;
 		int bitPos = 0;
 		int yDiv64 = 0;
+		String dCell = "b"; //for testing
+		String aCell = "o"; //for testing
 		
 		for(String hey : rlePattern)
 		{
 			pattern = Pattern.compile("([0-9]*)([A-Za-z])");
 			matcher = pattern.matcher(hey);
-			
+			Pattern endPattern = Pattern.compile("([!])");
+			Matcher endMatcher = endPattern.matcher(String.valueOf(hey.charAt(hey.length() - 1)));
 			while(matcher.find())
 			{
+				
+				
 				if(matcher.group(2).equals("b")) //dead cells
 				{
 					if(matcher.group(1).matches("[0-9]+"))
-						deadCells = Integer.parseInt(matcher.group(1));
+					{
+						dCell = matcher.group(1);
+						deadCells = Integer.parseInt(dCell);
+						testGameboard.append(dCell);
+					}
 					else
+					{
 						deadCells = 1;
-					
-					
+					}
 
+					if(!(testGameboard.charAt(testGameboard.length()-1)== 'b'))
+					{
+						testGameboard.append("b");
+					}
+					
 					for(int i = 0;  i < deadCells; i++)
 					{
 						this.startGeneration[x + i][yDiv64] &= ~(1L << bitPos);
@@ -189,9 +211,20 @@ public class RleInterpreter
 				{
 
 					if(matcher.group(1).matches("[0-9]+"))
-						aliveCells = Integer.parseInt(matcher.group(1));
+					{
+						aCell = matcher.group(1);
+						aliveCells = Integer.parseInt(aCell);
+						testGameboard.append(aCell);
+					}	
 					else
+					{
 						aliveCells = 1;
+					}
+		
+					if(!(testGameboard.charAt(testGameboard.length()-1)== 'o'))
+					{
+						testGameboard.append("o");
+					}
 					
 					for(int i = 0; i < aliveCells; i++)
 					{	
@@ -201,19 +234,31 @@ public class RleInterpreter
 					x += aliveCells;
 				}
 				
+				
 				if(x != width)
 				{
 					int remainingCells = width-x;
 					for(int i = 0; i < remainingCells; i++)
 						this.startGeneration[x + i][yDiv64] &= ~(1L << bitPos);
 
-				}	
+				}
+				
+				
 			}
 			y++;
 			x = 0;
 			yDiv64 = y/64;
 			bitPos = y%64;
 			
+			if(hey.charAt(hey.length() - 1)=='!')
+			{
+				System.out.println("test");
+				testGameboard.append("!");
+				break;
+			}
+			
+			testGameboard.append("$");
+				
 		}
 	}
 }
