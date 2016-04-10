@@ -1,4 +1,5 @@
 package GameOfLife;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,22 +13,19 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.nio.file.*;
 
-public class Main extends Application
-{
+public class Main extends Application {
 
-    public static void main(String[] args)
-    {
-	launch(args);
-    }
+	public static void main(String[] args) {
+		launch(args);
+	}
 
-    @Override
-    public void start(Stage primaryStage) throws Exception
-    {
+	@Override
+	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Game of Life");
 		Parent root = FXMLLoader.load(getClass().getResource("Hey.fxml"));
 		Scene scene = new Scene(root, 1000, 700);
 		primaryStage.setScene(scene);
-		primaryStage.show();	  
-    }
+		primaryStage.show();
+	}
 
 }
