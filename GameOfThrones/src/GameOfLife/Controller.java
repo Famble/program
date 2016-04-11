@@ -247,10 +247,16 @@ public class Controller implements Initializable {
 			cd.setPatternPositionY(cd.getPatternPositionY() - 10);
 		else if(event.getCode() == KeyCode.ENTER)
 		{
-			model.transferPattern(cd.getPatternPositionX(), cd.getPatternPositionY());
-			cd.drawNextGeneration();
-			cd.setPatternPositionX(0);
-			cd.setPatternPositionY(0);
+			if(model.settingPattern)
+			{
+				model.transferPattern(cd.getPatternPositionX(), cd.getPatternPositionY());
+				cd.drawNextGeneration();
+				cd.setPatternPositionX(0);
+				cd.setPatternPositionY(0);
+				model.settingPattern = false;
+			}
+			
+		
 		}
 		
 		Platform.runLater(new Runnable()

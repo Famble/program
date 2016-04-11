@@ -15,23 +15,7 @@ public class CanvasDrawer {
 	private double windowHeight;
 	private int patternPositionX;
 	private int patternPositionY;
-
-	public int getPatternPositionX() {
-		return patternPositionX;
-	}
-
-	public void setPatternPositionX(int patternPositionX) {
-		this.patternPositionX = patternPositionX;
-	}
-
-	public int getPatternPositionY() {
-		return patternPositionY;
-	}
-
-	public void setPatternPositionY(int patternPositionY) {
-		this.patternPositionY = patternPositionY;
-	}
-
+	
 	public CanvasDrawer(Matrix model, GraphicsContext gc) {
 		this.model = model;
 		this.gc = gc;
@@ -39,9 +23,39 @@ public class CanvasDrawer {
 		canvasDisplacedY = 0; // model.getRealY() * cellSize / 2;
 		gc.setStroke(Color.GRAY);
 		gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth()*cellSize, model.getHeight()*cellSize);
-		gc.setFill(Color.RED);
+	}
+	
+
+	public int getPatternPositionX() {
+		return patternPositionX;
+	}
 
 
+	public void setPatternPositionX(int patternPositionX) {
+		if (patternPositionX >= 0 && patternPositionX <= model.getWidth() - model.getPatternWidth() && patternPositionX > 0)
+			this.patternPositionX = patternPositionX;
+		else if(patternPositionX > model.getWidth() - model.getPatternWidth())
+		{
+			this.patternPositionX = model.getWidth()-model.getPatternWidth();
+		}
+		else
+			this.patternPositionX = 0;
+		
+	}
+
+	public int getPatternPositionY() {
+		return patternPositionY;
+	}
+
+	public void setPatternPositionY(int patternPositionY) {
+		if (patternPositionY >= 0 && patternPositionY <= model.getHeight() - model.getPatternHeight() && patternPositionY > 0)
+			this.patternPositionY = patternPositionY;
+		else if(patternPositionY > model.getHeight() - model.getPatternHeight())
+		{
+			this.patternPositionY = model.getHeight() - model.getPatternHeight();
+		}
+		else
+			this.patternPositionY = 0;
 	}
 
 	public void drawPattern() {
@@ -187,23 +201,18 @@ public class CanvasDrawer {
 			gc.strokeRect(-this.canvasDisplacedX + patternPositionX*cellSize, -this.canvasDisplacedY + patternPositionY*cellSize, model.getPatternWidth()*cellSize, model.getPatternHeight()*cellSize);
 
 			double lowest= 10000;
-			gc.setFill(Color.GREEN);
+			gc.setFill(Color.RED);
 			for (int x = 0; x < model.getPatternWidth(); x++){
 				for (int y = 0; y < model.getPatternHeight(); y++) {
 					if (model.cellIsAlive(x, y, model.getPattern())) {
 							gc.fillOval(cellSize * (x+patternPositionX) - canvasDisplacedX , cellSize * (y+patternPositionY)- canvasDisplacedY , cellSize, cellSize);
 						}
 					
-					if(cellSize * x + patternPositionX - canvasDisplacedX  < lowest)
-						lowest = cellSize * x + patternPositionX - canvasDisplacedX;
-					
-					
 					
 				
 					
 
 				}
-				System.out.println(lowest);
 				
 			}
 			

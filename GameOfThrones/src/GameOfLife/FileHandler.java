@@ -30,7 +30,7 @@ public class FileHandler extends Stage {
 		this.setTitle("File");
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Choose file");
-		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text Files", "*.txt"));
+		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("RLE Files", "*.rle"));
 		file = fileChooser.showOpenDialog(this);
 
 	}

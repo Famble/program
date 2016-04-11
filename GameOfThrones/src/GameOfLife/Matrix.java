@@ -15,7 +15,7 @@ public class Matrix {// test
 	private final int WIDTH;
 	private int yDiv64;
 	private int yMod64;
-	private Color color = Color.RED;
+	private Color color = Color.web("#42dd50");
 	private Rules rules;
 	private RleInterpreter rle;
 	private long[][] pattern;
