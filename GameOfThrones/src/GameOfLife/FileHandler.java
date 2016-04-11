@@ -47,8 +47,6 @@ public class FileHandler extends Stage {
 				rleString.append(text + "\n");
 			}
 
-		} catch (FileNotFoundException ex) {
-			System.err.format("FileNotFoundException: %s%n", ex);
 		} catch (IOException x) {
 			System.err.format("IOException: %s%n", x);
 		}

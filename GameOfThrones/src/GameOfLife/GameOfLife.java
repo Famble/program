@@ -3,22 +3,26 @@ package GameOfLife;
 import javafx.animation.AnimationTimer;
 
 /**
- * This Class is the part of the speed handling for canvas 
- * of the game. 
- * <p>
- * <b>Note:</b> This class can change the speed, stop and start
- * the CancasDrawer
+ * <h1>Game of life</h1>
+ * The GameOfLife controlles the speed of the game, can both change
+ * the speed of the game, stop and start the game.
  * 
- * @author 
- * @see CanvasDrawer
+ * @author Markus Bikilla Seyoum Hellestveit
  *
  */
 public class GameOfLife extends AnimationTimer {
 	private Matrix model;
 	private CanvasDrawer cd;
-	private long nowHolder = System.nanoTime();
+	private long a = System.nanoTime();
 	private long delay = (long) Math.pow(10, 9);
 
+	/**
+	 * Class constructor. Initializes the {@link #model} 
+	 * and {@link #cd}.
+	 * 
+	 * @param model This is an object of {@link Matrix}
+	 * @param cd This is an object of {@link CanvasDrawer}
+	 */
 	public GameOfLife(Matrix model, CanvasDrawer cd) {
 		this.model = model;
 		this.cd = cd;
@@ -26,10 +30,10 @@ public class GameOfLife extends AnimationTimer {
 
 	@Override
 	public void handle(long now) {
-		if (now - nowHolder > delay) {
+		if (now - a > delay) {
 			model.startNextGeneration();
 			cd.drawNextGeneration();
-			nowHolder = now;
+			a = now;
 		}
 	}
 

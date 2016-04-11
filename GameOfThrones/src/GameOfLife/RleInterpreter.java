@@ -21,10 +21,16 @@ public class RleInterpreter {
 	private StringBuilder testDimensionAndRule = new StringBuilder();
 	private StringBuilder testGameboard = new StringBuilder();
 
+	
 	public String getTestHeader() {
 		return testHeader.toString();
 	}
-
+	
+	/**
+	 * 
+	 * 
+	 * 
+	*/
 	public String getTestDimensionAndRule() {
 		return testDimensionAndRule.toString();
 	}
