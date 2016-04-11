@@ -128,6 +128,12 @@ public class Controller implements Initializable {
          });
 	}
 
+	/**
+	 * Opens the window for file chooser, and interprets the file for then 
+	 * draw the pattern from the file to the game board.
+	 * @throws IOException
+	 * @see RleInterpreter
+	 */
 	public void handleOpen() throws IOException {
 
 		FileHandler file = new FileHandler();
