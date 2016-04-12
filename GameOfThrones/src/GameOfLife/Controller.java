@@ -61,7 +61,7 @@ public class Controller implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		rules = new Rules();
-		model = new Matrix(2000, (2000), rules);
+		model = new Matrix(1000, (1000), rules);
 
 		cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
 
@@ -81,7 +81,6 @@ public class Controller implements Initializable {
 			this.rules.setUserDefinedBirthRules(birthString);
 
 		});
-
 		canvasParent.widthProperty().addListener((a, b, c) -> {
 			canvas.setWidth((double) c);
 			cd.setWindowWidth((double) c);
@@ -241,8 +240,7 @@ public class Controller implements Initializable {
 
 	public void keyListener(KeyEvent event) throws IOException
 	{
-		  
-              
+		
 		if(event.getCode() == KeyCode.RIGHT)
 			cd.setPatternPositionX(cd.getPatternPositionX() + 10);
 		else if(event.getCode() == KeyCode.DOWN)

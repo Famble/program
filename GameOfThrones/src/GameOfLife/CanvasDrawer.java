@@ -3,7 +3,6 @@ package GameOfLife;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Box;
 
 public class CanvasDrawer {
 	private GraphicsContext gc;
@@ -184,15 +183,20 @@ public class CanvasDrawer {
 		
 		gc.setFill(model.getColor());
 		for (int x = 0; x < model.getWidth(); x++)
-			for (int y = 0; y < model.getHeight(); y++) {
+			for (int y = 0; y < model.yDiv64; y++) {
 				if (x * cellSize < canvasDisplacedX || x * cellSize > canvasDisplacedX + windowWidth
-						|| cellSize * (y + 64) < canvasDisplacedY || cellSize * (y) > canvasDisplacedY + windowHeight) {
+						|| cellSize * ((y*64) + 64) < canvasDisplacedY || cellSize * (y*64) > canvasDisplacedY + windowHeight) {
 
-				} else if (!(model.getCurrentGeneration()[x][y / 64] == 0))
-					if (model.cellIsAlive(x, y, model.getCurrentGeneration())) {
-						gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
-								cellSize);
+				} else if (!(model.getCurrentGeneration()[x][y] == 0)){
+					int j = 64*y;
+					for(int i = 0; i < 64; i++)
+					{
+						if (model.cellIsAlive(x, j+i, model.getCurrentGeneration())) {
+							gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (j+i) - canvasDisplacedY, cellSize,
+									cellSize);
+						}
 					}
+				}
 
 			}
 		if(model.settingPattern)

@@ -13,11 +13,10 @@ public class Matrix {// test
 	private int patternHeight;
 	private final int HEIGHT;
 	private final int WIDTH;
-	private int yDiv64;
+	public int yDiv64;
 	private int yMod64;
 	private Color color = Color.web("#42dd50");
 	private Rules rules;
-	private RleInterpreter rle;
 	private long[][] pattern;
 	boolean settingPattern = false;
 
@@ -93,12 +92,16 @@ public class Matrix {// test
 		int aliveNeighbours;
 
 		for (int x = 0; x < this.WIDTH; x++) {
-			for (int y = 0; y < this.HEIGHT; y++) {
+			for (int y = 0; y < this.yDiv64; y++) {
 
-				if (!(this.getActiveCells()[x][y / 64] == 0)) {
-					if (cellIsAlive(x, y, this.activeCells)) {
-						aliveNeighbours = countNeighbours(x, y, true);
-						setCellStateFromRules(x, y, aliveNeighbours);
+				if (!(this.getActiveCells()[x][y] == 0)) {
+					int j = y*64;
+					for(int bit = 0; bit<64; bit++)
+					{					
+						if (cellIsAlive(x, j+bit, this.activeCells)) {
+							aliveNeighbours = countNeighbours(x, j+bit, true);
+							setCellStateFromRules(x, j+bit, aliveNeighbours);
+						}
 					}
 				}
 			}
@@ -153,13 +156,9 @@ public class Matrix {// test
 				if (aliveNeighbours == rules.getBirthRules()[l])
 					birth = true;
 
-			if (birth) {
-				setCellState(x, y, this.newActiveCells, true);
-				setCellState(x, y, this.nextGeneration, true);
-			} else {
-				setCellState(x, y, this.nextGeneration, false);
-				setCellState(x, y, this.newActiveCells, false);
-			}
+			setCellState(x, y, this.newActiveCells, birth);
+			setCellState(x, y, this.nextGeneration, birth);
+			
 		} else {
 			boolean survive = false;
 
@@ -167,13 +166,10 @@ public class Matrix {// test
 				if (aliveNeighbours == rules.getSurvivalRules()[l])
 					survive = true;
 
-			if (!survive) {
-				setCellState(x, y, this.getNextGeneration(), false);
-				setCellState(x, y, this.getNewActiveCells(), true);
-			} else {
-				setCellState(x, y, this.getNextGeneration(), true);
-				setCellState(x, y, this.getNewActiveCells(), false);
-			}
+		
+			setCellState(x, y, this.getNextGeneration(), survive);
+			setCellState(x, y, this.getNewActiveCells(), !survive);
+			
 		}
 	}
 
