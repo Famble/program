@@ -26,11 +26,6 @@ public class RleInterpreter {
 		return testHeader.toString();
 	}
 	
-	/**
-	 * 
-	 * 
-	 * 
-	*/
 	public String getTestDimensionAndRule() {
 		return testDimensionAndRule.toString();
 	}
@@ -43,7 +38,6 @@ public class RleInterpreter {
 	public String toString() {
 
 		String rleText = testHeader.toString() + testDimensionAndRule.toString() + testGameboard.toString();
-		// System.out.println(rleText);
 		return rleText;
 	}
 
@@ -83,7 +77,7 @@ public class RleInterpreter {
 		this.startGeneration = startGeneration;
 	}
 
-	public RleInterpreter(String rleFile) throws IOException {
+	public RleInterpreter(String rleFile) throws PatternFormatException{
 		this.rleString = rleFile;
 		readHeader();
 		readDimensionAndRule();
@@ -102,7 +96,7 @@ public class RleInterpreter {
 
 	}
 
-	public void readHeader() throws IOException {
+	private void readHeader() throws PatternFormatException {
 
 		Pattern regex = Pattern.compile("^#([N|C|O|P|R])\\s*(\\w.*)$", Pattern.MULTILINE);
 		Matcher matcher = regex.matcher(this.rleString);
@@ -122,7 +116,7 @@ public class RleInterpreter {
 		}
 	}
 
-	public void readDimensionAndRule() {
+	private void readDimensionAndRule() throws PatternFormatException{
 
 		Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*[0-9]*/[A-Za-z]*[0-9]*))",
 				Pattern.MULTILINE);
@@ -151,7 +145,7 @@ public class RleInterpreter {
 
 	}
 
-	public void readGameboard() {
+	private void readGameboard() throws PatternFormatException{
 		this.startGeneration = new long[width][height / 64 + 1];
 
 		String rlePattern[] = this.rleString.substring(lastIndexOfHeader).split("\\$");
@@ -168,8 +162,8 @@ public class RleInterpreter {
 		for (String hey : rlePattern) {
 			pattern = Pattern.compile("([0-9]*)([A-Za-z])");
 			matcher = pattern.matcher(hey);
-			Pattern endPattern = Pattern.compile("([!])");
-			Matcher endMatcher = endPattern.matcher(String.valueOf(hey.charAt(hey.length() - 1)));
+			//Pattern endPattern = Pattern.compile("([!])");
+			//Matcher endMatcher = endPattern.matcher(String.valueOf(hey.charAt(hey.length() - 1)));
 			while (matcher.find()) {
 
 				if (matcher.group(2).equals("b")) // dead cells

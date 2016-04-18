@@ -130,20 +130,31 @@ public class Controller implements Initializable {
 	/**
 	 * Opens the window for file chooser, and interprets the file for then 
 	 * draw the pattern from the file to the game board.
-	 * @throws IOException
+	 * 
 	 * @see RleInterpreter
 	 */
-	public void handleOpen() throws IOException {
+	public void handleOpen()  { 
 
 		FileHandler file = new FileHandler();
-		String rleString = file.readRle();
-		RleInterpreter rleInterp = new RleInterpreter(rleString);
-		model.setPattern(rleInterp.getStartGeneration());
-		model.setPatternWidth(rleInterp.getWidth());
-		model.setPatternHeight(rleInterp.getHeight());
-		model.settingPattern = true;
-		//model.setPatternFromRle(file.readRle());
-		cd.drawNextGeneration();
+		String rleString = file.toString();
+		if(rleString != null){
+			RleInterpreter rleInterp;
+			try {
+				rleInterp = new RleInterpreter(rleString);
+				model.setPattern(rleInterp.getStartGeneration());
+				model.setPatternWidth(rleInterp.getWidth());
+				model.setPatternHeight(rleInterp.getHeight());
+				model.settingPattern = true;
+				//model.setPatternFromRle(file.readRle());
+				cd.drawNextGeneration();
+			} catch (PatternFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}else{
+			System.out.println("File was not found");
+		}
 
 	}
 	

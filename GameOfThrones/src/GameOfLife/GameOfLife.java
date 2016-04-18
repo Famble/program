@@ -4,7 +4,7 @@ import javafx.animation.AnimationTimer;
 
 /**
  * <h1>Game of life</h1>
- * The GameOfLife controlles the speed of the game, can both change
+ * The GameOfLife controles the speed of the game, can both change
  * the speed of the game, stop and start the game.
  * 
  * @author Markus Bikilla Seyoum Hellestveit
