@@ -1,5 +1,7 @@
 package GameOfLife;
 
+import GameOfLife.Controller.CanvasDrawer;
+import GameOfLife.Model.StaticMatrix;
 import javafx.animation.AnimationTimer;
 
 /**
@@ -11,7 +13,7 @@ import javafx.animation.AnimationTimer;
  *
  */
 public class GameOfLife extends AnimationTimer {
-	private Matrix model;
+	private StaticMatrix model;
 	private CanvasDrawer cd;
 	private long a = System.nanoTime();
 	private long delay = (long) Math.pow(10, 9);
@@ -20,10 +22,10 @@ public class GameOfLife extends AnimationTimer {
 	 * Class constructor. Initializes the {@link #model} 
 	 * and {@link #cd}.
 	 * 
-	 * @param model This is an object of {@link Matrix}
+	 * @param model This is an object of {@link StaticMatrix}
 	 * @param cd This is an object of {@link CanvasDrawer}
 	 */
-	public GameOfLife(Matrix model, CanvasDrawer cd) {
+	public GameOfLife(StaticMatrix model, CanvasDrawer cd) {
 		this.model = model;
 		this.cd = cd;
 	}

@@ -1,4 +1,4 @@
-package GameOfLife;
+package GameOfLife.Model;
 
 public class PatternFormatException extends Exception{
 

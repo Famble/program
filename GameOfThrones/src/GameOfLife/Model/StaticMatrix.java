@@ -1,29 +1,24 @@
-package GameOfLife;
+package GameOfLife.Model;
 
 import java.io.IOException;
 
 import javafx.scene.paint.Color;
 
-public class Matrix {// test
+public class StaticMatrix extends Matrix {// test
 	private long[][] CurrGeneration;
 	private long[][] nextGeneration;
 	private long[][] activeCells;
 	private long[][] newActiveCells;
 	private int patternWidth;
 	private int patternHeight;
-	private final int HEIGHT;
-	private final int WIDTH;
 	public int yDiv64;
 	private int yMod64;
-	private Color color = Color.web("#42dd50");
-	private Rules rules;
 	private long[][] pattern;
-	boolean settingPattern = false;
+	public boolean settingPattern = false;
 
-	public Matrix(int x, int y, Rules rules) {
-		this.rules = rules;
-		this.HEIGHT = y;
-		this.WIDTH = x;
+	public StaticMatrix(int x, int y, Rules rules) {
+		super(x, y, rules);
+		
 		this.yDiv64 = (y / 64) + 1;
 		this.yMod64 = y % 64;
 		CurrGeneration = new long[x][yDiv64];
@@ -40,17 +35,53 @@ public class Matrix {// test
 	public long[][] getPattern() {
 		return this.pattern;
 	}
-
-	public boolean cellIsAlive(int x, int y, long[][] cells) {
-		return ((cells[x][y / 64] >> y % 64) & 1) == 1;
-	}
-
-	public void setCellState(int x, int y, long[][] cells, boolean alive) {
-		if (alive)
-			cells[x][y / 64] |= (1L << y % 64);
+	
+	public void setActiveCellState(int x, int y, boolean alive)
+	{
+		if(alive)
+			this.getActiveCells()[x][y/64] |= (1L << y % 64);
 		else
-			cells[x][y / 64] &= ~(1L << y % 64);
+			this.getActiveCells()[x][y/64] &= (1L << y % 64);
+
 	}
+	
+	public boolean getActiveCellState(int x, int y)
+	{
+		return (this.getActiveCells()[x][y/64] >> y%64 & 1) == 1;
+	}
+
+	public boolean getCellState(int x, int y) {
+		return ((this.getCurrentGeneration()[x][y / 64] >> y % 64) & 1) == 1;
+	}
+
+	public void setCellState(int x, int y, boolean alive) {
+		if (alive){			
+			if(this.getCellState(x, y)){
+				this.getCurrentGeneration()[x][y / 64] |= (1L << y % 64);
+				this.setActiveCellState(x, y, false);
+			}
+			else
+			{
+				this.getCurrentGeneration()[x][y / 64] |= (1L << y % 64);
+				this.setActiveCellState(x, y, true);
+
+			}
+		}
+		else //dead
+		{
+			
+			if(this.getCellState(x, y)){
+				this.getCurrentGeneration()[x][y / 64] &= ~(1L << y % 64);
+				this.setActiveCellState(x, y, true);
+			}
+			else{
+				this.getCurrentGeneration()[x][y / 64] &= ~(1L << y % 64);
+				this.setActiveCellState(x, y, false);
+			}
+		}
+	}
+	
+
 
 	public void swapCellState(int x, int y, long[][] cells) {
 		this.CurrGeneration[x][y / 64] ^= (1L << y % 64);
@@ -59,7 +90,7 @@ public class Matrix {// test
 	public void startNextGeneration() {
 		determineNextGeneration();
 
-		for (int x = 0; x < this.WIDTH; x++) {
+		for (int x = 0; x < super.getWidth(); x++) {
 			for (int y = 0; y < this.yDiv64; y++) {
 				this.getCurrentGeneration()[x][y] = this.getNextGeneration()[x][y];
 				this.getActiveCells()[x][y] = this.getNewActiveCells()[x][y];
@@ -71,7 +102,7 @@ public class Matrix {// test
 		settingPattern = false;
 		for (int x = 0; x < patternWidth; x++) {
 			for (int y = 0; y < patternHeight; y++) {
-				if (cellIsAlive(x, y, this.pattern)) {
+				if (getCellState(x, y, this.pattern)) {
 					setCellState(x+startX, y+startY, this.CurrGeneration, true);
 					setCellState(x, y, this.activeCells, true);
 				} else {
@@ -87,18 +118,18 @@ public class Matrix {// test
 		
 	}
 
-	private void determineNextGeneration() {
+	public void determineNextGeneration() {
 
 		int aliveNeighbours;
 
-		for (int x = 0; x < this.WIDTH; x++) {
+		for (int x = 0; x < super.getHeight(); x++) {
 			for (int y = 0; y < this.yDiv64; y++) {
 
 				if (!(this.getActiveCells()[x][y] == 0)) {
 					int j = y*64;
 					for(int bit = 0; bit<64; bit++)
 					{					
-						if (cellIsAlive(x, j+bit, this.activeCells)) {
+						if (getCellState(x, j+bit, this.activeCells)) {
 							aliveNeighbours = countNeighbours(x, j+bit, true);
 							setCellStateFromRules(x, j+bit, aliveNeighbours);
 						}
@@ -109,7 +140,7 @@ public class Matrix {// test
 
 	}
 
-	private int countNeighbours(int x, int y, boolean countNeighbors) {
+	public int countNeighbours(int x, int y, boolean countNeighbors) {
 		int aliveNeighbours = 0;
 		int neighborX;
 		int neighborY;
@@ -121,19 +152,19 @@ public class Matrix {// test
 					neighborX = x + i;
 					neighborY = y + j;
 
-					if (neighborX == this.WIDTH) {
-						neighborX %= this.WIDTH;
+					if (neighborX == super.getWidth()) {
+						neighborX %= super.getWidth();
 					} else if (neighborX == -1) {
-						neighborX = this.WIDTH - 1;
+						neighborX = super.getWidth() - 1;
 					}
-					if (neighborY == this.HEIGHT) {
-						neighborY %= this.HEIGHT;
+					if (neighborY == super.getHeight()) {
+						neighborY %= super.getHeight();
 					} else if (neighborY == -1) {
-						neighborY = this.HEIGHT - 1;
+						neighborY = super.getHeight() - 1;
 
 					}
 
-					if (cellIsAlive(neighborX, neighborY, this.CurrGeneration)) {
+					if (getCellState(neighborX, neighborY, this.CurrGeneration)) {
 						aliveNeighbours++;
 					}
 					if (countNeighbors) {
@@ -147,13 +178,13 @@ public class Matrix {// test
 	}
 
 	private void setCellStateFromRules(int x, int y, int aliveNeighbours) {
-		boolean alive = cellIsAlive(x, y, this.CurrGeneration); // (1)
+		boolean alive = getCellState(x, y, this.CurrGeneration); // (1)
 
 		if (!alive) {
 			boolean birth = false;
 
-			for (int l = 0; l < rules.getBirthRules().length && birth == false; l++)// (2)
-				if (aliveNeighbours == rules.getBirthRules()[l])
+			for (int l = 0; l < super.getRules().getBirthRules().length && birth == false; l++)// (2)
+				if (aliveNeighbours == super.getRules().getBirthRules()[l])
 					birth = true;
 
 			setCellState(x, y, this.newActiveCells, birth);
@@ -162,8 +193,8 @@ public class Matrix {// test
 		} else {
 			boolean survive = false;
 
-			for (int l = 0; l < rules.getSurvivalRules().length && survive == false; l++)
-				if (aliveNeighbours == rules.getSurvivalRules()[l])
+			for (int l = 0; l < super.getRules().getSurvivalRules().length && survive == false; l++)
+				if (aliveNeighbours == super.getRules().getSurvivalRules()[l])
 					survive = true;
 
 		
@@ -195,7 +226,7 @@ public class Matrix {// test
 				cellsInLong = 64;
 
 			for (int k = 0; k < cellsInLong; k++) {
-				for (int x = 0; x < this.WIDTH; x++) {
+				for (int x = 0; x < super.getWidth(); x++) {
 					bitString += ((this.getCurrentGeneration()[x][y] >> k) & 1);
 				}
 			}
@@ -233,25 +264,10 @@ public class Matrix {// test
 		this.newActiveCells = newActiveCells;
 	}
 
-	public void setColor(Color color) {
-		this.color = color;
-	}
-
-	public Color getColor() {
-		return this.color;
-	}
-
-	public int getWidth() {
-		return this.WIDTH;
-	}
-
 	public int getY() {
 		return this.yDiv64;
 	}
 
-	public int getHeight() {
-		return this.HEIGHT;
-	}
 
 	public int getPatternWidth() {
 		return patternWidth;

@@ -1,13 +1,21 @@
-package GameOfLife;
+package GameOfLife.Controller;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import GameOfLife.FileHandler;
+import GameOfLife.GameOfLife;
+import GameOfLife.RleInterpreter;
+import GameOfLife.Model.PatternFormatException;
+import GameOfLife.Model.Rules;
+import GameOfLife.Model.StaticMatrix;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
@@ -20,10 +28,13 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 public class Controller implements Initializable {
 
+	@FXML
+	private VBox vBoxRoot;
 	@FXML
 	private Canvas canvas;
 	@FXML
@@ -55,13 +66,13 @@ public class Controller implements Initializable {
 	int offsetX = 0;
 	CanvasDrawer cd;
 	int offsetY = 0;
-	Matrix model;
+	StaticMatrix model;
 
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		rules = new Rules();
-		model = new Matrix(1000, (1000), rules);
+		model = new StaticMatrix(10000, (10000), rules);
 
 		cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
 
@@ -135,12 +146,12 @@ public class Controller implements Initializable {
 	 */
 	public void handleOpen()  { 
 
-		FileHandler file = new FileHandler();
+		FileHandler file = new FileHandler(vBoxRoot.getScene().getWindow());
 		String rleString = file.toString();
 		if(rleString != null){
 			RleInterpreter rleInterp;
 			try {
-				rleInterp = new RleInterpreter(rleString);
+				rleInterp = new RleInterpreter(rleString, this.model);
 				model.setPattern(rleInterp.getStartGeneration());
 				model.setPatternWidth(rleInterp.getWidth());
 				model.setPatternHeight(rleInterp.getHeight());
@@ -148,8 +159,11 @@ public class Controller implements Initializable {
 				//model.setPatternFromRle(file.readRle());
 				cd.drawNextGeneration();
 			} catch (PatternFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("PatternFormatException");
+				alert.setContentText(e.getMessage());
+				alert.showAndWait();
 			}
 			
 		}else{

@@ -1,12 +1,13 @@
-package GameOfLife;
+package GameOfLife.Controller;
 
+import GameOfLife.Model.StaticMatrix;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
 public class CanvasDrawer {
 	private GraphicsContext gc;
-	Matrix model;
+	StaticMatrix model;
 	private int cellSize = 5;
 	private int canvasDisplacedX;
 	private int canvasDisplacedY;
@@ -15,7 +16,7 @@ public class CanvasDrawer {
 	private int patternPositionX;
 	private int patternPositionY;
 	
-	public CanvasDrawer(Matrix model, GraphicsContext gc) {
+	public CanvasDrawer(StaticMatrix model, GraphicsContext gc) {
 		this.model = model;
 		this.gc = gc;
 		canvasDisplacedX = 0; // model.getX() * cellSize / 2;

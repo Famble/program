@@ -1,4 +1,4 @@
-package GameOfLife;
+package GameOfLife.Model;
 
 import java.util.Arrays;
 import java.util.HashMap;

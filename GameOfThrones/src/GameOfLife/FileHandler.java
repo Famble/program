@@ -6,30 +6,31 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 
+import GameOfLife.Model.StaticMatrix;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 
 import java.nio.charset.Charset;
 
-public class FileHandler extends Stage {
+public class FileHandler{
 	Path path = Paths.get(".");
 	Stage fileNotFoundStage;
 	Scene scene;
+	StaticMatrix model;
 
 	File file = path.toFile();
 	String textFile;
 
-	public FileHandler() {
-
-		this.setTitle("File");
+	public FileHandler(Window window) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Choose file");
 		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("RLE Files", "*.rle"));
-		file = fileChooser.showOpenDialog(this);
+		file = fileChooser.showOpenDialog(window);
 		if(file != null){
 		textFile = this.readRle();
 		}
