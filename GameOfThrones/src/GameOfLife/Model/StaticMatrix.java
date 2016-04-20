@@ -41,7 +41,16 @@ public class StaticMatrix extends Matrix {// test
 		if(alive)
 			this.getActiveCells()[x][y/64] |= (1L << y % 64);
 		else
-			this.getActiveCells()[x][y/64] &= (1L << y % 64);
+			this.getActiveCells()[x][y/64] &= ~(1L << y % 64);
+
+	}
+	
+	public void setNextGenActiveCellState(int x, int y, boolean alive)
+	{
+		if(alive)
+			this.getNewActiveCells()[x][y/64] |= (1L << y % 64);
+		else
+			this.getNewActiveCells()[x][y/64] &= ~(1L << y % 64);
 
 	}
 	
@@ -51,6 +60,10 @@ public class StaticMatrix extends Matrix {// test
 	}
 
 	public boolean getCellState(int x, int y) {
+		return ((this.getCurrentGeneration()[x][y / 64] >> y % 64) & 1) == 1;
+	}
+	
+	public boolean getPatternCellState(int x, int y) {
 		return ((this.getCurrentGeneration()[x][y / 64] >> y % 64) & 1) == 1;
 	}
 
@@ -81,10 +94,31 @@ public class StaticMatrix extends Matrix {// test
 		}
 	}
 	
+	public void setNextGenCellState(int x, int y, boolean alive) {
+		if (alive){			
+			if(this.getCellState(x, y)){
+				this.getNextGeneration()[x][y / 64] |= (1L << y % 64);
+				this.setNextGenActiveCellState(x, y, false);
+			}
+			else
+			{
+				this.getNextGeneration()[x][y / 64] |= (1L << y % 64);
+				this.setNextGenActiveCellState(x, y, true);
 
-
-	public void swapCellState(int x, int y, long[][] cells) {
-		this.CurrGeneration[x][y / 64] ^= (1L << y % 64);
+			}
+		}
+		else //dead
+		{
+			
+			if(this.getCellState(x, y)){
+				this.getNextGeneration()[x][y / 64] &= ~(1L << y % 64);
+				this.setNextGenActiveCellState(x, y, true);
+			}
+			else{
+				this.getNextGeneration()[x][y / 64] &= ~(1L << y % 64);
+				this.setNextGenActiveCellState(x, y, false);
+			}
+		}
 	}
 
 	public void startNextGeneration() {
@@ -102,12 +136,11 @@ public class StaticMatrix extends Matrix {// test
 		settingPattern = false;
 		for (int x = 0; x < patternWidth; x++) {
 			for (int y = 0; y < patternHeight; y++) {
-				if (getCellState(x, y, this.pattern)) {
-					setCellState(x+startX, y+startY, this.CurrGeneration, true);
-					setCellState(x, y, this.activeCells, true);
+				if (getPatternCellState(x, y)) {
+					setCellState(x+startX, y+startY, true);
 				} else {
-					setCellState(x+startX, y+startY, this.CurrGeneration, false);
-					setCellState(x+startX, y+startY, this.activeCells, true);
+					setCellState(x+startX, y+startY, false);
+
 				}
 			}
 
@@ -128,8 +161,8 @@ public class StaticMatrix extends Matrix {// test
 				if (!(this.getActiveCells()[x][y] == 0)) {
 					int j = y*64;
 					for(int bit = 0; bit<64; bit++)
-					{					
-						if (getCellState(x, j+bit, this.activeCells)) {
+					{			
+						if (getActiveCellState(x, j + bit)) {
 							aliveNeighbours = countNeighbours(x, j+bit, true);
 							setCellStateFromRules(x, j+bit, aliveNeighbours);
 						}
@@ -164,7 +197,7 @@ public class StaticMatrix extends Matrix {// test
 
 					}
 
-					if (getCellState(neighborX, neighborY, this.CurrGeneration)) {
+					if (getCellState(neighborX, neighborY)) {
 						aliveNeighbours++;
 					}
 					if (countNeighbors) {
@@ -178,7 +211,7 @@ public class StaticMatrix extends Matrix {// test
 	}
 
 	private void setCellStateFromRules(int x, int y, int aliveNeighbours) {
-		boolean alive = getCellState(x, y, this.CurrGeneration); // (1)
+		boolean alive = getCellState(x, y); // (1)
 
 		if (!alive) {
 			boolean birth = false;
@@ -187,8 +220,7 @@ public class StaticMatrix extends Matrix {// test
 				if (aliveNeighbours == super.getRules().getBirthRules()[l])
 					birth = true;
 
-			setCellState(x, y, this.newActiveCells, birth);
-			setCellState(x, y, this.nextGeneration, birth);
+			setNextGenCellState(x, y, birth);
 			
 		} else {
 			boolean survive = false;
@@ -198,8 +230,7 @@ public class StaticMatrix extends Matrix {// test
 					survive = true;
 
 		
-			setCellState(x, y, this.getNextGeneration(), survive);
-			setCellState(x, y, this.getNewActiveCells(), !survive);
+			setNextGenCellState(x, y, survive);
 			
 		}
 	}

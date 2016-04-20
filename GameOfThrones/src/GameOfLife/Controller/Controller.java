@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import GameOfLife.FileHandler;
 import GameOfLife.GameOfLife;
 import GameOfLife.RleInterpreter;
+import GameOfLife.Model.DynamicMatrix;
 import GameOfLife.Model.PatternFormatException;
 import GameOfLife.Model.Rules;
 import GameOfLife.Model.StaticMatrix;
@@ -66,13 +67,13 @@ public class Controller implements Initializable {
 	int offsetX = 0;
 	CanvasDrawer cd;
 	int offsetY = 0;
-	StaticMatrix model;
+	DynamicMatrix model;
 
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		rules = new Rules();
-		model = new StaticMatrix(10000, (10000), rules);
+		model = new DynamicMatrix(1, (1), rules);
 
 		cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
 
@@ -115,10 +116,10 @@ public class Controller implements Initializable {
 				birth.setText(birth.getText() + i);
 
 			for (int i = 0; i < model.getWidth(); i++)
-				for (int j = 0; j < model.getY(); j++)
-					model.getActiveCells()[i][j] = 0;
+				for (int j = 0; j < (model.getHeight() + 1)/64; j++)
+					model.setActiveCellState(i, j, false);
 
-			model.startNextGeneration();
+			//model.startNextGeneration();
 
 		});
 
@@ -144,8 +145,9 @@ public class Controller implements Initializable {
 	 * 
 	 * @see RleInterpreter
 	 */
+	
 	public void handleOpen()  { 
-
+		/*
 		FileHandler file = new FileHandler(vBoxRoot.getScene().getWindow());
 		String rleString = file.toString();
 		if(rleString != null){
@@ -169,8 +171,11 @@ public class Controller implements Initializable {
 		}else{
 			System.out.println("File was not found");
 		}
-
+*/
 	}
+	
+	
+	
 	
 	
 
@@ -242,30 +247,20 @@ public class Controller implements Initializable {
 		int cellX = ((int)event.getX() + cd.getCanvasDisplacedX()) / cd.getCellSize();
 		int cellY = ((int)event.getY() + cd.getCanvasDisplacedY())/cd.getCellSize();
 		
-		if(cellX < 0 || cellX > model.getWidth() || cellY < 0 || cellY > model.getHeight())
-		{
-	
-		}
-		else
-			cd.drawCell((int) event.getX(), (int) event.getY());
+		cd.drawCell((int) event.getX(), (int) event.getY());
 	}
 
 	public void mouseClicked(MouseEvent event, boolean dragDraw) {
 		int cellX = ((int)event.getX() + cd.getCanvasDisplacedX()) /cd.getCellSize();
 		int cellY = ((int)event.getY() + cd.getCanvasDisplacedY())/cd.getCellSize();
 		
-		if(cellX < 0 || cellX > model.getWidth() || cellY < 0 || cellY > model.getHeight())
-		{
-	
-		}
-		else
-			cd.drawCell((int) event.getX(), (int) event.getY(), dragDraw);
+		cd.drawCell((int) event.getX(), (int) event.getY(), dragDraw);
 
 	}
 
 	public void keyListener(KeyEvent event) throws IOException
 	{
-		
+		/*
 		if(event.getCode() == KeyCode.RIGHT)
 			cd.setPatternPositionX(cd.getPatternPositionX() + 10);
 		else if(event.getCode() == KeyCode.DOWN)
@@ -300,14 +295,17 @@ public class Controller implements Initializable {
 		
 	
 		cd.drawNextGeneration();
-			
+		*/	
 	}
+	
 
 	public void handlePauseClick() {
 		GOL.stop();
 	}
 
+	
 	public void handleResetClick() {
+		/*
 		for (int i = 0; i < model.getWidth(); i++)
 			for (int j = 0; j < model.getY(); j++) {
 				model.getCurrentGeneration()[i][j] = 0;
@@ -316,6 +314,8 @@ public class Controller implements Initializable {
 			}
 
 		cd.drawNextGeneration();
+			*/
 	}
+
 
 }

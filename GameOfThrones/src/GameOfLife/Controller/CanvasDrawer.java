@@ -1,5 +1,7 @@
 package GameOfLife.Controller;
 
+import GameOfLife.Model.Matrix;
+import GameOfLife.Model.DynamicMatrix;
 import GameOfLife.Model.StaticMatrix;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ScrollEvent;
@@ -7,7 +9,7 @@ import javafx.scene.paint.Color;
 
 public class CanvasDrawer {
 	private GraphicsContext gc;
-	StaticMatrix model;
+	private Matrix model;
 	private int cellSize = 5;
 	private int canvasDisplacedX;
 	private int canvasDisplacedY;
@@ -15,112 +17,124 @@ public class CanvasDrawer {
 	private double windowHeight;
 	private int patternPositionX;
 	private int patternPositionY;
-	
-	public CanvasDrawer(StaticMatrix model, GraphicsContext gc) {
+
+	public CanvasDrawer(Matrix model, GraphicsContext gc) {
 		this.model = model;
 		this.gc = gc;
 		canvasDisplacedX = 0; // model.getX() * cellSize / 2;
 		canvasDisplacedY = 0; // model.getRealY() * cellSize / 2;
 		gc.setStroke(Color.GRAY);
-		gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth()*cellSize, model.getHeight()*cellSize);
+
+		if (model instanceof StaticMatrix) // if static gameboard then we draw
+											// border
+			gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth() * cellSize,
+					model.getHeight() * cellSize);
 	}
-	
 
 	public int getPatternPositionX() {
 		return patternPositionX;
 	}
 
-
-	public void setPatternPositionX(int patternPositionX) {
-		if (patternPositionX >= 0 && patternPositionX <= model.getWidth() - model.getPatternWidth() && patternPositionX > 0)
-			this.patternPositionX = patternPositionX;
-		else if(patternPositionX > model.getWidth() - model.getPatternWidth())
-		{
-			this.patternPositionX = model.getWidth()-model.getPatternWidth();
-		}
-		else
-			this.patternPositionX = 0;
-		
-	}
+	/*
+	 * 
+	 * public void setPatternPositionX(int patternPositionX) { if
+	 * (patternPositionX >= 0 && patternPositionX <= model.getWidth() -
+	 * model.getPatternWidth() && patternPositionX > 0) this.patternPositionX =
+	 * patternPositionX; else if(patternPositionX > model.getWidth() -
+	 * model.getPatternWidth()) { this.patternPositionX =
+	 * model.getWidth()-model.getPatternWidth(); } else this.patternPositionX =
+	 * 0;
+	 * 
+	 * }
+	 * 
+	 */
 
 	public int getPatternPositionY() {
 		return patternPositionY;
 	}
 
-	public void setPatternPositionY(int patternPositionY) {
-		if (patternPositionY >= 0 && patternPositionY <= model.getHeight() - model.getPatternHeight() && patternPositionY > 0)
-			this.patternPositionY = patternPositionY;
-		else if(patternPositionY > model.getHeight() - model.getPatternHeight())
-		{
-			this.patternPositionY = model.getHeight() - model.getPatternHeight();
-		}
-		else
-			this.patternPositionY = 0;
-	}
+	/*
+	 * public void setPatternPositionY(int patternPositionY) { if
+	 * (patternPositionY >= 0 && patternPositionY <= model.getHeight() -
+	 * model.getPatternHeight() && patternPositionY > 0) this.patternPositionY =
+	 * patternPositionY; else if(patternPositionY > model.getHeight() -
+	 * model.getPatternHeight()) { this.patternPositionY = model.getHeight() -
+	 * model.getPatternHeight(); } else this.patternPositionY = 0; }
+	 */
+	/*
+	 * 
+	 * public void drawPattern() { gc.setFill(Color.BROWN); for (int x = 0; x <
+	 * model.getPatternWidth(); x++) for (int y = 0; y <
+	 * model.getPatternHeight(); y++) { if (x * cellSize < canvasDisplacedX || x
+	 * * cellSize > canvasDisplacedX + windowWidth || cellSize * (y + 64) <
+	 * canvasDisplacedY || cellSize * (y) > canvasDisplacedY + windowHeight) {
+	 * 
+	 * } else if (model.getPatternCellState(x, y)) { gc.fillOval(cellSize * (x)
+	 * - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
+	 * cellSize); }
+	 * 
+	 * } }
+	 * 
+	 */
 
-	public void drawPattern() {
-		gc.setFill(Color.BROWN);
-		for (int x = 0; x < model.getPatternWidth(); x++)
-			for (int y = 0; y < model.getPatternHeight(); y++) {
-				if (x * cellSize < canvasDisplacedX || x * cellSize > canvasDisplacedX + windowWidth
-						|| cellSize * (y + 64) < canvasDisplacedY || cellSize * (y) > canvasDisplacedY + windowHeight) {
+	public void drawPattern(int width, int height) {
 
-				} 
-				else if (model.cellIsAlive(x, y, model.getPattern())) {
-						gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
-					}
-
-			}
-	}
-	
-	public void drawPattern(int width, int height){
-		
 	}
 
 	public void drawCell(int x, int y) {
-		int cellSize = this.getCellSize();
-		int canvasDisplacedX = this.getCanvasDisplacedX();
-		int canvasDisplacedY = this.getCanvasDisplacedY();
+		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight()) && this.model instanceof StaticMatrix) {
 
-		x = (x + canvasDisplacedX) / cellSize;
-		y = (y + canvasDisplacedY) / cellSize;
-
-		model.swapCellState(x, y, model.getCurrentGeneration());
-		model.setCellState(x, y, model.getActiveCells(), true);
-
-		if (model.cellIsAlive(x, y, model.getCurrentGeneration())) {
-			gc.setFill(model.getColor());
-			gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
 		} else {
-			gc.setFill(Color.BLACK);
-			gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+			
+			int cellSize = this.getCellSize();
+			int canvasDisplacedX = this.getCanvasDisplacedX();
+			int canvasDisplacedY = this.getCanvasDisplacedY();
+
+			x = (x + canvasDisplacedX) / cellSize;
+			y = (y + canvasDisplacedY) / cellSize;
+
+			boolean alive = !model.getCellState(x, y);
+
+			model.setCellState(x, y, alive);
+
+			if (alive) {
+				gc.setFill(model.getColor());
+				gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+			} else {
+				gc.setFill(Color.BLACK);
+				gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+			}
 		}
 	}
 
 	public void drawCell(int x, int y, boolean dragDraw) {
-		int cellSize = this.getCellSize();
-
-		int canvasDisplacedX = this.getCanvasDisplacedX();
-		int canvasDisplacedY = this.getCanvasDisplacedY();
-
-		x = (x + canvasDisplacedX) / cellSize;
-		y = (y + canvasDisplacedY) / cellSize;
-
-		if (dragDraw) {
-			if (!model.cellIsAlive(x, y, model.getCurrentGeneration())) {
-				gc.setFill(model.getColor());
-				model.setCellState(x, y, model.getCurrentGeneration(), true);
-				model.setCellState(x, y, model.getActiveCells(), true);
-				gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
-			}
+		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight()) && this.model instanceof StaticMatrix) {
 
 		} else {
+			int cellSize = this.getCellSize();
 
-			if (model.cellIsAlive(x, y, model.getCurrentGeneration())) {
-				gc.setFill(Color.BLACK);
-				model.setCellState(x, y, model.getCurrentGeneration(), false);
-				model.setCellState(x, y, model.getActiveCells(), true);
-				gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+			int canvasDisplacedX = this.getCanvasDisplacedX();
+			int canvasDisplacedY = this.getCanvasDisplacedY();
+
+			x = (x + canvasDisplacedX) / cellSize;
+			y = (y + canvasDisplacedY) / cellSize;
+
+			if (dragDraw) {
+				if (!model.getCellState(x, y)) {
+					gc.setFill(model.getColor());
+					model.setCellState(x, y, true);
+					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
+							cellSize);
+				}
+
+			} else {
+
+				if (model.getCellState(x, y)) {
+					gc.setFill(Color.BLACK);
+					model.setCellState(x, y, false);
+					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
+							cellSize);
+				}
 			}
 		}
 	}
@@ -142,14 +156,14 @@ public class CanvasDrawer {
 		this.drawNextGeneration();
 
 	}
-	
-
 
 	public void clearCanvas() {
 		gc.setFill(Color.BLACK);
 		gc.fillRect(0, 0, windowWidth, windowHeight);
 		gc.setStroke(Color.GRAY);
-		gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth()*cellSize, model.getHeight()*cellSize);
+		if (2 == 3)
+			gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth() * cellSize,
+					model.getHeight() * cellSize);
 
 	}
 
@@ -181,51 +195,53 @@ public class CanvasDrawer {
 
 	public void drawNextGeneration() {
 		clearCanvas();
-		
+		int shiftedToRight = 0;
+		int shiftedDownwards = 0;
+		if(model instanceof DynamicMatrix){
+			shiftedToRight = ((DynamicMatrix) this.model).getShiftedToRight();
+			shiftedDownwards =((DynamicMatrix)this.model).getShiftedDownwards();
+		}
+
 		gc.setFill(model.getColor());
 		for (int x = 0; x < model.getWidth(); x++)
-			for (int y = 0; y < model.yDiv64; y++) {
-				if (x * cellSize < canvasDisplacedX || x * cellSize > canvasDisplacedX + windowWidth
-						|| cellSize * ((y*64) + 64) < canvasDisplacedY || cellSize * (y*64) > canvasDisplacedY + windowHeight) {
-
-				} else if (!(model.getCurrentGeneration()[x][y] == 0)){
-					int j = 64*y;
-					for(int i = 0; i < 64; i++)
-					{
-						if (model.cellIsAlive(x, j+i, model.getCurrentGeneration())) {
-							gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (j+i) - canvasDisplacedY, cellSize,
-									cellSize);
-						}
-					}
+			for (int y = 0; y < model.getHeight(); y++) {
+				if (model.getCellState(x, y)) {
+					gc.fillOval(cellSize * (x-shiftedToRight) - canvasDisplacedX, cellSize * (y-shiftedDownwards) - canvasDisplacedY, cellSize,
+							cellSize);
 				}
 
 			}
-		if(model.settingPattern)
-		{
-			gc.setStroke(Color.WHITE);
-			gc.strokeRect(-this.canvasDisplacedX + patternPositionX*cellSize, -this.canvasDisplacedY + patternPositionY*cellSize, model.getPatternWidth()*cellSize, model.getPatternHeight()*cellSize);
+		
+		System.out.printf("(width, height): (%d,%d)\n", model.getWidth(), model.getHeight());
 
-			double lowest= 10000;
-			gc.setFill(Color.RED);
-			for (int x = 0; x < model.getPatternWidth(); x++){
-				for (int y = 0; y < model.getPatternHeight(); y++) {
-					if (model.cellIsAlive(x, y, model.getPattern())) {
-							gc.fillOval(cellSize * (x+patternPositionX) - canvasDisplacedX , cellSize * (y+patternPositionY)- canvasDisplacedY , cellSize, cellSize);
-						}
-					
-					
-				
-					
-
-				}
-				
-			}
-			
-			
-			
-			
-		}
 	}
+
+	/*
+	 * if(model.settingPattern) { gc.setStroke(Color.WHITE);
+	 * gc.strokeRect(-this.canvasDisplacedX + patternPositionX*cellSize,
+	 * -this.canvasDisplacedY + patternPositionY*cellSize,
+	 * model.getPatternWidth()*cellSize, model.getPatternHeight()*cellSize);
+	 * 
+	 * double lowest= 10000; gc.setFill(Color.RED); for (int x = 0; x <
+	 * model.getPatternWidth(); x++){ for (int y = 0; y <
+	 * model.getPatternHeight(); y++) { if (model.getPatternCellState(x, y)) {
+	 * gc.fillOval(cellSize * (x+patternPositionX) - canvasDisplacedX , cellSize
+	 * * (y+patternPositionY)- canvasDisplacedY , cellSize, cellSize); }
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * }
+	 * 
+	 * }
+	 * 
+	 * 
+	 * 
+	 * 
+	 * }
+	 */
+	
 
 	public double getWindowWidth() {
 		return windowWidth;

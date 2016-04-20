@@ -1,6 +1,5 @@
 package GameOfLife.Model;
 
-import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 
 public abstract class Matrix 
@@ -10,14 +9,21 @@ public abstract class Matrix
 	private Rules rules;
 	private Color cellColor = Color.web("#42dd50");
 	
+	
 	public Matrix(int width, int height, Rules rules)
 	{
 		this.width = width;
 		this.height = height;
 		this.rules = rules;
 	}
+	public abstract void startNextGeneration();
 	
+	public abstract boolean getCellState(int x, int y);
 	public abstract void determineNextGeneration();
+	
+	public abstract void setCellState(int x, int y, boolean alive);
+	
+	public abstract int countNeighbours(int x, int y, boolean countNeighbours);
 	
 	public Rules getRules(){
 		return this.rules;
