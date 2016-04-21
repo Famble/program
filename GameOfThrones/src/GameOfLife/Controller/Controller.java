@@ -8,6 +8,7 @@ import GameOfLife.FileHandler;
 import GameOfLife.GameOfLife;
 import GameOfLife.RleInterpreter;
 import GameOfLife.Model.DynamicMatrix;
+import GameOfLife.Model.Matrix.BoardContainer;
 import GameOfLife.Model.PatternFormatException;
 import GameOfLife.Model.Rules;
 import GameOfLife.Model.StaticMatrix;
@@ -73,7 +74,7 @@ public class Controller implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		rules = new Rules();
-		model = new DynamicMatrix(1, (1), rules);
+		model = new DynamicMatrix(100, (100), rules);
 
 		cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
 
@@ -117,7 +118,7 @@ public class Controller implements Initializable {
 
 			for (int i = 0; i < model.getWidth(); i++)
 				for (int j = 0; j < (model.getHeight() + 1)/64; j++)
-					model.setActiveCellState(i, j, false);
+					model.setCellState(i, j, BoardContainer.ACTIVEGENERATION, false);
 
 			//model.startNextGeneration();
 
@@ -305,16 +306,14 @@ public class Controller implements Initializable {
 
 	
 	public void handleResetClick() {
-		/*
-		for (int i = 0; i < model.getWidth(); i++)
-			for (int j = 0; j < model.getY(); j++) {
-				model.getCurrentGeneration()[i][j] = 0;
-				model.getNextGeneration()[i][j] = 0;
-				model.getActiveCells()[i][j] = 0;
+		
+		for (int x = 0; x < model.getWidth(); x++)
+			for (int y = 0; y < model.getHeight(); y++) {
+				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.CURRENTGENERATION, false);
 			}
 
 		cd.drawNextGeneration();
-			*/
+			
 	}
 
 

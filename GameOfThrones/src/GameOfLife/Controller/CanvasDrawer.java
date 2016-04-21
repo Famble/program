@@ -1,8 +1,12 @@
 package GameOfLife.Controller;
 
 import GameOfLife.Model.Matrix;
+
+import com.sun.javafx.scene.BoundsAccessor;
+
 import GameOfLife.Model.DynamicMatrix;
 import GameOfLife.Model.StaticMatrix;
+import GameOfLife.Model.Matrix.BoardContainer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
@@ -93,9 +97,10 @@ public class CanvasDrawer {
 			x = (x + canvasDisplacedX) / cellSize;
 			y = (y + canvasDisplacedY) / cellSize;
 
-			boolean alive = !model.getCellState(x, y);
+			boolean alive = !model.getCellState(x, y, BoardContainer.CURRENTGENERATION);
 
-			model.setCellState(x, y, alive);
+			model.setCellState(x, y, BoardContainer.CURRENTGENERATION, alive);
+			model.setCellState(x,  y, BoardContainer.ACTIVEGENERATION, alive);
 
 			if (alive) {
 				gc.setFill(model.getColor());
@@ -113,25 +118,30 @@ public class CanvasDrawer {
 		} else {
 			int cellSize = this.getCellSize();
 
+
 			int canvasDisplacedX = this.getCanvasDisplacedX();
 			int canvasDisplacedY = this.getCanvasDisplacedY();
 
 			x = (x + canvasDisplacedX) / cellSize;
 			y = (y + canvasDisplacedY) / cellSize;
+			
+			//System.out.printf("(x,y) = (%d,%d)\n", x, y);
+
 
 			if (dragDraw) {
-				if (!model.getCellState(x, y)) {
+				if (!model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
 					gc.setFill(model.getColor());
-					model.setCellState(x, y, true);
+					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, true);
+					model.setCellState(x,  y, BoardContainer.ACTIVEGENERATION, true);
 					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
 							cellSize);
 				}
 
 			} else {
 
-				if (model.getCellState(x, y)) {
+				if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
 					gc.setFill(Color.BLACK);
-					model.setCellState(x, y, false);
+					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, false);
 					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
 							cellSize);
 				}
@@ -195,18 +205,18 @@ public class CanvasDrawer {
 
 	public void drawNextGeneration() {
 		clearCanvas();
-		int shiftedToRight = 0;
+		int shiftedRightwards = 0;
 		int shiftedDownwards = 0;
 		if(model instanceof DynamicMatrix){
-			shiftedToRight = ((DynamicMatrix) this.model).getShiftedToRight();
+			shiftedRightwards = ((DynamicMatrix) this.model).getShiftedRightwards();
 			shiftedDownwards =((DynamicMatrix)this.model).getShiftedDownwards();
 		}
 
 		gc.setFill(model.getColor());
 		for (int x = 0; x < model.getWidth(); x++)
 			for (int y = 0; y < model.getHeight(); y++) {
-				if (model.getCellState(x, y)) {
-					gc.fillOval(cellSize * (x-shiftedToRight) - canvasDisplacedX, cellSize * (y-shiftedDownwards) - canvasDisplacedY, cellSize,
+				if (model.getCellState(x-shiftedRightwards, y-shiftedDownwards, BoardContainer.CURRENTGENERATION)) {
+					gc.fillOval(cellSize * (x-shiftedRightwards) - canvasDisplacedX, cellSize * (y-shiftedDownwards) - canvasDisplacedY, cellSize,
 							cellSize);
 				}
 

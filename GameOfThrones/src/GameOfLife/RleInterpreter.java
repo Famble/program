@@ -83,6 +83,7 @@ public class RleInterpreter {
 			if (rleString.charAt(i) == ' ')
 				amountOfSpaces++;
 
+		
 		matcher = regex.matcher(this.rleString.replaceAll(" ", ""));
 
 		while (matcher.find()) {

@@ -316,4 +316,22 @@ public class StaticMatrix extends Matrix {// test
 		this.patternHeight = patternHeight;
 	}
 
+	@Override
+	public boolean getCellState(int x, int y, BoardContainer bc) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setCellState(int x, int y, BoardContainer bc, boolean alive) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void resetGameBoard() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

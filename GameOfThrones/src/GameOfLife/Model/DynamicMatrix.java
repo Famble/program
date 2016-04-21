@@ -9,8 +9,9 @@ public class DynamicMatrix extends Matrix {
 	private List<List<Boolean>> nextGeneration;
 	private List<List<Boolean>> activeCells;
 	private List<List<Boolean>> nextActiveCells;
-	private int shiftedRightward = 0;
+	private int shiftedRightwards = 0;
 	private int shiftedDownwards = 0;
+	int count = 0;
 	
 
 	public int getShiftedDownwards() {
@@ -21,12 +22,12 @@ public class DynamicMatrix extends Matrix {
 		this.shiftedDownwards = shiftedDownwards;
 	}
 
-	public int getShiftedToRight() {
-		return shiftedRightward;
+	public int getShiftedRightwards() {
+		return shiftedRightwards;
 	}
 
 	public void setShiftedToRight(int shiftedToRight) {
-		this.shiftedRightward = shiftedToRight;
+		this.shiftedRightwards = shiftedToRight;
 	}
 
 	public DynamicMatrix(int x, int y, Rules rules) 
@@ -41,10 +42,10 @@ public class DynamicMatrix extends Matrix {
 		
 		for(int i = 0; i < super.getWidth(); i++)
 		{
-			currGeneration.add(i, new ArrayList<Boolean>(y));
-			nextGeneration.add(i, new ArrayList<Boolean>(y));
-			activeCells.add(i, new ArrayList<Boolean>(y));
-			nextActiveCells.add(i, new ArrayList<Boolean>(y));
+			currGeneration.add(new ArrayList<Boolean>(y));
+			nextGeneration.add(new ArrayList<Boolean>(y));
+			activeCells.add(new ArrayList<Boolean>(y));
+			nextActiveCells.add(new ArrayList<Boolean>(y));
 			
 			for(int j = 0; j <= super.getHeight(); j++){
 				currGeneration.get(i).add(j,  false);
@@ -55,12 +56,117 @@ public class DynamicMatrix extends Matrix {
 		}
 		
 	}
+	
+	public void startNextGeneration(){
+		determineNextGeneration();
+		for(int i = 0; i < super.getWidth(); i++){
+			for(int j = 0; j < super.getHeight(); j++){
+				this.getCurrGeneration().get(i).set(j, this.getNextGeneration().get(i).get(j));
+				this.getActiveCells().get(i).set(j, this.getNextActiveCells().get(i).get(j));
+				
+			}
+		}
+	}
+	
+	@Override
+	public void determineNextGeneration() {
+		int aliveNeighbors = 0;
+		for(int x = 0; x < super.getWidth(); x++){
+			for(int y = 0; y < super.getHeight(); y++){
+				int xx = x - shiftedRightwards;
+				int yy = y - shiftedDownwards;
+				if(this.getCellState(xx, yy, BoardContainer.ACTIVEGENERATION)){
+					aliveNeighbors = countNeighbours(xx, yy, true);
+					setCellStateFromRules(xx, yy, aliveNeighbors);
+				}
+			}
+		}
+		
+	}
+	
+	@Override
+	public int countNeighbours(int x, int y, boolean countNeighbours) {
+		int aliveNeighbours = 0;
+		int neighborX;
+		int neighborY;
+		
+		for (int i = -1; i <= 1; i++) // (2)
+			for (int j = -1; j <= 1; j++) {
+				if (!(i == 0 && j == 0))// (3)
+				{
+					neighborX = x + i;
+					neighborY = y + j;
+					
+					if (this.getCellState(neighborX, neighborY, BoardContainer.CURRENTGENERATION)) {
+						aliveNeighbours++;
+					}
+					
+					if(countNeighbours){
+						setCellStateFromRules(neighborX, neighborY, countNeighbours(neighborX, neighborY, false));
+					}
+				}
+				
+			}
+	
+		return aliveNeighbours;
+	}
+
+	private void setCellStateFromRules(int x, int y, int aliveNeighbours){
+		boolean alive = getCellState(x, y, BoardContainer.CURRENTGENERATION); // (1)
+
+		if (!alive) {
+			boolean birth = false;
+
+			for (int l = 0; l < super.getRules().getBirthRules().length && birth == false; l++)// (2)
+				if (aliveNeighbours == super.getRules().getBirthRules()[l])
+					birth = true;
+
+			if (birth) {
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, true);
+				setCellState(x, y, BoardContainer.NEXTGENERATION, true);
+			} else {
+				setCellState(x, y, BoardContainer.NEXTGENERATION, false);
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
+			}
+		} else {
+			boolean survive = false;
+
+			for (int l = 0; l < super.getRules().getSurvivalRules().length && survive == false; l++)
+				if (aliveNeighbours == super.getRules().getSurvivalRules()[l])
+					survive = true;
+
+			if (!survive) {
+				setCellState(x, y, BoardContainer.NEXTGENERATION, false);
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, true);
+			} else {
+				setCellState(x, y, BoardContainer.NEXTGENERATION, true);
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
+			}
+		}
+	}
+
+	public void setBoard(long board[][]) {
+/*
+		for (int i = 0; i < board.length; i++)
+			for (int j = 0; j < board[i].length; j++) {
+				this.getActiveCells()[i][j] = board[i][j];
+				this.getCurrentGeneration()[i][j] = board[i][j];
+			}
+			
+			*/
+
+	}
+
+	
 	public void extendBorderFromLeft(int columnsRequired)
 	{
 		 //rounds up rowsRequired by 100 and stores it in rowsToInsert
 		int columnsToInsert = columnsRequired - (columnsRequired % 100) + 100;
-		System.out.println("columns to insert: " + columnsToInsert);
-		this.shiftedRightward += columnsToInsert;
+		this.shiftedRightwards += columnsToInsert;
+		
+		System.out.println("HAR EXTENDED FRA LEFT");
+		System.out.println("COLUMNS TO INSER: " + columnsToInsert);
+
 		
 		//when you insert an element into an index that already has an element
 		//the new element pushes the original one index to the right
@@ -85,10 +191,10 @@ public class DynamicMatrix extends Matrix {
 	
 	public void extendBorderFromRight(int x)
 	{
+		
 		int columnsRequired = x - super.getWidth();
 		int columnsToInsert = columnsRequired - (columnsRequired % 100) + 100;
 
-		
 		for(int i = this.getWidth(); i < this.getWidth() +columnsToInsert; i++){
 			currGeneration.add(i, new ArrayList<Boolean>());
 			nextGeneration.add(i, new ArrayList<Boolean>() );
@@ -100,10 +206,14 @@ public class DynamicMatrix extends Matrix {
 				nextGeneration.get(i).add(j, false);
 				activeCells.get(i).add(j, false);
 				nextActiveCells.get(i).add(j, false);
+				
 			}
 		}
 		
+	
 		super.setWidth(super.getWidth() + columnsToInsert);
+		
+		
 	}
 	
 	public void extendBorderFromTop(int rowsRequired){
@@ -119,9 +229,7 @@ public class DynamicMatrix extends Matrix {
 
 	}
 		this.shiftedDownwards += rowsToInsert;
-		System.out.println("Rows added: " + rowsToInsert);
 		super.setHeight(rowsToInsert + super.getHeight());
-		System.out.println("Current Height: " + super.getHeight());
 
 		
 	}
@@ -129,7 +237,6 @@ public class DynamicMatrix extends Matrix {
 	public void extendBorderFromBottom(int y){
 		int rowsRequired = y - super.getHeight();
 		int rowsToInsert = rowsRequired - (rowsRequired % 100) + 100;
-		System.out.println("ROWS TO INERT " +rowsToInsert);
 		for(int i = 0; i < this.getWidth(); i++){
 						
 			for(int j = this.getHeight(); j < rowsToInsert + this.getHeight(); j++){
@@ -141,21 +248,22 @@ public class DynamicMatrix extends Matrix {
 		}
 		
 		super.setHeight(super.getHeight() + rowsToInsert);
-		System.out.println(super.getHeight());
 		
 	}
 	
 	
-
-	public void setCellState(int x, int y, boolean alive)
+	@Override
+	public void setCellState(int x, int y, BoardContainer container, boolean alive)
 	{		
-		if(x + shiftedRightward < 0){
-			extendBorderFromLeft(Math.abs(x+shiftedRightward));
+
+		/*
+		if(x + shiftedRightwards < 0){
+			extendBorderFromLeft(Math.abs(x+shiftedRightwards));
 		}
 		
 		
-		if( x+shiftedRightward >= this.getWidth()){
-			extendBorderFromRight(x+shiftedRightward);
+		if( x+shiftedRightwards >= this.getWidth()){
+			extendBorderFromRight(x+shiftedRightwards);
 		}
 		
 		if(y + shiftedDownwards < 0){
@@ -165,54 +273,127 @@ public class DynamicMatrix extends Matrix {
 		if(y + shiftedDownwards >= this.getHeight()){
 			extendBorderFromBottom(y + shiftedDownwards);
 		}
-		System.out.printf("(x y): (%d,%d)\n", x + shiftedRightward, y+shiftedDownwards);
 		
-		currGeneration.get(x + this.shiftedRightward).set(y+ shiftedDownwards, alive);
+		*/
+		
+	    List<List<Boolean>> cells = null;
+	    
+	    switch(container){
+	    case CURRENTGENERATION:
+	    	cells = this.getCurrGeneration();
+	    	break;
+	    case NEXTGENERATION:
+	    	cells = this.getNextGeneration();
+	    	break;
+	    case ACTIVEGENERATION:
+	    	cells = this.getActiveCells();
+	    	break;
+	    case NEXTACTIVEGENERATION:
+	    	cells = this.getNextActiveCells();
+	    	break;
+	    }
+	    
+	    
+		cells.get(x+shiftedRightwards).set(y+ shiftedDownwards, alive);
 	}
 	
-	public void setActiveCellState(int x, int y, boolean alive)
-	{	
-		currGeneration.get(x).set(y, alive);
+	public List<List<Boolean>> getCurrGeneration() {
+		return currGeneration;
 	}
+
+	public void setCurrGeneration(List<List<Boolean>> currGeneration) {
+		this.currGeneration = currGeneration;
+	}
+
+	public List<List<Boolean>> getNextGeneration() {
+		return nextGeneration;
+	}
+
+	public void setNextGeneration(List<List<Boolean>> nextGeneration) {
+		this.nextGeneration = nextGeneration;
+	}
+
+	public List<List<Boolean>> getActiveCells() {
+		return activeCells;
+	}
+
+	public void setActiveCells(List<List<Boolean>> activeCells) {
+		this.activeCells = activeCells;
+	}
+
+	public List<List<Boolean>> getNextActiveCells() {
+		return nextActiveCells;
+	}
+
+
+
 	
-	public boolean getCellState(int x, int y){
+	@Override
+	public boolean getCellState(int x, int y, BoardContainer container){
 		{			
-			if(x < 0 || x >= super.getWidth() || y < 0 || y >= super.getHeight())
-			{
-				return false;
+
+			//System.out.printf("X VS shiftRightwards: (%d vs %d)%n", x, shiftedRightwards);
+			
+			if(x + shiftedRightwards < 0){
+				extendBorderFromLeft(Math.abs((x+shiftedRightwards)));
 			}
-			else
-			{
-				return currGeneration.get(x).get(y);		
+			
+			
+			if( x+shiftedRightwards >= this.getWidth()){
+				extendBorderFromRight(x+shiftedRightwards);
 			}
-		}
-	}
-
-	public boolean getActiveCellState(int x, int y){
-		return this.activeCells.get(x).get(y);
-	}
-
-	@Override
-	public void startNextGeneration() {
-		determineNextGeneration();
-		
-	}
-
-	@Override
-	public void determineNextGeneration() {
-		for(int x = 0; x < super.getHeight(); x++){
-			for(int y = 0; y < super.getHeight(); y++){
+			
+			if(y + shiftedDownwards < 0){
+				extendBorderFromTop(Math.abs(y + shiftedDownwards));
+			}
+			
+			if(y + shiftedDownwards >= this.getHeight()){
+				extendBorderFromBottom(y + shiftedDownwards);
+			}
+			
+				List<List<Boolean>> cells = null;
 				
-			}
+				switch(container){
+				case CURRENTGENERATION:
+					cells = this.getCurrGeneration();
+					break;
+				case NEXTGENERATION:
+					cells = this.getNextGeneration();
+					break;
+				case ACTIVEGENERATION:
+					cells = this.getActiveCells();
+					break;
+				case NEXTACTIVEGENERATION:
+					cells = this.getNextActiveCells();
+					break;
+					
+				}
+				
+				//System.out.printf("(x y): (%d,%d)\n", x + shiftedRightwards, y+shiftedDownwards);
+
+				return cells.get(x + shiftedRightwards).get(y + shiftedDownwards);		
+			
 		}
-		
 	}
 
 	@Override
-	public int countNeighbours(int x, int y, boolean countNeighbours) {
-		// TODO Auto-generated method stub
-		return 0;
+	public void resetGameBoard() {
+		for(int i = 0; i < super.getWidth(); i++){
+			for(int j = 0; j < super.getHeight(); j++){
+				setCellState(i-shiftedRightwards, j-shiftedDownwards, BoardContainer.CURRENTGENERATION, false);
+			}
+		}
+		
+		
+		
 	}
+	
+
+
+	
+
+
+
 
 	
 
