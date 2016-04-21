@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import GameOfLife.Model.Matrix;
 import GameOfLife.Model.PatternFormatException;
 import GameOfLife.Model.StaticMatrix;
 
@@ -19,24 +20,22 @@ public class RleInterpreter {
 	private String ruleString;
 	private String rleString;
 	private StringBuilder description = new StringBuilder();
-	private long[][] startGeneration;
+	private boolean[][] startGeneration;
 	private int lastIndexOfHeader;
 	private StringBuilder testHeader = new StringBuilder();
 	private StringBuilder testDimensionAndRule = new StringBuilder();
 	private StringBuilder testGameboard = new StringBuilder();
-	private StaticMatrix model;
 
 	
 	
-	public void setStartGeneration(long[][] startGeneration) {
+	public void setStartGeneration(boolean[][] startGeneration) {
 		this.startGeneration = startGeneration;
 	}
 
-	public RleInterpreter(String rleFile, StaticMatrix model) throws PatternFormatException{
+	public RleInterpreter(String rleFile, int gameBoardWidth, int GameBoardHeight, boolean dynamic) throws PatternFormatException{
 		this.rleString = rleFile;
-		this.model = model;
 		readHeader();
-		readDimensionAndRule();
+		readDimensionAndRule(gameBoardWidth, GameBoardHeight, dynamic);
 		readGameboard();
 
 		int cellsInLong = 64;
@@ -61,18 +60,17 @@ public class RleInterpreter {
 			if (matcher.group(1).equalsIgnoreCase("N")) {
 				name = matcher.group(2);
 				testHeader.append("#N " + name + "\n");
-				// System.out.println(name);
+				
 			} else if (matcher.group(1).equalsIgnoreCase("C")) {
 				comment = matcher.group(2);
 				description.append(comment + "\n");
 				testHeader.append("#C " + comment + "\n");
-				// System.out.println(description.toString());
 			}
 
 		}
 	}
 
-	private void readDimensionAndRule() throws PatternFormatException{
+	private void readDimensionAndRule(int gameBoardWidth, int GameBoardHeight, boolean dynamic) throws PatternFormatException{
 
 		Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*[0-9]*/[A-Za-z]*[0-9]*))",
 				Pattern.MULTILINE);
@@ -90,28 +88,27 @@ public class RleInterpreter {
 			this.width = Integer.parseInt(matcher.group(1));
 		
 			this.height = Integer.parseInt(matcher.group(2));
-			if(this.width > model.getWidth())
+			
+			if(this.width > gameBoardWidth &&  !dynamic)
 				throw new PatternFormatException(String.format("Max width of the gameboard is %d, the pattern provided"
-						+ "in the rle file has %d width", model.getWidth(), this.getWidth()));
-			else if(this.height > model.getHeight())
+						+ "in the rle file has %d width",gameBoardWidth, GameBoardHeight));
+			else if(this.height > GameBoardHeight && !dynamic)
 				throw new PatternFormatException(String.format("Max height of the gameboard is %d, the pattern provided"
-						+ "in the rle file has %d height", model.getHeight(), this.getHeight()));
+						+ "in the rle file has %d height", gameBoardWidth, GameBoardHeight));
 			this.ruleString = matcher.group(3).replaceAll("[^/0-9]", "");
+
 			lastIndexOfHeader = matcher.end() + amountOfSpaces;
 		}
 
 		testDimensionAndRule
 				.append("x = " + this.width + ", y = " + this.height + ", rule = " + this.ruleString + "\n");
 
-		// System.out.printf("width, height:(%d,%d)\n", this.width,
-		// this.height);
-		// System.out.println(this.ruleString);
 
 	}
 	
 
 	private void readGameboard() throws PatternFormatException{
-		this.startGeneration = new long[width][height / 64 + 1];
+		this.startGeneration = new boolean[width][height];
 
 		String rlePattern[] = this.rleString.substring(lastIndexOfHeader).split("\\$");
 		// System.out.println(this.rleString.substring(lastIndexOfHeader));
@@ -154,7 +151,7 @@ public class RleInterpreter {
 						throw new PatternFormatException("Mismatch between given width dimension and actual width in pattern");
 
 					for (int i = 0; i < deadCells; i++) {
-						this.startGeneration[x + i][yDiv64] &= ~(1L << bitPos);
+						this.startGeneration[x + i][y] = false;
 					}
 
 					x += deadCells;
@@ -177,7 +174,7 @@ public class RleInterpreter {
 						throw new PatternFormatException("Mismatch between given width dimension and actual width in pattern");
 					
 					for (int i = 0; i < aliveCells; i++) {
-						this.startGeneration[x + i][yDiv64] |= (1L << bitPos);
+						this.startGeneration[x+ i][y] = true;
 					}
 
 					x += aliveCells;
@@ -186,7 +183,7 @@ public class RleInterpreter {
 				if (x < width) {
 					int remainingCells = width - x;
 					for (int i = 0; i < remainingCells; i++)
-						this.startGeneration[x + i][yDiv64] &= ~(1L << bitPos);
+						this.startGeneration[x + i][y] = false;
 				}
 				
 				
@@ -196,12 +193,7 @@ public class RleInterpreter {
 			x = 0;
 			yDiv64 = y / 64;
 			bitPos = y % 64;
-			
-			
-			
-			
-			
-			
+
 
 			if (rlePattern[y].charAt(rlePattern[y].length() - 1) == '!') {
 				System.out.println("test");
@@ -262,7 +254,7 @@ public class RleInterpreter {
 		this.width = width;
 	}
 
-	public long[][] getStartGeneration() {
+	public boolean[][] getStartGeneration() {
 		return startGeneration;
 	}
 

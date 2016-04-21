@@ -18,26 +18,22 @@ import javafx.stage.Modality;
 import java.nio.charset.Charset;
 
 public class FileHandler{
-	Path path = Paths.get(".");
-	Stage fileNotFoundStage;
-	Scene scene;
+	
 	StaticMatrix model;
-
-	File file = path.toFile();
-	String textFile;
+	String rleString;
 
 	public FileHandler(Window window) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Choose file");
 		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("RLE Files", "*.rle"));
-		file = fileChooser.showOpenDialog(window);
-		if(file != null){
-		textFile = this.readRle();
+		File rleFile = fileChooser.showOpenDialog(window);//waits until file is selected or user cancels the dialogbox
+		if(rleFile != null){
+			rleString = this.convertRleToString(rleFile);
 		}
 
 	}
 
-	private String readRle() {
+	private String convertRleToString(File file) {
 
 		StringBuilder rleString = new StringBuilder();
 		Charset charset = Charset.forName("UTF-8");
@@ -62,6 +58,6 @@ public class FileHandler{
 	}
 	@Override
 	public String toString(){
-		return textFile;
+		return rleString;
 	}
 }

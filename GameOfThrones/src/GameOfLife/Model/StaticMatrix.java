@@ -9,12 +9,9 @@ public class StaticMatrix extends Matrix {// test
 	private long[][] nextGeneration;
 	private long[][] activeCells;
 	private long[][] newActiveCells;
-	private int patternWidth;
-	private int patternHeight;
 	public int yDiv64;
 	private int yMod64;
-	private long[][] pattern;
-	public boolean settingPattern = false;
+	
 
 	public StaticMatrix(int x, int y, Rules rules) {
 		super(x, y, rules);
@@ -27,14 +24,9 @@ public class StaticMatrix extends Matrix {// test
 		newActiveCells = new long[x][yDiv64];
 	}
 
-	public void setPattern(long[][] pattern) {
-		settingPattern = true;
-		this.pattern = pattern;
-	}
 
-	public long[][] getPattern() {
-		return this.pattern;
-	}
+
+	
 	
 	public void setActiveCellState(int x, int y, boolean alive)
 	{
@@ -132,24 +124,11 @@ public class StaticMatrix extends Matrix {// test
 		}
 	}
 
-	public void transferPattern(int startX, int startY) throws IOException {
-		settingPattern = false;
-		for (int x = 0; x < patternWidth; x++) {
-			for (int y = 0; y < patternHeight; y++) {
-				if (getPatternCellState(x, y)) {
-					setCellState(x+startX, y+startY, true);
-				} else {
-					setCellState(x+startX, y+startY, false);
-
-				}
-			}
-
-		}
+	
 		
 		
 		
-		
-	}
+	
 
 	public void determineNextGeneration() {
 
@@ -300,22 +279,6 @@ public class StaticMatrix extends Matrix {// test
 	}
 
 
-	public int getPatternWidth() {
-		return patternWidth;
-	}
-
-	public void setPatternWidth(int patternWidth) {
-		this.patternWidth = patternWidth;
-	}
-
-	public int getPatternHeight() {
-		return patternHeight;
-	}
-
-	public void setPatternHeight(int patternHeight) {
-		this.patternHeight = patternHeight;
-	}
-
 	@Override
 	public boolean getCellState(int x, int y, BoardContainer bc) {
 		// TODO Auto-generated method stub
@@ -330,6 +293,16 @@ public class StaticMatrix extends Matrix {// test
 
 	@Override
 	public void resetGameBoard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+
+	@Override
+	public void transferPattern(int startX, int startY) {
 		// TODO Auto-generated method stub
 		
 	}

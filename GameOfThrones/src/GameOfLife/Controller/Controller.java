@@ -3,6 +3,7 @@ package GameOfLife.Controller;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 import GameOfLife.FileHandler;
 import GameOfLife.GameOfLife;
@@ -10,6 +11,7 @@ import GameOfLife.RleInterpreter;
 import GameOfLife.Model.DynamicMatrix;
 import GameOfLife.Model.Matrix.BoardContainer;
 import GameOfLife.Model.PatternFormatException;
+import GameOfLife.Model.RLEPattern;
 import GameOfLife.Model.Rules;
 import GameOfLife.Model.StaticMatrix;
 import javafx.application.Platform;
@@ -69,10 +71,12 @@ public class Controller implements Initializable {
 	CanvasDrawer cd;
 	int offsetY = 0;
 	DynamicMatrix model;
+	Pattern pattern;
 
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		
 		rules = new Rules();
 		model = new DynamicMatrix(100, (100), rules);
 
@@ -120,7 +124,7 @@ public class Controller implements Initializable {
 				for (int j = 0; j < (model.getHeight() + 1)/64; j++)
 					model.setCellState(i, j, BoardContainer.ACTIVEGENERATION, false);
 
-			//model.startNextGeneration();
+			model.startNextGeneration();
 
 		});
 
@@ -148,18 +152,19 @@ public class Controller implements Initializable {
 	 */
 	
 	public void handleOpen()  { 
-		/*
+		RLEPattern pattern = new RLEPattern();
 		FileHandler file = new FileHandler(vBoxRoot.getScene().getWindow());
-		String rleString = file.toString();
+		String rleString = file.toString(); //returns a string representation of the rle or null.
 		if(rleString != null){
 			RleInterpreter rleInterp;
 			try {
-				rleInterp = new RleInterpreter(rleString, this.model);
-				model.setPattern(rleInterp.getStartGeneration());
-				model.setPatternWidth(rleInterp.getWidth());
-				model.setPatternHeight(rleInterp.getHeight());
-				model.settingPattern = true;
-				//model.setPatternFromRle(file.readRle());
+				rleInterp = new RleInterpreter(rleString, model.getWidth(), model.getHeight(), this.model instanceof DynamicMatrix);
+				pattern.setPattern(rleInterp.getStartGeneration());
+				pattern.setPatternWidth(rleInterp.getWidth());
+				pattern.setPatternHeight(rleInterp.getHeight());
+				model.setSettingPattern(true);
+				model.setPattern(pattern);
+				cd.setRLEPattern(pattern);
 				cd.drawNextGeneration();
 			} catch (PatternFormatException e) {
 			
@@ -172,12 +177,8 @@ public class Controller implements Initializable {
 		}else{
 			System.out.println("File was not found");
 		}
-*/
+	
 	}
-	
-	
-	
-	
 	
 
 	public void onDrawClicked() {
@@ -261,24 +262,24 @@ public class Controller implements Initializable {
 
 	public void keyListener(KeyEvent event) throws IOException
 	{
-		/*
+		RLEPattern pattern = model.getPattern();
 		if(event.getCode() == KeyCode.RIGHT)
-			cd.setPatternPositionX(cd.getPatternPositionX() + 10);
-		else if(event.getCode() == KeyCode.DOWN)
-			cd.setPatternPositionY(cd.getPatternPositionY() + 10);
+			pattern.setPatternStartPositionX(pattern.getPatternStartPositionX() + 10);
 		else if(event.getCode() == KeyCode.LEFT)
-			cd.setPatternPositionX(cd.getPatternPositionX() - 10);
+			pattern.setPatternStartPositionX(pattern.getPatternStartPositionX() - 10);
+		else if(event.getCode() == KeyCode.DOWN)
+			pattern.setPatternStartPositionY(pattern.getPatternStartPositionY() + 10);
 		else if(event.getCode() == KeyCode.UP)
-			cd.setPatternPositionY(cd.getPatternPositionY() - 10);
+			pattern.setPatternStartPositionY(pattern.getPatternStartPositionY() - 10);
 		else if(event.getCode() == KeyCode.ENTER)
 		{
-			if(model.settingPattern)
+			if(model.getSettingPattern())
 			{
-				model.transferPattern(cd.getPatternPositionX(), cd.getPatternPositionY());
+				model.transferPattern(pattern.getPatternStartPositionX(), pattern.getPatternStartPositionY());
 				cd.drawNextGeneration();
-				cd.setPatternPositionX(0);
-				cd.setPatternPositionY(0);
-				model.settingPattern = false;
+				pattern.setPatternStartPositionX(0);
+				pattern.setPatternStartPositionY(0);
+				model.setSettingPattern(false);
 			}
 			
 		
@@ -296,7 +297,7 @@ public class Controller implements Initializable {
 		
 	
 		cd.drawNextGeneration();
-		*/	
+		
 	}
 	
 
@@ -310,6 +311,11 @@ public class Controller implements Initializable {
 		for (int x = 0; x < model.getWidth(); x++)
 			for (int y = 0; y < model.getHeight(); y++) {
 				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.CURRENTGENERATION, false);
+				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.ACTIVEGENERATION, false);
+				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.NEXTGENERATION, false);
+				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.NEXTACTIVEGENERATION, false);
+
+
 			}
 
 		cd.drawNextGeneration();

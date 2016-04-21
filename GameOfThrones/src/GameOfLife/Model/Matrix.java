@@ -1,5 +1,7 @@
 package GameOfLife.Model;
 
+import java.util.regex.Pattern;
+
 import javafx.scene.paint.Color;
 
 public abstract class Matrix 
@@ -13,6 +15,10 @@ public abstract class Matrix
 	private Rules rules;
 	private Color cellColor = Color.web("#42dd50");
 	int counter = 0;
+	private RLEPattern pattern;
+	private boolean settingPattern = false;
+	
+	
 	
 	
 	public Matrix(int width, int height, Rules rules)
@@ -23,7 +29,14 @@ public abstract class Matrix
 	}
 	
 	
+	
 	public abstract void startNextGeneration();
+	
+	public RLEPattern getPattern(){
+		return this.pattern;
+	}
+	
+	public abstract void transferPattern(int startX, int startY);
 	
 	public abstract boolean getCellState(int x, int y, BoardContainer bc);
 	public abstract void determineNextGeneration();
@@ -40,6 +53,18 @@ public abstract class Matrix
 
 	public int getWidth() {
 		return width;
+	}
+	
+	public void setPattern(RLEPattern pattern){
+		this.pattern = pattern;
+	}
+	
+	public void setSettingPattern(boolean settingPattern) {
+		this.settingPattern = settingPattern;
+	}
+	
+	public boolean getSettingPattern(){
+		return this.settingPattern;
 	}
 
 	public void setWidth(int width) {

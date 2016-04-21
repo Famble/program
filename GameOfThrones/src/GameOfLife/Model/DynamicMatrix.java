@@ -2,6 +2,7 @@ package GameOfLife.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class DynamicMatrix extends Matrix {
 		
@@ -256,7 +257,7 @@ public class DynamicMatrix extends Matrix {
 	public void setCellState(int x, int y, BoardContainer container, boolean alive)
 	{		
 
-		/*
+		
 		if(x + shiftedRightwards < 0){
 			extendBorderFromLeft(Math.abs(x+shiftedRightwards));
 		}
@@ -274,7 +275,7 @@ public class DynamicMatrix extends Matrix {
 			extendBorderFromBottom(y + shiftedDownwards);
 		}
 		
-		*/
+		
 		
 	    List<List<Boolean>> cells = null;
 	    
@@ -387,6 +388,21 @@ public class DynamicMatrix extends Matrix {
 		
 		
 	}
+
+	@Override
+	public void transferPattern(int startX, int startY) {
+		super.setSettingPattern(false);
+		RLEPattern pattern = super.getPattern();
+		for(int x = 0; x < pattern.getPatternWidth(); x++){
+			for(int y = 0; y < pattern.getPatternHeight(); y++){
+				setCellState(x+ startX, y+startY, BoardContainer.CURRENTGENERATION, pattern.getPattern()[x][y]);
+				setCellState(x+ startX, y+startY, BoardContainer.ACTIVEGENERATION, pattern.getPattern()[x][y]);
+
+			}
+		}
+		
+	}
+
 	
 
 
