@@ -1,10 +1,15 @@
 package GameOfLife.Model;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import javafx.scene.paint.Color;
 
-public abstract class Matrix 
+public abstract class GameBoard implements Cloneable
 {
 	public enum BoardContainer{
 		CURRENTGENERATION, NEXTGENERATION, ACTIVEGENERATION, NEXTACTIVEGENERATION
@@ -14,14 +19,13 @@ public abstract class Matrix
 	private int height;
 	private Rules rules;
 	private Color cellColor = Color.web("#42dd50");
-	int counter = 0;
 	private RLEPattern pattern;
 	private boolean settingPattern = false;
 	
 	
 	
 	
-	public Matrix(int width, int height, Rules rules)
+	public GameBoard(int width, int height, Rules rules)
 	{
 		this.width = width;
 		this.height = height;
@@ -35,6 +39,8 @@ public abstract class Matrix
 	public RLEPattern getPattern(){
 		return this.pattern;
 	}
+	
+	public abstract void createPattern();
 	
 	public abstract void transferPattern(int startX, int startY);
 	
@@ -68,11 +74,6 @@ public abstract class Matrix
 	}
 
 	public void setWidth(int width) {
-		counter++;
-		if(counter == 2){
-			System.out.println("k");
-		}
-		System.out.println("NEW WIDTH IS: " + width);
 		this.width = width;
 	}
 
@@ -91,6 +92,32 @@ public abstract class Matrix
 	public void setColor(Color color) {
 		this.cellColor = color;
 	}
+	
+	@Override
+	public Object clone(){
+		GameBoard gameBoardCopy;
+		try{
+			gameBoardCopy = (GameBoard)super.clone();
+			gameBoardCopy.rules = (Rules)rules.clone();
+			gameBoardCopy.cellColor = this.getColor();
+			//gameBoardCopy.pattern = (RLEPattern)pattern.clone();
+			
+			
+			
+		}catch(CloneNotSupportedException e){
+			System.out.println(e.getMessage());
+			System.out.println("FAKKK");
+			return null;
+		}
+		
+		return gameBoardCopy;
+	}
+	
+	public String toString(){
+		return String.format("Width: %d\nHeight: %d\n", this.getWidth(), this.getHeight());
+	}
+	
+	
 
 	
 	

@@ -6,17 +6,21 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import GameOfLife.FileHandler;
-import GameOfLife.GameOfLife;
 import GameOfLife.RleInterpreter;
-import GameOfLife.Model.DynamicMatrix;
-import GameOfLife.Model.Matrix.BoardContainer;
+import GameOfLife.Model.DynamicGameBoard;
+import GameOfLife.Model.GameBoard;
+import GameOfLife.Model.GameBoard.BoardContainer;
 import GameOfLife.Model.PatternFormatException;
 import GameOfLife.Model.RLEPattern;
 import GameOfLife.Model.Rules;
-import GameOfLife.Model.StaticMatrix;
+import GameOfLife.Model.StaticGameBoard;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -31,12 +35,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class Controller implements Initializable {
 
+	public FXCollections ting;
 	@FXML
 	private VBox vBoxRoot;
 	@FXML
@@ -65,24 +74,25 @@ public class Controller implements Initializable {
 	Rules rules;
 	@FXML
 	private Toggle drawDrag;
-	private GameOfLife GOL;
+	private ExecutionControl GOL;
 	boolean start = true;
 	int offsetX = 0;
 	CanvasDrawer cd;
+
 	int offsetY = 0;
-	DynamicMatrix model;
+	GameBoard gameBoard;
 	Pattern pattern;
 
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
+
 		rules = new Rules();
-		model = new DynamicMatrix(100, (100), rules);
+		gameBoard = new DynamicGameBoard(100, (100), rules);
 
-		cd = new CanvasDrawer(model, canvas.getGraphicsContext2D());
+		cd = new CanvasDrawer(gameBoard, canvas.getGraphicsContext2D());
 
-		GOL = new GameOfLife(model, cd);
+		GOL = new ExecutionControl(gameBoard, cd);		
 
 		canvas.setOnZoom((zoomEvent) -> {
 
@@ -110,6 +120,13 @@ public class Controller implements Initializable {
 
 		comboBox.valueProperty().addListener((observable, oldValue, survivalString) -> {
 
+			int shiftedRightwards = 0;
+			int shiftedDownwards = 0;
+			if (this.gameBoard instanceof DynamicGameBoard) {
+				shiftedRightwards = ((DynamicGameBoard) this.gameBoard).getShiftedRightwards();
+				shiftedDownwards = ((DynamicGameBoard) this.gameBoard).getShiftedDownwards();
+			}
+			
 			survival.setText("");
 			birth.setText("");
 			rules.setRules(comboBox.getValue().toString());
@@ -120,16 +137,16 @@ public class Controller implements Initializable {
 			for (int i : rules.getSurvivalRules())
 				birth.setText(birth.getText() + i);
 
-			for (int i = 0; i < model.getWidth(); i++)
-				for (int j = 0; j < (model.getHeight() + 1)/64; j++)
-					model.setCellState(i, j, BoardContainer.ACTIVEGENERATION, false);
+			for (int i = 0; i < gameBoard.getWidth(); i++)
+				for (int j = 0; j < (gameBoard.getHeight() + 1)/64; j++)
+					gameBoard.setCellState(i-shiftedRightwards, j-shiftedDownwards, BoardContainer.ACTIVEGENERATION, false);
 
-			model.startNextGeneration();
+			gameBoard.startNextGeneration();
 
 		});
 
 		amountOfCells.setText(String.format("%d Million Cells",
-				((int) model.getWidth() * model.getHeight() / (int) Math.pow(10, 6))));
+				((int) gameBoard.getWidth() * gameBoard.getHeight() / (int) Math.pow(10, 6))));
 		position.setText(String.format("(x, y): (%d,%d)", cd.getCanvasDisplacedX(), cd.getCanvasDisplacedY()));
 
 		cd.clearCanvas();
@@ -142,6 +159,7 @@ public class Controller implements Initializable {
                 canvas.requestFocus();
             }
          });
+		
 	}
 
 	/**
@@ -158,12 +176,12 @@ public class Controller implements Initializable {
 		if(rleString != null){
 			RleInterpreter rleInterp;
 			try {
-				rleInterp = new RleInterpreter(rleString, model.getWidth(), model.getHeight(), this.model instanceof DynamicMatrix);
+				rleInterp = new RleInterpreter(rleString, gameBoard.getWidth(), gameBoard.getHeight(), this.gameBoard instanceof DynamicGameBoard);
 				pattern.setPattern(rleInterp.getStartGeneration());
 				pattern.setPatternWidth(rleInterp.getWidth());
 				pattern.setPatternHeight(rleInterp.getHeight());
-				model.setSettingPattern(true);
-				model.setPattern(pattern);
+				gameBoard.setSettingPattern(true);
+				gameBoard.setPattern(pattern);
 				cd.setRLEPattern(pattern);
 				cd.drawNextGeneration();
 			} catch (PatternFormatException e) {
@@ -181,16 +199,14 @@ public class Controller implements Initializable {
 	}
 	
 
-	public void onDrawClicked() {
-	}
 
 	public void handleZoom(ScrollEvent event) {
 
 		if (event.getDeltaY() > 1) {
-			cd.zoom(1, event);
+			cd.zoomOnCursor(1, (int)event.getX(), (int)event.getY());
 		} else if (event.getDeltaY() < 1) {
 			sliderZoom.setValue(cd.getCellSize() - 1);
-			cd.zoom(-1, event);
+			cd.zoomOnCursor(-1, (int)event.getX(), (int)event.getY());
 		}
 	}
 
@@ -208,7 +224,7 @@ public class Controller implements Initializable {
 	}
 
 	public void changeColor() {
-		model.setColor(colorPicker.getValue());
+		gameBoard.setColor(colorPicker.getValue());
 		cd.drawNextGeneration();
 	}
 
@@ -246,23 +262,17 @@ public class Controller implements Initializable {
 	}
 
 	public void mouseClicked(MouseEvent event) {
-		int cellX = ((int)event.getX() + cd.getCanvasDisplacedX()) / cd.getCellSize();
-		int cellY = ((int)event.getY() + cd.getCanvasDisplacedY())/cd.getCellSize();
-		
 		cd.drawCell((int) event.getX(), (int) event.getY());
 	}
 
 	public void mouseClicked(MouseEvent event, boolean dragDraw) {
-		int cellX = ((int)event.getX() + cd.getCanvasDisplacedX()) /cd.getCellSize();
-		int cellY = ((int)event.getY() + cd.getCanvasDisplacedY())/cd.getCellSize();
-		
 		cd.drawCell((int) event.getX(), (int) event.getY(), dragDraw);
 
 	}
 
 	public void keyListener(KeyEvent event) throws IOException
 	{
-		RLEPattern pattern = model.getPattern();
+		RLEPattern pattern = gameBoard.getPattern();
 		if(event.getCode() == KeyCode.RIGHT)
 			pattern.setPatternStartPositionX(pattern.getPatternStartPositionX() + 10);
 		else if(event.getCode() == KeyCode.LEFT)
@@ -273,13 +283,13 @@ public class Controller implements Initializable {
 			pattern.setPatternStartPositionY(pattern.getPatternStartPositionY() - 10);
 		else if(event.getCode() == KeyCode.ENTER)
 		{
-			if(model.getSettingPattern())
+			if(gameBoard.getSettingPattern())
 			{
-				model.transferPattern(pattern.getPatternStartPositionX(), pattern.getPatternStartPositionY());
+				gameBoard.transferPattern(pattern.getPatternStartPositionX(), pattern.getPatternStartPositionY());
 				cd.drawNextGeneration();
 				pattern.setPatternStartPositionX(0);
 				pattern.setPatternStartPositionY(0);
-				model.setSettingPattern(false);
+				gameBoard.setSettingPattern(false);
 			}
 			
 		
@@ -300,24 +310,42 @@ public class Controller implements Initializable {
 		
 	}
 	
+	
 
 	public void handlePauseClick() {
 		GOL.stop();
+	}
+	
+	public void setDimensions(){
+		canvas.setWidth(vBoxRoot.getWidth());
+		canvas.setHeight(canvasParent.getHeight());
+		cd.drawNextGeneration();
+	}
+	
+	public void handleEditorClick() throws IOException{
+		
+		Stage editor = new Stage();
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("PatternEditor.fxml"));
+		VBox root = (VBox)loader.load();
+		EditorController edController = loader.getController();
+		GOL.stop();	
+		edController.initialize(this.gameBoard);
+		DynamicGameBoard gameBoardClone = (DynamicGameBoard)this.gameBoard.clone();
+		Scene scene = new Scene(root, 1000, 700);
+		editor.setScene(scene);
+		editor.setTitle("Pattern Editor");
+		editor.show();
+		edController.setDimensions();
+		edController.drawStrip(gameBoardClone);
+
+
+
 	}
 
 	
 	public void handleResetClick() {
 		
-		for (int x = 0; x < model.getWidth(); x++)
-			for (int y = 0; y < model.getHeight(); y++) {
-				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.CURRENTGENERATION, false);
-				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.ACTIVEGENERATION, false);
-				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.NEXTGENERATION, false);
-				model.setCellState(x-model.getShiftedRightwards(), y-model.getShiftedDownwards(), BoardContainer.NEXTACTIVEGENERATION, false);
-
-
-			}
-
+		gameBoard.resetGameBoard();
 		cd.drawNextGeneration();
 			
 	}

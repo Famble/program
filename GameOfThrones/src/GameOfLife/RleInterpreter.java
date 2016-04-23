@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import GameOfLife.Model.Matrix;
+import GameOfLife.Model.GameBoard;
 import GameOfLife.Model.PatternFormatException;
-import GameOfLife.Model.StaticMatrix;
+import GameOfLife.Model.StaticGameBoard;
 
 public class RleInterpreter {
 	private Pattern pattern;

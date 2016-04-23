@@ -1,12 +1,12 @@
 package GameOfLife.Controller;
 
-import GameOfLife.Model.Matrix;
+import GameOfLife.Model.GameBoard;
 
 import com.sun.javafx.scene.BoundsAccessor;
 
-import GameOfLife.Model.DynamicMatrix;
-import GameOfLife.Model.StaticMatrix;
-import GameOfLife.Model.Matrix.BoardContainer;
+import GameOfLife.Model.DynamicGameBoard;
+import GameOfLife.Model.StaticGameBoard;
+import GameOfLife.Model.GameBoard.BoardContainer;
 import GameOfLife.Model.RLEPattern;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ScrollEvent;
@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
 
 public class CanvasDrawer {
 	private GraphicsContext gc;
-	private Matrix model;
+	protected GameBoard model;
 	private int cellSize = 5;
 	private int canvasDisplacedX;
 	private int canvasDisplacedY;
@@ -22,17 +22,21 @@ public class CanvasDrawer {
 	private double windowHeight;
 	private RLEPattern pattern;
 
-	public CanvasDrawer(Matrix model, GraphicsContext gc) {
+	public CanvasDrawer(GameBoard model, GraphicsContext gc) {
 		this.model = model;
 		this.gc = gc;
 		canvasDisplacedX = 0; // model.getX() * cellSize / 2;
 		canvasDisplacedY = 0; // model.getRealY() * cellSize / 2;
 		gc.setStroke(Color.GRAY);
 
-		if (model instanceof StaticMatrix) // if static gameboard then we draw
-											// border
+		if (model instanceof StaticGameBoard) // if static gameboard then we
+												// draw border
 			gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth() * cellSize,
 					model.getHeight() * cellSize);
+	}
+
+	public void setGameBoard(GameBoard board) {
+		this.model = board;
 	}
 
 	public void setRLEPattern(RLEPattern pattern) {
@@ -43,17 +47,22 @@ public class CanvasDrawer {
 
 	}
 
-	public void drawCell(int x, int y) {
-		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight()) && this.model instanceof StaticMatrix) {
+	public int getCorrepondingXArrayIndex(int x) {
+		return (x + getCanvasDisplacedX()) / cellSize;
+	}
+
+	public int getCorrepondingYArrayIndex(int y) {
+		return (y + getCanvasDisplacedY()) / cellSize;
+	}
+
+	public void drawCell(int mouseClickX, int mouseClickY) {
+		int x = getCorrepondingXArrayIndex(mouseClickX);
+		int y = getCorrepondingYArrayIndex(mouseClickY);
+
+		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight())
+				&& this.model instanceof StaticGameBoard) {
 
 		} else {
-
-			int cellSize = this.getCellSize();
-			int canvasDisplacedX = this.getCanvasDisplacedX();
-			int canvasDisplacedY = this.getCanvasDisplacedY();
-
-			x = (x + canvasDisplacedX) / cellSize;
-			y = (y + canvasDisplacedY) / cellSize;
 
 			boolean alive = !model.getCellState(x, y, BoardContainer.CURRENTGENERATION);
 
@@ -70,17 +79,14 @@ public class CanvasDrawer {
 		}
 	}
 
-	public void drawCell(int x, int y, boolean dragDraw) {
-		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight()) && this.model instanceof StaticMatrix) {
+	public void drawCell(int mouseClickX, int mouseClickY, boolean dragDraw) {
+		int x = getCorrepondingXArrayIndex(mouseClickX);
+		int y = getCorrepondingYArrayIndex(mouseClickY);
+
+		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight())
+				&& this.model instanceof StaticGameBoard) {
 
 		} else {
-			int cellSize = this.getCellSize();
-
-			int canvasDisplacedX = this.getCanvasDisplacedX();
-			int canvasDisplacedY = this.getCanvasDisplacedY();
-
-			x = (x + canvasDisplacedX) / cellSize;
-			y = (y + canvasDisplacedY) / cellSize;
 
 			// System.out.printf("(x,y) = (%d,%d)\n", x, y);
 
@@ -127,7 +133,7 @@ public class CanvasDrawer {
 		gc.setFill(Color.BLACK);
 		gc.fillRect(0, 0, windowWidth, windowHeight);
 		gc.setStroke(Color.GRAY);
-		if (2 == 3)
+		if (this.model instanceof StaticGameBoard)
 			gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth() * cellSize,
 					model.getHeight() * cellSize);
 
@@ -139,20 +145,19 @@ public class CanvasDrawer {
 		this.drawNextGeneration();
 	}
 
-	public void zoom(int zoom, ScrollEvent event) {
+	public void zoomOnCursor(int zoom, int mousePosX, int mousePosY) {
 		if ((this.getCellSize() + zoom) > 0 && (this.getCellSize() + zoom) <= 35) {
+			
+			int x = getCorrepondingXArrayIndex(mousePosX);
+			int y = getCorrepondingYArrayIndex(mousePosY);
+			
 			int cellSize = this.getCellSize();
 
 			this.setCellSize(this.getCellSize() + zoom);
+			
 
-			int x = (int) event.getX();
-			int y = (int) event.getY();
-
-			int xDivCell = (x + this.getCanvasDisplacedX()) / cellSize;
-			int yDivCell = (y + this.getCanvasDisplacedY()) / cellSize;
-
-			this.setCanvasDisplacedX(xDivCell * (cellSize + zoom) - x + (x + this.getCanvasDisplacedX()) % cellSize);
-			this.setCanvasDisplacedY(yDivCell * (cellSize + zoom) - y + (y + this.getCanvasDisplacedY()) % cellSize);
+			this.setCanvasDisplacedX(x * (cellSize + zoom) - mousePosX + (mousePosX + this.getCanvasDisplacedX()) % cellSize);
+			this.setCanvasDisplacedY(y * (cellSize + zoom) - mousePosY + (mousePosY + this.getCanvasDisplacedY()) % cellSize);
 
 			this.drawNextGeneration();
 		}
@@ -164,9 +169,9 @@ public class CanvasDrawer {
 		clearCanvas();
 		int shiftedRightwards = 0;
 		int shiftedDownwards = 0;
-		if (model instanceof DynamicMatrix) {
-			shiftedRightwards = ((DynamicMatrix) this.model).getShiftedRightwards();
-			shiftedDownwards = ((DynamicMatrix) this.model).getShiftedDownwards();
+		if (model instanceof DynamicGameBoard) {
+			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
+			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
 		}
 
 		gc.setFill(model.getColor());
@@ -178,9 +183,11 @@ public class CanvasDrawer {
 				}
 
 			}
+		
+		System.out.printf("width, height = (%d,%d)\n", model.getWidth(), model.getHeight());
 
 		if (model.getSettingPattern()) {
-			
+
 			gc.setStroke(Color.WHITE);
 			gc.strokeRect(-this.canvasDisplacedX + pattern.getPatternStartPositionX() * cellSize,
 					-this.canvasDisplacedY + pattern.getPatternStartPositionY() * cellSize,
@@ -190,9 +197,10 @@ public class CanvasDrawer {
 				for (int y = 0; y < pattern.getPatternHeight(); y++) {
 					if (pattern.getPattern()[x][y]) {
 						gc.fillOval(cellSize * (x + pattern.getPatternStartPositionX()) - canvasDisplacedX,
-								cellSize * (y + pattern.getPatternStartPositionY()) - canvasDisplacedY, cellSize, cellSize);
+								cellSize * (y + pattern.getPatternStartPositionY()) - canvasDisplacedY, cellSize,
+								cellSize);
 					}
-					
+
 				}
 			}
 

@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 
-import GameOfLife.Model.StaticMatrix;
+import GameOfLife.Model.StaticGameBoard;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 
 public class FileHandler{
 	
-	StaticMatrix model;
+	StaticGameBoard model;
 	String rleString;
 
 	public FileHandler(Window window) {

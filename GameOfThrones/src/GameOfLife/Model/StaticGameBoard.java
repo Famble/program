@@ -1,19 +1,23 @@
 package GameOfLife.Model;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javafx.scene.paint.Color;
 
-public class StaticMatrix extends Matrix {// test
+public class StaticGameBoard extends GameBoard {// test
 	private long[][] CurrGeneration;
 	private long[][] nextGeneration;
 	private long[][] activeCells;
 	private long[][] newActiveCells;
 	public int yDiv64;
 	private int yMod64;
+	Map<String,boolean[][]>hmap = new HashMap <>();
 	
-
-	public StaticMatrix(int x, int y, Rules rules) {
+	
+	@Deprecated
+	public StaticGameBoard(int x, int y, Rules rules) {
 		super(x, y, rules);
 		
 		this.yDiv64 = (y / 64) + 1;
@@ -22,6 +26,7 @@ public class StaticMatrix extends Matrix {// test
 		nextGeneration = new long[x][yDiv64];
 		activeCells = new long[x][yDiv64];
 		newActiveCells = new long[x][yDiv64];
+
 	}
 
 
@@ -51,66 +56,9 @@ public class StaticMatrix extends Matrix {// test
 		return (this.getActiveCells()[x][y/64] >> y%64 & 1) == 1;
 	}
 
-	public boolean getCellState(int x, int y) {
-		return ((this.getCurrentGeneration()[x][y / 64] >> y % 64) & 1) == 1;
-	}
-	
+
 	public boolean getPatternCellState(int x, int y) {
 		return ((this.getCurrentGeneration()[x][y / 64] >> y % 64) & 1) == 1;
-	}
-
-	public void setCellState(int x, int y, boolean alive) {
-		if (alive){			
-			if(this.getCellState(x, y)){
-				this.getCurrentGeneration()[x][y / 64] |= (1L << y % 64);
-				this.setActiveCellState(x, y, false);
-			}
-			else
-			{
-				this.getCurrentGeneration()[x][y / 64] |= (1L << y % 64);
-				this.setActiveCellState(x, y, true);
-
-			}
-		}
-		else //dead
-		{
-			
-			if(this.getCellState(x, y)){
-				this.getCurrentGeneration()[x][y / 64] &= ~(1L << y % 64);
-				this.setActiveCellState(x, y, true);
-			}
-			else{
-				this.getCurrentGeneration()[x][y / 64] &= ~(1L << y % 64);
-				this.setActiveCellState(x, y, false);
-			}
-		}
-	}
-	
-	public void setNextGenCellState(int x, int y, boolean alive) {
-		if (alive){			
-			if(this.getCellState(x, y)){
-				this.getNextGeneration()[x][y / 64] |= (1L << y % 64);
-				this.setNextGenActiveCellState(x, y, false);
-			}
-			else
-			{
-				this.getNextGeneration()[x][y / 64] |= (1L << y % 64);
-				this.setNextGenActiveCellState(x, y, true);
-
-			}
-		}
-		else //dead
-		{
-			
-			if(this.getCellState(x, y)){
-				this.getNextGeneration()[x][y / 64] &= ~(1L << y % 64);
-				this.setNextGenActiveCellState(x, y, true);
-			}
-			else{
-				this.getNextGeneration()[x][y / 64] &= ~(1L << y % 64);
-				this.setNextGenActiveCellState(x, y, false);
-			}
-		}
 	}
 
 	public void startNextGeneration() {
@@ -123,12 +71,6 @@ public class StaticMatrix extends Matrix {// test
 			}
 		}
 	}
-
-	
-		
-		
-		
-	
 
 	public void determineNextGeneration() {
 
@@ -176,7 +118,7 @@ public class StaticMatrix extends Matrix {// test
 
 					}
 
-					if (getCellState(neighborX, neighborY)) {
+					if (getCellState(neighborX, neighborY, BoardContainer.CURRENTGENERATION)) {
 						aliveNeighbours++;
 					}
 					if (countNeighbors) {
@@ -190,7 +132,7 @@ public class StaticMatrix extends Matrix {// test
 	}
 
 	private void setCellStateFromRules(int x, int y, int aliveNeighbours) {
-		boolean alive = getCellState(x, y); // (1)
+		boolean alive = getCellState(x, y, BoardContainer.CURRENTGENERATION); // (1)
 
 		if (!alive) {
 			boolean birth = false;
@@ -199,7 +141,13 @@ public class StaticMatrix extends Matrix {// test
 				if (aliveNeighbours == super.getRules().getBirthRules()[l])
 					birth = true;
 
-			setNextGenCellState(x, y, birth);
+			if (birth) {
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, true);
+				setCellState(x, y, BoardContainer.NEXTGENERATION, true);
+			} else {
+				setCellState(x, y, BoardContainer.NEXTGENERATION, false);
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
+			}
 			
 		} else {
 			boolean survive = false;
@@ -209,7 +157,13 @@ public class StaticMatrix extends Matrix {// test
 					survive = true;
 
 		
-			setNextGenCellState(x, y, survive);
+			if (!survive) {
+				setCellState(x, y, BoardContainer.NEXTGENERATION, false);
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, true);
+			} else {
+				setCellState(x, y, BoardContainer.NEXTGENERATION, true);
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
+			}
 			
 		}
 	}
@@ -281,19 +235,72 @@ public class StaticMatrix extends Matrix {// test
 
 	@Override
 	public boolean getCellState(int x, int y, BoardContainer bc) {
-		// TODO Auto-generated method stub
-		return false;
+		long[][]cells = null;
+		
+		switch(bc){
+		case CURRENTGENERATION:
+			cells = this.getCurrentGeneration();
+			break;
+		case NEXTGENERATION:
+			cells = this.getNextGeneration();
+			break;
+		case ACTIVEGENERATION:
+			cells = this.getActiveCells();
+			break;
+		case NEXTACTIVEGENERATION:
+			cells = this.getNewActiveCells();
+			break;			
+	}
+		
+		return (cells[x][y/64] >> y%64 & 1) == 1;
+
+		
+		
+	}
+	
+	private long[][] selectArray(BoardContainer bc){
+		long[][]cells = null;
+		switch(bc){
+		case CURRENTGENERATION:
+			cells = this.getCurrentGeneration();
+			break;
+		case NEXTGENERATION:
+			cells = this.getNextGeneration();
+			break;
+		case ACTIVEGENERATION:
+			cells = this.getActiveCells();
+			break;
+		case NEXTACTIVEGENERATION:
+			cells = this.getNewActiveCells();
+			break;		
+			
+		}
+		
+		return cells;
 	}
 
 	@Override
 	public void setCellState(int x, int y, BoardContainer bc, boolean alive) {
-		// TODO Auto-generated method stub
+		long[][]cells = selectArray(bc);
 		
-	}
+		if(alive)
+			cells[x][y/64] |= (1L << y % 64); 
+		else
+			cells[x][y/64] &= ~(1L << y % 64);
+		}
+		
+
 
 	@Override
 	public void resetGameBoard() {
-		// TODO Auto-generated method stub
+		for(int x = 0; x < super.getWidth(); x++){
+			for(int y = 0; y < super.getHeight(); y++){
+				this.getCurrentGeneration()[x][y] = 0;
+				this.getNextGeneration()[x][y] = 0;
+				this.getActiveCells()[x][y] = 0;
+				this.getNewActiveCells()[x][y] = 0;
+			}
+		}
 		
 	}
 
@@ -303,6 +310,16 @@ public class StaticMatrix extends Matrix {// test
 
 	@Override
 	public void transferPattern(int startX, int startY) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+
+	@Override
+	public void createPattern() {
 		// TODO Auto-generated method stub
 		
 	}
