@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javafx.scene.paint.Color;
 
+@Deprecated
 public class BitGameBoard extends GameBoard {// test
 	private long[][] CurrGeneration;
 	private long[][] nextGeneration;
@@ -16,7 +17,6 @@ public class BitGameBoard extends GameBoard {// test
 	Map<String,boolean[][]>hmap = new HashMap <>();
 	
 	
-	@Deprecated
 	public BitGameBoard(int x, int y, Rules rules) {
 		super(x, y, rules);
 		

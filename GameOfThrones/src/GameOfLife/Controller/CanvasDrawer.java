@@ -113,7 +113,7 @@ public class CanvasDrawer {
 					gc.setFill(model.getColor());
 					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, true);
 					model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
-					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
+					gc.fillOval(cellSize * (x-shiftedRightwards) - canvasDisplacedX, cellSize * (y-shiftedDownwards) - canvasDisplacedY, cellSize,
 							cellSize);
 				}
 
@@ -122,7 +122,7 @@ public class CanvasDrawer {
 				if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
 					gc.setFill(Color.BLACK);
 					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, false);
-					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
+					gc.fillOval(cellSize * (x-shiftedRightwards) - canvasDisplacedX, cellSize * (y-shiftedDownwards) - canvasDisplacedY, cellSize,
 							cellSize);
 				}
 			}

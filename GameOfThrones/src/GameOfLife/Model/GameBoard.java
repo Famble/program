@@ -106,7 +106,6 @@ public abstract class GameBoard implements Cloneable
 			
 		}catch(CloneNotSupportedException e){
 			System.out.println(e.getMessage());
-			System.out.println("FAKKK");
 			return null;
 		}
 		

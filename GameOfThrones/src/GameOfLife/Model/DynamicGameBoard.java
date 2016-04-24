@@ -208,6 +208,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		}
 		super.setWidth(super.getWidth() + columnsToInsert);
+		System.out.println(String.format("(Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
 
 	}
 
@@ -232,6 +233,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 
 		super.setWidth(super.getWidth() + columnsToInsert);
+		System.out.println(String.format("(Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
 
 	}
 
@@ -249,6 +251,8 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 		this.shiftedDownwards += rowsToInsert;
 		super.setHeight(rowsToInsert + super.getHeight());
+		System.out.println(String.format("(Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
+
 
 	}
 
@@ -266,6 +270,8 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 
 		super.setHeight(super.getHeight() + rowsToInsert);
+		
+		System.out.println(String.format("(Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
 
 	}
 
@@ -273,24 +279,65 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	public void setCellState(int x, int y, BoardContainer container, boolean alive) {
 
 		List<List<Boolean>> cells = getArrayList(container);
-
+		int a = 0;
+		int b = 0;
+		
 		if (x < 0) {
-			extendBorderFromLeft(Math.abs(x));
-			cells.get(x + shiftedRightwards).set(y, alive);
+			if(x + shiftedRightwards < 0)
+				extendBorderFromLeft(Math.abs(x));
+			a = shiftedRightwards;
+			
 		} else if (x >= this.getWidth()) {
 			extendBorderFromRight(x);
 		}
 
 		if (y < 0) {
-			extendBorderFromTop(Math.abs(y));
+			if(y + shiftedDownwards < 0)
+				extendBorderFromTop(Math.abs(y));
+			
+			b = shiftedDownwards;
 		}
 
 		else if (y >= this.getHeight()) {
 			extendBorderFromBottom(y);
-			cells.get(x).set(y, alive);
 		}
 
-		cells.get(x).set(y, alive);
+		cells.get(x + a).set(y + b, alive);
+	}
+	
+	@Override
+	public boolean getCellState(int x, int y, BoardContainer container) {
+		{
+			List<List<Boolean>> cells = getArrayList(container);
+			int a = 0;
+			int b = 0;
+
+			if (x < 0) {
+				if(x + shiftedRightwards < 0)
+					extendBorderFromLeft(Math.abs((x)));
+				
+				a = shiftedRightwards;
+			}
+
+			else if (x >= this.getWidth()) {
+				extendBorderFromRight(x);
+			}
+
+			if (y < 0) {
+				if( y + shiftedDownwards < 0)
+					extendBorderFromTop(Math.abs(y));
+				
+				b = shiftedDownwards;
+			}
+
+			else if (y >= this.getHeight()) {
+				extendBorderFromBottom(y);
+			}
+
+
+			return cells.get(x + a).get(y + b);
+
+		}
 	}
 
 	public List<List<Boolean>> getCurrGeneration() {
@@ -344,36 +391,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
-	@Override
-	public boolean getCellState(int x, int y, BoardContainer container) {
-		{
-			List<List<Boolean>> cells = getArrayList(container);
-
-			if (x < 0) {
-				extendBorderFromLeft(Math.abs((x)));
-				return cells.get(x + shiftedRightwards).get(y);
-			}
-
-			else if (x >= this.getWidth()) {
-				extendBorderFromRight(x);
-			}
-
-			if (y < 0) {
-				extendBorderFromTop(Math.abs(y));
-				return cells.get(x).get(y + shiftedDownwards);
-			}
-
-			else if (y >= this.getHeight()) {
-				extendBorderFromBottom(y);
-			}
-
-			// System.out.printf("(x y): (%d,%d)\n", x + shiftedRightwards,
-			// y+shiftedDownwards);
-
-			return cells.get(x).get(y);
-
-		}
-	}
+	
 
 	@Override
 	public void resetGameBoard() {
