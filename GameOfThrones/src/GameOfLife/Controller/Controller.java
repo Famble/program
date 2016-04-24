@@ -13,10 +13,8 @@ import GameOfLife.Model.GameBoard.BoardContainer;
 import GameOfLife.Model.PatternFormatException;
 import GameOfLife.Model.RLEPattern;
 import GameOfLife.Model.Rules;
-import GameOfLife.Model.BitGameBoard;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -35,12 +33,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Controller implements Initializable {
@@ -163,7 +158,7 @@ public class Controller implements Initializable {
 	}
 
 	/**
-	 * Opens the window for file chooser, and interprets the file for then 
+	 * Opens the window for file chooser, and interprets the file, and then
 	 * draw the pattern from the file to the game board.
 	 * 
 	 * @see RleInterpreter
@@ -177,7 +172,7 @@ public class Controller implements Initializable {
 			RleInterpreter rleInterp;
 			try {
 				rleInterp = new RleInterpreter(rleString, gameBoard.getWidth(), gameBoard.getHeight(), this.gameBoard instanceof DynamicGameBoard);
-				pattern.setPattern(rleInterp.getStartGeneration());
+				pattern.setPattern(rleInterp.getInitialRleGeneration());
 				pattern.setWidth(rleInterp.getWidth());
 				pattern.setHeight(rleInterp.getHeight());
 				gameBoard.setSettingPattern(true);

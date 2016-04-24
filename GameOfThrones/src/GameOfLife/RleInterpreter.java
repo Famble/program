@@ -1,15 +1,16 @@
 
 package GameOfLife;
 
-import java.io.IOException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import GameOfLife.Model.GameBoard;
 import GameOfLife.Model.PatternFormatException;
-import GameOfLife.Model.BitGameBoard;
 
+/**
+ * This class decodes/parses a RLE file, and then stores an array for later use.
+ *
+ * @author Johnny Lam, Markus Hellestveit
+ */
 public class RleInterpreter {
 	private Pattern pattern;
 	private Matcher matcher;
@@ -20,38 +21,43 @@ public class RleInterpreter {
 	private String ruleString;
 	private String rleString;
 	private StringBuilder description = new StringBuilder();
-	private boolean[][] startGeneration;
+	private boolean[][] initialRleGeneration;
 	private int lastIndexOfHeader;
 	private StringBuilder testHeader = new StringBuilder();
 	private StringBuilder testDimensionAndRule = new StringBuilder();
-	private StringBuilder testGameboard = new StringBuilder();
+	private StringBuilder testGameBoard = new StringBuilder();
+	private int gameBoardWidth;
+	private int gameBoardHeight;
+	private boolean dynamic;
 
-	
-	
-	public void setStartGeneration(boolean[][] startGeneration) {
-		this.startGeneration = startGeneration;
-	}
-
-	public RleInterpreter(String rleFile, int gameBoardWidth, int GameBoardHeight, boolean dynamic) throws PatternFormatException{
+	/**
+	 * Reads the file and the sets the Meta data and the game board logic.
+	 *Sets
+	 *
+	 * @param rleFile A string of a file that will be parsed.
+	 * @param gameBoardWidth An int value of the <b>width</b> to the current game board.
+	 * @param gameBoardHeight An int value of the <b>height</b> to the current game board.
+	 * @param dynamic Boolean value that tells the parses if the board if dynamic.
+	 * @throws PatternFormatException
+     */
+	public RleInterpreter(String rleFile, int gameBoardWidth, int gameBoardHeight, boolean dynamic) throws PatternFormatException{
 		this.rleString = rleFile;
+		this.gameBoardHeight = gameBoardHeight;
+		this.gameBoardWidth = gameBoardWidth;
+		this.dynamic = dynamic;
 		readHeader();
-		readDimensionAndRule(gameBoardWidth, GameBoardHeight, dynamic);
-		readGameboard();
-
-		int cellsInLong = 64;
-		for (int j = 0; j < this.height / 64 + 1; j++) {
-			if (j == this.height / 64)
-				cellsInLong = height % 64;
-
-			for (int bitPos = 0; bitPos < cellsInLong; bitPos++) {
-				for (int i = 0; i < this.width; i++) {
-				}
-			}
-		}
+		readDimensionAndRule();
+		readGameBoard();
 
 	}
 
-	private void readHeader() throws PatternFormatException {
+
+	/**
+	 * Locates the meat data for the file, as Name and Comment of the file.
+	 *
+	 * @throws PatternFormatException
+     */
+	private void readHeader() {
 
 		Pattern regex = Pattern.compile("^#([N|C|O|P|R])\\s*(\\w.*)$", Pattern.MULTILINE);
 		Matcher matcher = regex.matcher(this.rleString);
@@ -59,18 +65,23 @@ public class RleInterpreter {
 		while (matcher.find()) {
 			if (matcher.group(1).equalsIgnoreCase("N")) {
 				name = matcher.group(2);
-				testHeader.append("#N " + name + "\n");
+				testHeader.append("#N ").append(name).append("\n");
 				
 			} else if (matcher.group(1).equalsIgnoreCase("C")) {
 				comment = matcher.group(2);
-				description.append(comment + "\n");
-				testHeader.append("#C " + comment + "\n");
+				description.append(comment).append("\n");
+				testHeader.append("#C ").append(comment).append("\n");
 			}
 
 		}
 	}
 
-	private void readDimensionAndRule(int gameBoardWidth, int GameBoardHeight, boolean dynamic) throws PatternFormatException{
+	/**
+	 * Locates and determinate the the dimension and rule of the pattern in the file.
+	 *
+	 * @throws PatternFormatException checks if width and height of the pattern is less that width and height of game board
+     */
+	private void readDimensionAndRule() throws PatternFormatException{
 
 		Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*[0-9]*/[A-Za-z]*[0-9]*))",
 				Pattern.MULTILINE);
@@ -86,39 +97,49 @@ public class RleInterpreter {
 
 		while (matcher.find()) {
 			this.width = Integer.parseInt(matcher.group(1));
-		
 			this.height = Integer.parseInt(matcher.group(2));
 			
-			if(this.width > gameBoardWidth &&  !dynamic)
+			if(this.width > gameBoardWidth &&  !dynamic) {
 				throw new PatternFormatException(String.format("Max width of the gameboard is %d, the pattern provided"
-						+ "in the rle file has %d width",gameBoardWidth, GameBoardHeight));
-			else if(this.height > GameBoardHeight && !dynamic)
+						+ "in the rle file has %d width", this.gameBoardWidth, this.gameBoardHeight));
+			}
+			else if(this.height > this.gameBoardHeight && !dynamic) {
 				throw new PatternFormatException(String.format("Max height of the gameboard is %d, the pattern provided"
-						+ "in the rle file has %d height", gameBoardWidth, GameBoardHeight));
-			this.ruleString = matcher.group(3).replaceAll("[^/0-9]", "");
+						+ "in the rle file has %d height", this.gameBoardWidth, this.gameBoardHeight));
+			}
 
+			this.ruleString = matcher.group(3).replaceAll("[^/0-9]", "");
 			lastIndexOfHeader = matcher.end() + amountOfSpaces;
 		}
 
 		testDimensionAndRule
-				.append("x = " + this.width + ", y = " + this.height + ", rule = " + this.ruleString + "\n");
+				.append("x = ")
+				.append(this.width)
+				.append(", y = ")
+				.append(this.height)
+				.append(", rule = ")
+				.append(this.ruleString)
+				.append("\n");
 
 
 	}
-	
 
-	private void readGameboard() throws PatternFormatException{
-		this.startGeneration = new boolean[width][height];
+	/**
+	 *Locates and determines the <b>pattern</b> of the game, inside the file.
+	 *
+	 * @throws PatternFormatException checks if its a mismatch between height/width
+	 * of the game boardand with the width/height to the given pattern.
+     */
+	private void readGameBoard() throws PatternFormatException{
+		this.initialRleGeneration = new boolean[width][height];
 
 		String rlePattern[] = this.rleString.substring(lastIndexOfHeader).split("\\$");
 		// System.out.println(this.rleString.substring(lastIndexOfHeader));
-		int aliveCells = 0;
-		int deadCells = 0;
+		int aliveCells;
+		int deadCells;
 		int x = 0;
-		int bitPos = 0;
-		int yDiv64 = 0;
-		String dCell = "b"; // for testing
-		String aCell = "o"; // for testing
+		String deadSymbol = "b"; // dead Cell
+		String aliveSymbol = "o"; // alive Cell
 		
 		System.out.println(this.getHeight());
 		System.out.println(rlePattern.length);
@@ -136,22 +157,22 @@ public class RleInterpreter {
 				if (matcher.group(2).equals("b")) // dead cells
 				{
 					if (matcher.group(1).matches("[0-9]+")) {
-						dCell = matcher.group(1); 
-						deadCells = Integer.parseInt(dCell);
-						testGameboard.append(dCell);//test
+						deadSymbol = matcher.group(1);
+						deadCells = Integer.parseInt(deadSymbol);
+						testGameBoard.append(deadSymbol);//test
 					} else {
 						deadCells = 1;
 					}
 
-					if (!(testGameboard.charAt(testGameboard.length() - 1) == 'b')) { //test
-						testGameboard.append("b");
+					if (!(testGameBoard.charAt(testGameBoard.length() - 1) == 'b')) { //test
+						testGameBoard.append(deadSymbol);
 					}
 					
 					if( x+deadCells > this.getWidth())
 						throw new PatternFormatException("Mismatch between given width dimension and actual width in pattern");
 
 					for (int i = 0; i < deadCells; i++) {
-						this.startGeneration[x + i][y] = false;
+						this.initialRleGeneration[x + i][y] = false;
 					}
 
 					x += deadCells;
@@ -159,22 +180,22 @@ public class RleInterpreter {
 				} else if (matcher.group(2).equals("o")) {
 
 					if (matcher.group(1).matches("[0-9]+")) {
-						aCell = matcher.group(1);
-						aliveCells = Integer.parseInt(aCell);
-						testGameboard.append(aCell);
+						aliveSymbol = matcher.group(1);
+						aliveCells = Integer.parseInt(aliveSymbol);
+						testGameBoard.append(aliveSymbol);
 					} else {
 						aliveCells = 1;
 					}
 
-					if (!(testGameboard.charAt(testGameboard.length() - 1) == 'o')) {
-						testGameboard.append("o");
+					if (!(testGameBoard.charAt(testGameBoard.length() - 1) == 'o')) {
+						testGameBoard.append(aliveSymbol);
 					}
 					
 					if( x+aliveCells > this.getWidth())
 						throw new PatternFormatException("Mismatch between given width dimension and actual width in pattern");
 					
 					for (int i = 0; i < aliveCells; i++) {
-						this.startGeneration[x+ i][y] = true;
+						this.initialRleGeneration[x+ i][y] = true;
 					}
 
 					x += aliveCells;
@@ -183,7 +204,7 @@ public class RleInterpreter {
 				if (x < width) {
 					int remainingCells = width - x;
 					for (int i = 0; i < remainingCells; i++)
-						this.startGeneration[x + i][y] = false;
+						this.initialRleGeneration[x + i][y] = false;
 				}
 				
 				
@@ -191,13 +212,11 @@ public class RleInterpreter {
 			}
 			
 			x = 0;
-			yDiv64 = y / 64;
-			bitPos = y % 64;
 
 
 			if (rlePattern[y].charAt(rlePattern[y].length() - 1) == '!') {
 				System.out.println("test");
-				testGameboard.append("!");
+				testGameBoard.append("!");
 				break;
 			}
 			
@@ -215,47 +234,50 @@ public class RleInterpreter {
 		return testDimensionAndRule.toString();
 	}
 
-	public String getTestGameboard() {
-		return testGameboard.toString();
+	public String getTestGameBoard() {
+		return testGameBoard.toString();
 	}
 
+	/**
+	 * Returns a String of the whole file.
+	 *
+     */
 	@Override
 	public String toString() {
 
-		String rleText = testHeader.toString() + testDimensionAndRule.toString() + testGameboard.toString();
-		return rleText;
+		return testHeader.toString() + testDimensionAndRule.toString() + testGameBoard.toString();
 	}
 
 	public int getCap() {
-		return testGameboard.length();
+		return testGameBoard.length();
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public int getHeight() {
 		return height;
-	}
-
-	public void setHeight(int height) {
-		this.height = height;
 	}
 
 	public int getWidth() {
 		return width;
 	}
 
-	public void setWidth(int width) {
-		this.width = width;
+	public boolean[][] getInitialRleGeneration() {
+		return initialRleGeneration;
 	}
 
-	public boolean[][] getStartGeneration() {
-		return startGeneration;
+	public String getComment() {
+		return comment;
 	}
 
+	public Pattern getPattern() {
+		return pattern;
+	}
+
+	public String  getDescription() {
+		return description.toString();
+	}
 }

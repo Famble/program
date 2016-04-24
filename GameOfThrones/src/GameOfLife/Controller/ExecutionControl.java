@@ -10,7 +10,7 @@ import javafx.animation.AnimationTimer;
  * The GameOfLife controles the speed of the game, can both change
  * the speed of the game, stop and start the game.
  * 
- * @author Markus Bikilla Seyoum Hellestveit
+ * @author Markus Hellestveit
  *
  */
 public class ExecutionControl extends AnimationTimer {
@@ -44,7 +44,7 @@ public class ExecutionControl extends AnimationTimer {
 	 * This method sets the delay time for how fast the animation of
 	 * game should be.
 	 * 
-	 * @param delay This is the value thats decides animation time.
+	 * @param delay {@link #delay} This is the value thats decides animation time.
 	 */
 	public void setDelay(double delay) {
 		this.delay = (long) delay;
@@ -52,7 +52,7 @@ public class ExecutionControl extends AnimationTimer {
 
 	/**
 	 * Gets the value of delay 
-	 * @return {@link #delay}
+	 * @return delay
 	 * 
 	 */
 	public long getDelay() {
@@ -62,7 +62,7 @@ public class ExecutionControl extends AnimationTimer {
 	/**
 	 * Starts the AnimetionTimer which calls the handle method
 	 * 
-	 * @see {@link AnimationTimer#start()}
+	 * @see AnimationTimer#start()
 	 */
 	public void startGame() {
 		this.start();
