@@ -89,8 +89,15 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
+	public void nextGenerationConcurrent() {}
+	{
+		
+	}
 	public void startNextGeneration() {
+		
+		long start = System.currentTimeMillis();
 		determineNextGeneration();
+		nextGenerationPrintPerformance(start, System.currentTimeMillis());
 		for (int i = 0; i < super.getWidth(); i++) {
 			for (int j = 0; j < super.getHeight(); j++) {
 				this.getCurrGeneration().get(i).set(j, this.getNextGeneration().get(i).get(j));
@@ -146,21 +153,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	private void setCellStateFromRules(int x, int y, int aliveNeighbours) {
 		boolean alive = getCellState(x, y, BoardContainer.CURRENTGENERATION); // (1)
 
-		if (!alive) {
-			boolean birth = false;
-
-			for (int l = 0; l < super.getRules().getBirthRules().length && birth == false; l++)// (2)
-				if (aliveNeighbours == super.getRules().getBirthRules()[l])
-					birth = true;
-
-			if (birth) {
-				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, true);
-				setCellState(x, y, BoardContainer.NEXTGENERATION, true);
-			} else {
-				setCellState(x, y, BoardContainer.NEXTGENERATION, false);
-				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
-			}
-		} else {
+		if(alive){
 			boolean survive = false;
 
 			for (int l = 0; l < super.getRules().getSurvivalRules().length && survive == false; l++)
@@ -175,6 +168,21 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
 			}
 		}
+		else {
+			boolean birth = false;
+
+			for (int l = 0; l < super.getRules().getBirthRules().length && birth == false; l++)// (2)
+				if (aliveNeighbours == super.getRules().getBirthRules()[l])
+					birth = true;
+
+			if (birth) {
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, true);
+				setCellState(x, y, BoardContainer.NEXTGENERATION, true);
+			} else {
+				setCellState(x, y, BoardContainer.NEXTGENERATION, false);
+				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
+			}
+		} 
 	}
 
 	public void setBoard(long board[][]) {
@@ -301,6 +309,14 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		cells.get(x + shiftedRightwards).set(y + shiftedDownwards, alive);
 	}
 	
+	public void nextGenerationPrintPerformance(long start, long end)
+	{
+		System.out.printf("Time elapsed(ms): %d)\n" , (end-start));
+	}
+	
+	public void nextGenerationConcurrentPrintPerformance() {}
+
+	
 	@Override
 	public boolean getCellState(int x, int y, BoardContainer container) {
 		{
@@ -327,6 +343,8 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		}
 	}
+	
+
 
 	public List<List<Boolean>> getCurrGeneration() {
 		return currGeneration;
