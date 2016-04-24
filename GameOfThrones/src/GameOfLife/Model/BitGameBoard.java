@@ -318,4 +318,14 @@ public class BitGameBoard extends GameBoard {// test
 		
 	}
 
+
+
+
+
+	@Override
+	public int countNeighbours(int x, int y) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

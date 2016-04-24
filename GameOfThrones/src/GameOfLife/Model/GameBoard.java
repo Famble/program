@@ -51,7 +51,7 @@ public abstract class GameBoard implements Cloneable
 	
 	public abstract void resetGameBoard();
 	
-	public abstract int countNeighbours(int x, int y, boolean countNeighbours);
+	public abstract int countNeighbours(int x, int y);
 	
 	public Rules getRules(){
 		return this.rules;
