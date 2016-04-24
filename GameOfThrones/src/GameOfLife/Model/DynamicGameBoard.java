@@ -105,9 +105,11 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		int aliveNeighbors = 0;
 		for (int x = 0; x < super.getWidth(); x++) {
 			for (int y = 0; y < super.getHeight(); y++) {
-				if (this.getCellState(x, y, BoardContainer.ACTIVEGENERATION)) {
-					aliveNeighbors = countNeighbours(x, y, true);
-					setCellStateFromRules(x, y, aliveNeighbors);
+				int xx = x - shiftedRightwards;
+				int yy = y - shiftedDownwards;
+				if (this.getCellState(xx, yy, BoardContainer.ACTIVEGENERATION)) {
+					aliveNeighbors = countNeighbours(xx, yy, true);
+					setCellStateFromRules(xx, yy, aliveNeighbors);
 				}
 			}
 		}
@@ -278,64 +280,50 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	@Override
 	public void setCellState(int x, int y, BoardContainer container, boolean alive) {
 
+		if (x + shiftedRightwards < 0) {
+			extendBorderFromLeft(Math.abs(x + shiftedRightwards));
+		}
+
+		if (x + shiftedRightwards >= this.getWidth()) {
+			extendBorderFromRight(x + shiftedRightwards);
+		}
+
+		if (y + shiftedDownwards < 0) {
+			extendBorderFromTop(Math.abs(y + shiftedDownwards));
+		}
+
+		if (y + shiftedDownwards >= this.getHeight()) {
+			extendBorderFromBottom(y + shiftedDownwards);
+		}
+
 		List<List<Boolean>> cells = getArrayList(container);
-		int a = 0;
-		int b = 0;
-		
-		if (x < 0) {
-			if(x + shiftedRightwards < 0)
-				extendBorderFromLeft(Math.abs(x));
-			a = shiftedRightwards;
-			
-		} else if (x >= this.getWidth()) {
-			extendBorderFromRight(x);
-		}
 
-		if (y < 0) {
-			if(y + shiftedDownwards < 0)
-				extendBorderFromTop(Math.abs(y));
-			
-			b = shiftedDownwards;
-		}
-
-		else if (y >= this.getHeight()) {
-			extendBorderFromBottom(y);
-		}
-
-		cells.get(x + a).set(y + b, alive);
+		cells.get(x + shiftedRightwards).set(y + shiftedDownwards, alive);
 	}
 	
 	@Override
 	public boolean getCellState(int x, int y, BoardContainer container) {
 		{
+			if (x + shiftedRightwards < 0) {
+				extendBorderFromLeft(Math.abs((x + shiftedRightwards)));
+			}
+
+			if (x + shiftedRightwards >= this.getWidth()) {
+				extendBorderFromRight(x + shiftedRightwards);
+			}
+
+			if (y + shiftedDownwards < 0) {
+				extendBorderFromTop(Math.abs(y + shiftedDownwards));
+			}
+
+			if (y + shiftedDownwards >= this.getHeight()) {
+				extendBorderFromBottom(y + shiftedDownwards);
+			}
+
 			List<List<Boolean>> cells = getArrayList(container);
-			int a = 0;
-			int b = 0;
-
-			if (x < 0) {
-				if(x + shiftedRightwards < 0)
-					extendBorderFromLeft(Math.abs((x)));
-				
-				a = shiftedRightwards;
-			}
-
-			else if (x >= this.getWidth()) {
-				extendBorderFromRight(x);
-			}
-
-			if (y < 0) {
-				if( y + shiftedDownwards < 0)
-					extendBorderFromTop(Math.abs(y));
-				
-				b = shiftedDownwards;
-			}
-
-			else if (y >= this.getHeight()) {
-				extendBorderFromBottom(y);
-			}
 
 
-			return cells.get(x + a).get(y + b);
+			return cells.get(x + shiftedRightwards).get(y + shiftedDownwards);
 
 		}
 	}

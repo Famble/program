@@ -105,15 +105,14 @@ public class CanvasDrawer {
 
 		} else {
 
-			x+=shiftedRightwards;
-			y+=shiftedDownwards;
+		
 
 			if (dragDraw) {
 				if (!model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
 					gc.setFill(model.getColor());
 					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, true);
 					model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
-					gc.fillOval(cellSize * (x-shiftedRightwards) - canvasDisplacedX, cellSize * (y-shiftedDownwards) - canvasDisplacedY, cellSize,
+					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
 							cellSize);
 				}
 
@@ -122,7 +121,7 @@ public class CanvasDrawer {
 				if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
 					gc.setFill(Color.BLACK);
 					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, false);
-					gc.fillOval(cellSize * (x-shiftedRightwards) - canvasDisplacedX, cellSize * (y-shiftedDownwards) - canvasDisplacedY, cellSize,
+					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
 							cellSize);
 				}
 			}
@@ -195,7 +194,7 @@ public class CanvasDrawer {
 		gc.setFill(model.getColor());
 		for (int x = 0; x < model.getWidth(); x++)
 			for (int y = 0; y < model.getHeight(); y++) {
-				if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
+				if (model.getCellState(x-shiftedRightwards, y-shiftedDownwards, BoardContainer.CURRENTGENERATION)) {
 					gc.fillOval(cellSize * (x - shiftedRightwards) - canvasDisplacedX,
 							cellSize * (y - shiftedDownwards) - canvasDisplacedY, cellSize, cellSize);
 				}
