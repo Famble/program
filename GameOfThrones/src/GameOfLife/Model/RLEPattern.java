@@ -7,59 +7,38 @@ import java.util.Map;
 
 public class RLEPattern implements Cloneable {
 	
-	private int patternWidth;
-	private int patternHeight;
+	private int width;
+	private int height;
 	private boolean[][] pattern;
 	public boolean settingPattern = false;
-	private int trimmedWidth;
-
-	public int getTrimmedHeight() {
-		return trimmedHeight;
-	}
-
-	public void setTrimmedHeight(int trimmedHeight) {
-		this.trimmedHeight = trimmedHeight;
-	}
-
-	public int getTrimmedWidth() {
-		return trimmedWidth;
-	}
-
-	public void setTrimmedWidth(int trimmedWidth) {
-		this.trimmedWidth = trimmedWidth;
-	}
-
-	private int trimmedHeight;
-	private int patternStartPositionX;
-	private int patternStartPositionY;
+	private int patternTranslationX;
+	private int patternTranslationY;
 	
-	
-	public int getPatternStartPositionX() {
-		return patternStartPositionX;
+	public int getPatternTranslationX() {
+		return patternTranslationX;
 	}
 
-	public void setPatternStartPositionX(int patternStartPositionX) {
-		this.patternStartPositionX = patternStartPositionX;
+	public void setPatternTranslationX(int patternStartPositionX) {
+		this.patternTranslationX = patternStartPositionX;
 	}
 
-	public int getPatternStartPositionY() {
-		return patternStartPositionY;
+	public int getPatternTranslationY() {
+		return patternTranslationY;
 	}
 
-	public void setPatternStartPositionY(int patternStartPositionY) {
-		this.patternStartPositionY = patternStartPositionY;
+	public void setPatternTranslationY(int patternStartPositionY) {
+		this.patternTranslationY = patternStartPositionY;
 	}
 	
 	public void trim(){
-		int lowestX = getPatternWidth();
-		int lowestY = getPatternHeight();
+		int lowestX = getWidth();
+		int lowestY = getHeight();
 		int highestX = 0;
 		int highestY = 0;
-		System.out.println("DET FUNKEt");
 
 		
-		for(int x = 0; x < getPatternWidth(); x++) {
-			for (int y = 0; y < getPatternHeight(); y++) {
+		for(int x = 0; x < getWidth(); x++) {
+			for (int y = 0; y < getHeight(); y++) {
 				if (getPattern()[x][y]) {
 					if (x < lowestX)
 						lowestX = x;
@@ -75,11 +54,11 @@ public class RLEPattern implements Cloneable {
 		}
 		System.out.printf("lowestX, lowestY, highestX, highestY: (%d,%d,%d,%d) \n",lowestX, lowestY, highestX, highestY);
 		
-		this.patternWidth = highestX - lowestX + 1;
-		this.patternHeight = highestY - lowestY+ 1;
+		this.width = highestX - lowestX + 1;
+		this.height = highestY - lowestY+ 1;
 		
-		for(int x = 0; x < this.patternWidth; x++) {
-			for (int y = 0; y < this.patternHeight; y++) {
+		for(int x = 0; x < this.width; x++) {
+			for (int y = 0; y < this.height; y++) {
 				this.pattern[x][y] = this.pattern[x + lowestX][y + lowestY];
 
 			}
@@ -93,25 +72,25 @@ public class RLEPattern implements Cloneable {
 	}
 	
 	public RLEPattern(int width, int height){
-		this.patternWidth = width;
-		this.patternHeight = height;
+		this.width = width;
+		this.height = height;
 		this.pattern = new boolean[width][height];
 	}
 
-	public int getPatternWidth() {
-		return patternWidth;
+	public int getWidth() {
+		return width;
 	}
 
-	public void setPatternWidth(int patternWidth) {
-		this.patternWidth = patternWidth;
+	public void setWidth(int patternWidth) {
+		this.width = patternWidth;
 	}
 
-	public int getPatternHeight() {
-		return patternHeight;
+	public int getHeight() {
+		return height;
 	}
 
-	public void setPatternHeight(int patternHeight) {
-		this.patternHeight = patternHeight;
+	public void setHeight(int patternHeight) {
+		this.height = patternHeight;
 	}
 
 	public boolean[][] getPattern() {

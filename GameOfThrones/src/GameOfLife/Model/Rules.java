@@ -33,12 +33,6 @@ public class Rules implements Cloneable {
 		rules.put("Mazectric", new int[][] { { 1, 2, 3, 4 }, { 3 } });
 		rules.put("Move", new int[][] { { 2, 4, 5 }, { 3, 6, 8 } });
 		rules.put("Pseudo Life", new int[][] { { 2, 3, 8 }, { 3, 5, 7 } });
-		rules.put("Serviettes", new int[][] { { 9 }, // should be empty
-				{ 2, 3, 4 } });
-		rules.put("Seeds",
-				new int[][] { { 9 }, // should be empty but put 9 to
-						// prevent error
-						{ 2 } });
 		rules.put("Stains", new int[][] { { 2, 3, 5, 6, 7, 8 }, { 3, 6, 7, 8 } });
 		rules.put("Vote 4/5", new int[][] { { 3, 5, 6, 7, 8 }, { 4, 6, 7, 8 } });
 		rules.put("Vote", new int[][] { { 4, 5, 6, 7, 8 }, { 5, 6, 7, 8 } });

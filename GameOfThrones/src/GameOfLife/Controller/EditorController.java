@@ -25,6 +25,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
@@ -40,6 +41,7 @@ public class EditorController implements Initializable {
 
 	@FXML
 	private VBox vBoxRoot;
+	@FXML ScrollPane scrollPane;
 	@FXML
 	private Canvas canvas;
 	@FXML
@@ -100,13 +102,18 @@ public class EditorController implements Initializable {
 	}
 	
 	public void drawStrip(){
-		System.out.println("HEY");
 		DynamicGameBoard board = (DynamicGameBoard)this.board.clone();
 		sd.drawStrip(board);
+		scrollPane.setPrefHeight(sd.getStripHeight()+ 20);
+		scrollPane.setPrefWidth(sd.getStripWidth());
 	}
 	
 	public void drawStrip(GameBoard board){
 		sd.drawStrip(board);
+		scrollPane.setPrefHeight(sd.getStripHeight()+ 20);
+		scrollPane.setPrefWidth(sd.getStripWidth());
+
+
 
 	}
 	

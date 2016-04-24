@@ -13,7 +13,7 @@ import GameOfLife.Model.GameBoard.BoardContainer;
 import GameOfLife.Model.PatternFormatException;
 import GameOfLife.Model.RLEPattern;
 import GameOfLife.Model.Rules;
-import GameOfLife.Model.StaticGameBoard;
+import GameOfLife.Model.BitGameBoard;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
@@ -178,8 +178,8 @@ public class Controller implements Initializable {
 			try {
 				rleInterp = new RleInterpreter(rleString, gameBoard.getWidth(), gameBoard.getHeight(), this.gameBoard instanceof DynamicGameBoard);
 				pattern.setPattern(rleInterp.getStartGeneration());
-				pattern.setPatternWidth(rleInterp.getWidth());
-				pattern.setPatternHeight(rleInterp.getHeight());
+				pattern.setWidth(rleInterp.getWidth());
+				pattern.setHeight(rleInterp.getHeight());
 				gameBoard.setSettingPattern(true);
 				gameBoard.setPattern(pattern);
 				cd.setRLEPattern(pattern);
@@ -274,21 +274,21 @@ public class Controller implements Initializable {
 	{
 		RLEPattern pattern = gameBoard.getPattern();
 		if(event.getCode() == KeyCode.RIGHT)
-			pattern.setPatternStartPositionX(pattern.getPatternStartPositionX() + 10);
+			pattern.setPatternTranslationX(pattern.getPatternTranslationX() + 10);
 		else if(event.getCode() == KeyCode.LEFT)
-			pattern.setPatternStartPositionX(pattern.getPatternStartPositionX() - 10);
+			pattern.setPatternTranslationX(pattern.getPatternTranslationX() - 10);
 		else if(event.getCode() == KeyCode.DOWN)
-			pattern.setPatternStartPositionY(pattern.getPatternStartPositionY() + 10);
+			pattern.setPatternTranslationY(pattern.getPatternTranslationY() + 10);
 		else if(event.getCode() == KeyCode.UP)
-			pattern.setPatternStartPositionY(pattern.getPatternStartPositionY() - 10);
+			pattern.setPatternTranslationY(pattern.getPatternTranslationY() - 10);
 		else if(event.getCode() == KeyCode.ENTER)
 		{
 			if(gameBoard.getSettingPattern())
 			{
-				gameBoard.transferPattern(pattern.getPatternStartPositionX(), pattern.getPatternStartPositionY());
+				gameBoard.transferPattern(pattern.getPatternTranslationX(), pattern.getPatternTranslationY());
 				cd.drawNextGeneration();
-				pattern.setPatternStartPositionX(0);
-				pattern.setPatternStartPositionY(0);
+				pattern.setPatternTranslationX(0);
+				pattern.setPatternTranslationY(0);
 				gameBoard.setSettingPattern(false);
 			}
 			

@@ -2,7 +2,7 @@ package GameOfLife.Controller;
 
 import GameOfLife.Model.GameBoard;
 import GameOfLife.Model.DynamicGameBoard;
-import GameOfLife.Model.StaticGameBoard;
+import GameOfLife.Model.BitGameBoard;
 import javafx.animation.AnimationTimer;
 
 /**
@@ -23,7 +23,7 @@ public class ExecutionControl extends AnimationTimer {
 	 * Class constructor. Initializes the {@link #model} 
 	 * and {@link #cd}.
 	 * 
-	 * @param model This is an object of {@link StaticGameBoard}
+	 * @param model This is an object of {@link BitGameBoard}
 	 * @param cd This is an object of {@link CanvasDrawer}
 	 */
 	public ExecutionControl(GameBoard model, CanvasDrawer cd) {

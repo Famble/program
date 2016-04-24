@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import GameOfLife.Model.GameBoard;
 import GameOfLife.Model.PatternFormatException;
-import GameOfLife.Model.StaticGameBoard;
+import GameOfLife.Model.BitGameBoard;
 
 public class RleInterpreter {
 	private Pattern pattern;

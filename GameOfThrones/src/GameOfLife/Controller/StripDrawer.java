@@ -6,11 +6,24 @@ import GameOfLife.Model.RLEPattern;
 import GameOfLife.Model.GameBoard.BoardContainer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
 
 public class StripDrawer extends CanvasDrawer{
 
 	private GraphicsContext gcStrip;
 	RLEPattern pattern;
+	private double stripWidth;
+	private double stripHeight;
+
+	public double getStripHeight() {
+		return stripHeight;
+	}
+
+
+	public void setStripHeight(double stripHeight) {
+		this.stripHeight = stripHeight;
+	}
+
 
 	public StripDrawer(GameBoard model, GraphicsContext gc, GraphicsContext gcStrip) {
 		super(model, gc);
@@ -20,27 +33,43 @@ public class StripDrawer extends CanvasDrawer{
 	
 	public void drawStrip(GameBoard stripModel){
 		
+		Affine transform = new Affine();
+		double tx = 0;
 		setPattern(stripModel);
-		stripModel.getPattern().trim();
+		RLEPattern pattern = stripModel.getPattern();
+		pattern.trim();
 		
+		stripHeight = 0;
+		
+		stripWidth +=tx;
+		
+		double cellSize = 90 / Math.min(pattern.getHeight(), pattern.getWidth());
+		System.out.printf("cellsize, patternHeight, patternWidth", cellSize, pattern.getHeight(), pattern.getWidth());
+
+		int height = (int) (pattern.getHeight()*cellSize + 20*cellSize);
 		for(int i = 0; i < 20; i++){
-			for(int x = 0; x < stripModel.getPattern().getPatternWidth(); x++) {
-				for(int y = 0; y < stripModel.getPattern().getPatternHeight(); y++){
-					if(stripModel.getPattern().getPattern()[x][y]){
+			for(int x = 0; x < pattern.getWidth(); x++) {
+				for(int y = 0; y < pattern.getHeight(); y++){
+					transform.setTx(tx);
+					gcStrip.setTransform(transform);
+					if(pattern.getPattern()[x][y]){
 						gcStrip.setFill(Color.BLACK);
-						gcStrip.fillRect(i*100 +x*3, 20 + y*3, 3, 3);
+						gcStrip.strokeLine(0, 0, 0, height);
+						//gcStrip.strokeRect(0, 0, pattern.getWidth()*cellSize, pattern.getHeight()*cellSize);
+						gcStrip.fillOval(x*cellSize, y*cellSize, cellSize, cellSize);
 					}
 				}
 			}
 			
-			System.out.printf("(width, height) = (%d,%d)\n", stripModel.getWidth(), stripModel.getHeight());
-			System.out.println("shiftedRight, shiftedDown = (%d,%d)");
+
 			
-			
+			stripHeight = Math.max(stripHeight, pattern.getHeight()*cellSize);
+			tx+= 20 + cellSize*pattern.getWidth();
+			stripWidth+=tx;
 			stripModel.startNextGeneration();
 			setPattern(stripModel);
-			stripModel.getPattern().trim();
-			
+			pattern = stripModel.getPattern();
+			pattern.trim();
 			
 		}
 		
@@ -48,6 +77,16 @@ public class StripDrawer extends CanvasDrawer{
 		
 	}
 	
+	public double getStripWidth() {
+		return stripWidth;
+	}
+
+
+	public void setStripWidth(double stripWidth) {
+		this.stripWidth = stripWidth;
+	}
+
+
 	public void setPattern(GameBoard board){
 		int shiftedRightwards = 0;
 		int shiftedDownwards = 0;

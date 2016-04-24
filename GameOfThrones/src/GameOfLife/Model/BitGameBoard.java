@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javafx.scene.paint.Color;
 
-public class StaticGameBoard extends GameBoard {// test
+public class BitGameBoard extends GameBoard {// test
 	private long[][] CurrGeneration;
 	private long[][] nextGeneration;
 	private long[][] activeCells;
@@ -17,7 +17,7 @@ public class StaticGameBoard extends GameBoard {// test
 	
 	
 	@Deprecated
-	public StaticGameBoard(int x, int y, Rules rules) {
+	public BitGameBoard(int x, int y, Rules rules) {
 		super(x, y, rules);
 		
 		this.yDiv64 = (y / 64) + 1;
@@ -51,15 +51,8 @@ public class StaticGameBoard extends GameBoard {// test
 
 	}
 	
-	public boolean getActiveCellState(int x, int y)
-	{
-		return (this.getActiveCells()[x][y/64] >> y%64 & 1) == 1;
-	}
 
 
-	public boolean getPatternCellState(int x, int y) {
-		return ((this.getCurrentGeneration()[x][y / 64] >> y % 64) & 1) == 1;
-	}
 
 	public void startNextGeneration() {
 		determineNextGeneration();
@@ -83,7 +76,7 @@ public class StaticGameBoard extends GameBoard {// test
 					int j = y*64;
 					for(int bit = 0; bit<64; bit++)
 					{			
-						if (getActiveCellState(x, j + bit)) {
+						if (getCellState(x, j + bit, BoardContainer.ACTIVEGENERATION)) {
 							aliveNeighbours = countNeighbours(x, j+bit, true);
 							setCellStateFromRules(x, j+bit, aliveNeighbours);
 						}
@@ -259,6 +252,7 @@ public class StaticGameBoard extends GameBoard {// test
 	}
 	
 	private long[][] selectArray(BoardContainer bc){
+		
 		long[][]cells = null;
 		switch(bc){
 		case CURRENTGENERATION:
