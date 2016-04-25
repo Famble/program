@@ -118,7 +118,6 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 				int xx = x - shiftedRightwards; //plx ignore
 				int yy = y - shiftedDownwards; //plx ignore gonna fix later
 				if (this.getCellState(xx, yy, BoardContainer.ACTIVEGENERATION)) {
-					
 					for (int i = -1; i <= 1; i++)
 						for (int j = -1; j <= 1; j++) {
 								aliveNeighbors = countNeighbours(xx + i, yy +j);

@@ -26,13 +26,10 @@ public class BitGameBoard extends GameBoard {// test
 		nextGeneration = new long[x][yDiv64];
 		activeCells = new long[x][yDiv64];
 		newActiveCells = new long[x][yDiv64];
-
+		
 	}
 
 
-
-	
-	
 	public void setActiveCellState(int x, int y, boolean alive)
 	{
 		if(alive)
@@ -51,8 +48,6 @@ public class BitGameBoard extends GameBoard {// test
 
 	}
 	
-
-
 
 	public void startNextGeneration() {
 		determineNextGeneration();

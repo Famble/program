@@ -68,6 +68,7 @@ public class Controller implements Initializable {
 	@FXML
 	Rules rules;
 	@FXML
+	
 	private Toggle drawDrag;
 	private ExecutionControl GOL;
 	boolean start = true;
@@ -104,8 +105,8 @@ public class Controller implements Initializable {
 
 		});
 		canvasParent.widthProperty().addListener((a, b, c) -> {
-			canvas.setWidth((double) c);
-			cd.setWindowWidth((double) c);
+			canvas.setWidth((double) c-150);
+			cd.setWindowWidth((double) c-150);
 		});
 
 		canvasParent.heightProperty().addListener((a, b, c) -> {
@@ -312,7 +313,7 @@ public class Controller implements Initializable {
 	}
 	
 	public void setDimensions(){
-		canvas.setWidth(vBoxRoot.getWidth());
+		canvas.setWidth(vBoxRoot.getWidth()-150);
 		canvas.setHeight(canvasParent.getHeight());
 		cd.drawNextGeneration();
 	}

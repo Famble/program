@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import java.lang.String?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.collections.*?>
@@ -19,7 +24,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="vBoxRoot" onKeyPressed="#keyListener" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameOfLife.Controller.Controller">
+<VBox fx:id="vBoxRoot" onKeyPressed="#keyListener" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameOfLife.Controller.Controller">
    <children>
       <MenuBar VBox.vgrow="NEVER">
         <menus>
@@ -66,7 +71,7 @@
             <ComboBox fx:id="comboBox" layoutX="15.0" layoutY="33.0" maxWidth="-Infinity" minHeight="-Infinity" prefWidth="190.0" promptText="Conway's Life">
 		      <items>
 		        <FXCollections fx:factory="observableArrayList">
-		          <String fx:value="2x2"/>
+		          <String fx:value="2x2" />
 		          <String fx:value="34Life" />
 		          <String fx:value="Amoeba" />
 		          <String fx:value="Assimilation" />
@@ -108,6 +113,7 @@
       <HBox fx:id="canvasParent" minHeight="10.0" minWidth="10.0" onMouseDragged="#mouseDragged" prefHeight="400.0" style="-fx-background-color: black;" VBox.vgrow="ALWAYS">
          <children>
             <Canvas fx:id="canvas" height="10.0" nodeOrientation="INHERIT" onMouseClicked="#mouseClicked" onMouseEntered="#handleMouseEntered" onMousePressed="#handleMouseEntered" onMouseReleased="#handleMouseEntered" onScroll="#handleZoom" width="10.0" />
+            <VBox maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="150.0" style="-fx-background-color: white;" />
          </children>
       </HBox>
       <HBox style="-fx-background-color: #e9e9e9;">
