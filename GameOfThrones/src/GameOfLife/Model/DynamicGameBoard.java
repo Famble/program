@@ -12,6 +12,70 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	private List<List<Boolean>> nextActiveCells;
 	private int shiftedRightwards = 0;
 	private int shiftedDownwards = 0;
+	private int lowestX = super.getWidth();
+	private int highestX = 0;
+	private int lowestY = super.getHeight();
+	private int highestY = 0;
+	int j = 0;
+	
+	
+	public void startNextGeneration() {
+
+		long start = System.currentTimeMillis();
+
+		
+			
+		if (j == 0) {
+			extendBorderFromBottom100();
+			extendBorderFromTop100();
+			extendBorderFromLeft100();
+			extendBorderFromRight100();
+		}
+		j++;
+		count++;
+
+		if (count == 99) {
+			count = 0;
+			
+
+			if((lowestX+shiftedRightwards)-200 < 0)
+				extendBorderFromLeft100();
+			
+			if(super.getWidth()-(highestX + shiftedRightwards) < 200)
+				extendBorderFromRight100();
+			
+			if((lowestY+shiftedDownwards)-200 < 0)
+				extendBorderFromTop100();
+			
+			if(super.getHeight()-(highestY + shiftedDownwards)< 200)
+				extendBorderFromBottom100();
+			
+			System.out.println("NEXT GEN");
+
+			
+		}
+		
+		
+		createWorkers();
+		try {
+			runWorkers();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		workers.clear();
+
+
+		g =0;
+		nextGenerationPrintPerformance(start, System.currentTimeMillis());
+		for (int i = 0; i < super.getWidth(); i++) {
+			for (int j = 0; j < super.getHeight(); j++) {
+				this.getCurrGeneration().get(i).set(j, this.getNextGeneration().get(i).get(j));
+				this.getActiveCells().get(i).set(j, this.getNextActiveCells().get(i).get(j));
+
+			}
+		}
+	}
 
 	public Object clone() {
 		DynamicGameBoard DynamicGameBoardCopy = null;
@@ -96,32 +160,61 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
-	public void startNextGeneration() {
+	int count = 0;
 
-		long start = System.currentTimeMillis();
-		determineNextGeneration();
-		nextGenerationPrintPerformance(start, System.currentTimeMillis());
-		for (int i = 0; i < super.getWidth(); i++) {
-			for (int j = 0; j < super.getHeight(); j++) {
-				this.getCurrGeneration().get(i).set(j, this.getNextGeneration().get(i).get(j));
-				this.getActiveCells().get(i).set(j, this.getNextActiveCells().get(i).get(j));
+	static List<Thread> workers = new ArrayList<Thread>();
 
-			}
+	public void createWorkers() {
+		for (int i = 0; i < 8; i++) {
+			workers.add(new Thread(() -> {
+				determineNextGenOfSector(g++);
+
+			}));
+
 		}
+
 	}
 
+	int g = 0;
+
+	public void determineNextGenOfSector(int sector) {
+		// System.out.println(sector);
+		int widthOfSector = super.getWidth()/8;
+		if (sector == 7)
+			determineNextGeneration(sector * widthOfSector, (sector + 1) * widthOfSector + super.getWidth() % 8);
+		else
+			determineNextGeneration(sector * widthOfSector, (sector + 1) * widthOfSector);
+
+	}
+
+	public void runWorkers() throws InterruptedException {
+		for (Thread t : workers) {
+			t.start();
+		}
+
+		for (Thread t : workers) {
+			t.join();
+		}
+
+	}
+	
+
 	@Override
-	public void determineNextGeneration() {
+	public void determineNextGeneration(int start, int end) {
 		int aliveNeighbors;
-		for (int x = 0; x < super.getWidth(); x++) {
-			for (int y = 0; y < super.getHeight(); y++) {
-				int xx = x - shiftedRightwards; //plx ignore
-				int yy = y - shiftedDownwards; //plx ignore gonna fix later
-				if (this.getCellState(xx, yy, BoardContainer.ACTIVEGENERATION)) {
+		
+	
+		for (int x = -shiftedRightwards+start; x < end-shiftedRightwards; x++) {
+			for (int y = - shiftedDownwards; y < super.getHeight()- shiftedDownwards; y++) {
+				if (this.getCellState(x, y, BoardContainer.ACTIVEGENERATION)) {
+					lowestX = Math.min(x, lowestX);
+					highestX = Math.max(x, highestX);
+					lowestY = Math.min(y, lowestY);
+					highestY = Math.max(y, highestY);
 					for (int i = -1; i <= 1; i++)
 						for (int j = -1; j <= 1; j++) {
-								aliveNeighbors = countNeighbours(xx + i, yy +j);
-								setCellStateFromRules(xx +i, yy+j, aliveNeighbors);
+							aliveNeighbors = countNeighbours(x + i, y + j);
+							setCellStateFromRules(x + i, y + j, aliveNeighbors);
 						}
 
 				}
@@ -196,6 +289,29 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
+	public void extendBorderFromLeft100() {
+		int columnsToInsert = 200;
+		this.shiftedRightwards += columnsToInsert;
+
+		for (int i = 0; i < columnsToInsert; i++) {
+			currGeneration.add(i, new ArrayList<Boolean>());
+			nextGeneration.add(i, new ArrayList<Boolean>());
+			activeCells.add(i, new ArrayList<Boolean>());
+			nextActiveCells.add(i, new ArrayList<Boolean>());
+
+			for (int j = 0; j < this.getHeight(); j++) {
+				currGeneration.get(i).add(j, false);
+				nextGeneration.get(i).add(j, false);
+				activeCells.get(i).add(j, false);
+				nextActiveCells.get(i).add(j, false);
+			}
+		}
+
+		super.setWidth(super.getWidth() + columnsToInsert);
+		System.out.println(String.format("LEFT 100: (Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
+
+	}
+
 	public void extendBorderFromLeft(int columnsRequired) {
 		// rounds up rowsRequired by 100 and stores it in rowsToInsert
 		int columnsToInsert = columnsRequired - (columnsRequired % 100) + 100;
@@ -219,8 +335,31 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		}
 		super.setWidth(super.getWidth() + columnsToInsert);
-		System.out.println(String.format("(Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
+		System.out.println(String.format("FROM LEFT: SKAL IKKE BLI KALT\n", super.getWidth(), super.getHeight()));
 
+	}
+
+	public void extendBorderFromRight100() {
+
+		int columnsToInsert = 200;
+
+		for (int i = this.getWidth(); i < this.getWidth() + columnsToInsert; i++) {
+			currGeneration.add(i, new ArrayList<Boolean>());
+			nextGeneration.add(i, new ArrayList<Boolean>());
+			activeCells.add(i, new ArrayList<Boolean>());
+			nextActiveCells.add(i, new ArrayList<Boolean>());
+
+			for (int j = 0; j < this.getHeight(); j++) {
+				currGeneration.get(i).add(j, false);
+				nextGeneration.get(i).add(j, false);
+				activeCells.get(i).add(j, false);
+				nextActiveCells.get(i).add(j, false);
+
+			}
+		}
+
+		super.setWidth(super.getWidth() + columnsToInsert);
+		System.out.println(String.format("RIGHT 100: (Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
 	}
 
 	public void extendBorderFromRight(int x) {
@@ -244,8 +383,26 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 
 		super.setWidth(super.getWidth() + columnsToInsert);
-		System.out.println(String.format("(Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
+		System.out.println(String.format("FROM RIGHT: SKAL IKKE BLI KALT \n", super.getWidth(), super.getHeight()));
 
+	}
+
+	public void extendBorderFromTop100() {
+		int rowsToInsert = 200;
+
+		for (int i = 0; i < super.getWidth(); i++) {
+
+			for (int j = 0; j < rowsToInsert; j++) {
+				currGeneration.get(i).add(j, false);
+				nextGeneration.get(i).add(j, false);
+				activeCells.get(i).add(j, false);
+				nextActiveCells.get(i).add(j, false);
+			}
+
+		}
+		this.shiftedDownwards += rowsToInsert;
+		super.setHeight(rowsToInsert + super.getHeight());
+		System.out.println(String.format("TOP 100: (Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
 	}
 
 	public void extendBorderFromTop(int rowsRequired) {
@@ -262,8 +419,25 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 		this.shiftedDownwards += rowsToInsert;
 		super.setHeight(rowsToInsert + super.getHeight());
-		System.out.println(String.format("(Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
+		System.out.println(String.format("FROM TOP: SKAL IKKE BLI KALT\n", super.getWidth(), super.getHeight()));
 
+	}
+
+	public void extendBorderFromBottom100() {
+
+		int rowsToInsert = 200;
+		for (int i = 0; i < this.getWidth(); i++) {
+			for (int j = this.getHeight(); j < rowsToInsert + this.getHeight(); j++) {
+				currGeneration.get(i).add(j, false);
+				nextGeneration.get(i).add(j, false);
+				activeCells.get(i).add(j, false);
+				nextActiveCells.get(i).add(j, false);
+			}
+		}
+
+		super.setHeight(super.getHeight() + rowsToInsert);
+
+		System.out.println(String.format("BOT100: (Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
 	}
 
 	public void extendBorderFromBottom(int y) {
@@ -281,7 +455,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		super.setHeight(super.getHeight() + rowsToInsert);
 
-		System.out.println(String.format("(Width, Height: (%d,%d)", super.getWidth(), super.getHeight()));
+		System.out.println(String.format("FORM BOT: SKAL IKKE BLI KALT\n", super.getWidth(), super.getHeight()));
 
 	}
 
@@ -397,10 +571,10 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	public void resetGameBoard() {
 		for (int i = 0; i < super.getWidth(); i++) {
 			for (int j = 0; j < super.getHeight(); j++) {
-				setCellState(i, j, BoardContainer.CURRENTGENERATION, false);
-				setCellState(i, j, BoardContainer.NEXTGENERATION, false);
-				setCellState(i, j, BoardContainer.ACTIVEGENERATION, false);
-				setCellState(i, j, BoardContainer.NEXTACTIVEGENERATION, false);
+				setCellState(i - shiftedRightwards, j - shiftedDownwards, BoardContainer.CURRENTGENERATION, false);
+				setCellState(i - shiftedRightwards, j - shiftedDownwards, BoardContainer.NEXTGENERATION, false);
+				setCellState(i - shiftedRightwards, j - shiftedDownwards, BoardContainer.ACTIVEGENERATION, false);
+				setCellState(i - shiftedRightwards, j - shiftedDownwards, BoardContainer.NEXTACTIVEGENERATION, false);
 			}
 		}
 

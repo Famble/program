@@ -75,9 +75,11 @@ public class Controller implements Initializable {
 	int offsetX = 0;
 	CanvasDrawer cd;
 
+
 	int offsetY = 0;
 	GameBoard gameBoard;
 	Pattern pattern;
+	
 
 	
 	@Override
@@ -300,8 +302,6 @@ public class Controller implements Initializable {
     }
  });
 		
-		
-	
 		cd.drawNextGeneration();
 		
 	}

@@ -72,8 +72,8 @@ public class CanvasDrawer {
 
 		} else {
 
-			x += shiftedRightwards;
-			y += shiftedDownwards;
+		
+			
 			
 			boolean alive = !model.getCellState(x, y, BoardContainer.CURRENTGENERATION);
 
@@ -93,12 +93,6 @@ public class CanvasDrawer {
 	public void drawCell(int mouseClickX, int mouseClickY, boolean dragDraw) {
 		int x = getCorrepondingXArrayIndex(mouseClickX);
 		int y = getCorrepondingYArrayIndex(mouseClickY);
-		int shiftedRightwards = 0;
-		int shiftedDownwards = 0;
-		if (model instanceof DynamicGameBoard) {
-			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
-			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
-		}
 
 		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight())
 				&& this.model instanceof BitGameBoard) {

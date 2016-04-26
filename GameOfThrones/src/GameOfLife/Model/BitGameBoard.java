@@ -323,4 +323,11 @@ public class BitGameBoard extends GameBoard {// test
 		return 0;
 	}
 
+
+	@Override
+	public void determineNextGeneration(int x, int y) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

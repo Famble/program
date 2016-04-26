@@ -45,7 +45,7 @@ public abstract class GameBoard implements Cloneable
 	public abstract void transferPattern(int startX, int startY);
 	
 	public abstract boolean getCellState(int x, int y, BoardContainer bc);
-	public abstract void determineNextGeneration();
+	public abstract void determineNextGeneration(int x, int y);
 	
 	public abstract void setCellState(int x, int y, BoardContainer bc, boolean alive);
 	
