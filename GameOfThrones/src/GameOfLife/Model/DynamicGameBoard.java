@@ -37,19 +37,27 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		if (count == 99) {
 			count = 0;
 			
-
-			if((lowestX+shiftedRightwards)-200 < 0)
+			if((lowestX+shiftedRightwards) < 200)
+			{
 				extendBorderFromLeft100();
+			}
 			
 			if(super.getWidth()-(highestX + shiftedRightwards) < 200)
+			{
 				extendBorderFromRight100();
+			}
 			
-			if((lowestY+shiftedDownwards)-200 < 0)
+			if((lowestY+shiftedDownwards) < 200)
+			{
 				extendBorderFromTop100();
+			}
 			
 			if(super.getHeight()-(highestY + shiftedDownwards)< 200)
+			{
 				extendBorderFromBottom100();
+			}
 			
+
 			System.out.println("NEXT GEN");
 
 			
@@ -162,10 +170,11 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	int count = 0;
 
-	static List<Thread> workers = new ArrayList<Thread>();
+	public List<Thread> workers = new ArrayList<Thread>();
 
 	public void createWorkers() {
 		for (int i = 0; i < 8; i++) {
+			//determineNextGenOfSector(g++);
 			workers.add(new Thread(() -> {
 				determineNextGenOfSector(g++);
 
@@ -175,7 +184,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
-	int g = 0;
+	volatile int g = 0;
 
 	public void determineNextGenOfSector(int sector) {
 		// System.out.println(sector);
@@ -187,7 +196,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
-	public void runWorkers() throws InterruptedException {
+	public synchronized void runWorkers() throws InterruptedException {
 		for (Thread t : workers) {
 			t.start();
 		}
@@ -197,6 +206,10 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 
 	}
+	
+
+	
+
 	
 
 	@Override
