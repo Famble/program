@@ -153,7 +153,7 @@ public class EditorController implements Initializable {
 				for (int j = 0; j < (board.getHeight() + 1)/64; j++)
 					board.setCellState(i, j, BoardContainer.ACTIVEGENERATION, false);
 
-			board.startNextGeneration();
+			board.nextGenerationConcurrent();
 
 		});
 

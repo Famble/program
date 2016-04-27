@@ -139,7 +139,7 @@ public class Controller implements Initializable {
 				for (int j = 0; j < (gameBoard.getHeight() + 1)/64; j++)
 					gameBoard.setCellState(i-shiftedRightwards, j-shiftedDownwards, BoardContainer.ACTIVEGENERATION, false);
 
-			gameBoard.startNextGeneration();
+			gameBoard.nextGenerationConcurrent();;
 
 		});
 

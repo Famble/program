@@ -34,7 +34,7 @@ public class ExecutionControl extends AnimationTimer {
 	@Override
 	public void handle(long now) {
 		if (now - a > delay) {
-			model.startNextGeneration();
+			model.nextGenerationConcurrent();
 			cd.drawNextGeneration();
 			a = now;
 		}

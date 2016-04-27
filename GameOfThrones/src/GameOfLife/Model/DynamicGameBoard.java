@@ -6,6 +6,10 @@ import java.util.regex.Pattern;
 
 public class DynamicGameBoard extends GameBoard implements Cloneable {
 
+	public enum ExpansionDirection{
+		LEFT, RIGHT, TOP, BOTTOM
+	}
+
 	private List<List<Boolean>> currGeneration;
 	private List<List<Boolean>> nextGeneration;
 	private List<List<Boolean>> activeCells;
@@ -16,129 +20,16 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	private int highestX = 0;
 	private int lowestY = super.getHeight();
 	private int highestY = 0;
-	int j = 0;
+	int boardSector = -1;
+	private final int CPUCORES;
+	int expansionCheckCounter = 0;
+	public List<Thread> workers = new ArrayList<Thread>();
 	
 	
-	public void startNextGeneration() {
-
-		long start = System.currentTimeMillis();
-
-		
-			
-		if (j == 0) {
-			extendBorderFromBottom100();
-			extendBorderFromTop100();
-			extendBorderFromLeft100();
-			extendBorderFromRight100();
-		}
-		j++;
-		count++;
-
-		if (count == 99) {
-			count = 0;
-			
-			if((lowestX+shiftedRightwards) < 200)
-			{
-				extendBorderFromLeft100();
-			}
-			
-			if(super.getWidth()-(highestX + shiftedRightwards) < 200)
-			{
-				extendBorderFromRight100();
-			}
-			
-			if((lowestY+shiftedDownwards) < 200)
-			{
-				extendBorderFromTop100();
-			}
-			
-			if(super.getHeight()-(highestY + shiftedDownwards)< 200)
-			{
-				extendBorderFromBottom100();
-			}
-			
-
-			System.out.println("NEXT GEN");
-
-			
-		}
-		
-		
-		createWorkers();
-		try {
-			runWorkers();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		workers.clear();
-
-
-		g =0;
-		nextGenerationPrintPerformance(start, System.currentTimeMillis());
-		for (int i = 0; i < super.getWidth(); i++) {
-			for (int j = 0; j < super.getHeight(); j++) {
-				this.getCurrGeneration().get(i).set(j, this.getNextGeneration().get(i).get(j));
-				this.getActiveCells().get(i).set(j, this.getNextActiveCells().get(i).get(j));
-
-			}
-		}
-	}
-
-	public Object clone() {
-		DynamicGameBoard DynamicGameBoardCopy = null;
-		DynamicGameBoardCopy = (DynamicGameBoard) super.clone();
-		List<List<Boolean>> currGenCopy = new ArrayList<List<Boolean>>();
-		List<List<Boolean>> nextGenCopy = new ArrayList<List<Boolean>>();
-		List<List<Boolean>> activeGenCopy = new ArrayList<List<Boolean>>();
-		List<List<Boolean>> NextActiveGenCopy = new ArrayList<List<Boolean>>();
-
-		for (int i = 0; i < super.getWidth(); i++) {
-			currGenCopy.add(i, new ArrayList<Boolean>());
-			nextGenCopy.add(i, new ArrayList<Boolean>());
-			activeGenCopy.add(i, new ArrayList<Boolean>());
-			NextActiveGenCopy.add(i, new ArrayList<Boolean>());
-
-			for (int j = 0; j < super.getHeight(); j++) {
-				currGenCopy.get(i).add(j, this.getCurrGeneration().get(i).get(j));
-				nextGenCopy.get(i).add(j, this.getNextGeneration().get(i).get(j));
-				activeGenCopy.get(i).add(j, this.getActiveCells().get(i).get(j));
-				NextActiveGenCopy.get(i).add(j, this.getNextActiveCells().get(i).get(j));
-
-			}
-		}
-
-		DynamicGameBoardCopy.currGeneration = currGenCopy;
-		DynamicGameBoardCopy.nextGeneration = nextGenCopy;
-		DynamicGameBoardCopy.activeCells = activeGenCopy;
-		DynamicGameBoardCopy.nextActiveCells = NextActiveGenCopy;
-
-		return DynamicGameBoardCopy;
-	}
-
-	@Override
-	public void createPattern() {
-
-	}
-
-	public int getShiftedDownwards() {
-		return shiftedDownwards;
-	}
-
-	public void setShiftedDownwards(int shiftedDownwards) {
-		this.shiftedDownwards = shiftedDownwards;
-	}
-
-	public int getShiftedRightwards() {
-		return shiftedRightwards;
-	}
-
-	public void setShiftedRightwads(int shiftedRightwards) {
-		this.shiftedRightwards = shiftedRightwards;
-	}
-
 	public DynamicGameBoard(int x, int y, Rules rules) {
 		super(x, y, rules);
+		
+		CPUCORES = 8;
 
 		currGeneration = new ArrayList<List<Boolean>>(x);
 		nextGeneration = new ArrayList<List<Boolean>>(x);
@@ -161,42 +52,76 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
+	public synchronized void expandGameBoard(int amount, ExpansionDirection ed){
+		switch(ed){
+		case LEFT:
+			extendBorderFromLeft(amount);
+			break;
+		case RIGHT:
+			extendBorderFromRight(amount);
+			break;
+		case TOP:
+			extendBorderFromTop(amount);
+			break;
+		case BOTTOM:
+			extendBorderFromBottom(amount);
+		}
+	}
+	
+
 	public void nextGenerationConcurrent() {
+
+		long start = System.currentTimeMillis();
+
+		createWorkers();
+		
+		try {
+			runWorkers();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		workers.clear();
+		
+		boardSector = -1;
+	
+		for (int i = 0; i < super.getWidth(); i++) {
+			for (int j = 0; j < super.getHeight(); j++) {
+				this.getCurrGeneration().get(i).set(j, this.getNextGeneration().get(i).get(j));
+				this.getActiveCells().get(i).set(j, this.getNextActiveCells().get(i).get(j));
+
+			}
+		}
+		
+		nextGenerationPrintPerformance(start, System.currentTimeMillis());
+
 	}
 
-	{
+	
+
+	@Override
+	public void createPattern() {
 
 	}
-
-	int count = 0;
-
-	public List<Thread> workers = new ArrayList<Thread>();
 
 	public void createWorkers() {
-		for (int i = 0; i < 8; i++) {
-			//determineNextGenOfSector(g++);
+		
+		for (int i = 0; i < CPUCORES; i++) {
 			workers.add(new Thread(() -> {
-				determineNextGenOfSector(g++);
-
+				boardSector++;
+				if(boardSector == CPUCORES-1){
+					determineNextGenerationConcurrent(boardSector*super.getWidth()/8, super.getWidth());
+				}
+				else{
+					determineNextGenerationConcurrent(boardSector*super.getWidth()/8, (boardSector+1)*super.getWidth()/8);
+				}
 			}));
 
 		}
 
 	}
 
-	volatile int g = 0;
-
-	public void determineNextGenOfSector(int sector) {
-		// System.out.println(sector);
-		int widthOfSector = super.getWidth()/8;
-		if (sector == 7)
-			determineNextGeneration(sector * widthOfSector, (sector + 1) * widthOfSector + super.getWidth() % 8);
-		else
-			determineNextGeneration(sector * widthOfSector, (sector + 1) * widthOfSector);
-
-	}
-
-	public synchronized void runWorkers() throws InterruptedException {
+	public void runWorkers() throws InterruptedException {
 		for (Thread t : workers) {
 			t.start();
 		}
@@ -206,24 +131,14 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 
 	}
-	
-
-	
-
-	
 
 	@Override
-	public void determineNextGeneration(int start, int end) {
+	public void determineNextGenerationConcurrent(int sectorStart, int sectorEnd) {
 		int aliveNeighbors;
-		
-	
-		for (int x = -shiftedRightwards+start; x < end-shiftedRightwards; x++) {
-			for (int y = - shiftedDownwards; y < super.getHeight()- shiftedDownwards; y++) {
+
+		for (int x = -shiftedRightwards + sectorStart; x < sectorEnd - shiftedRightwards; x++) {
+			for (int y = -shiftedDownwards; y < super.getHeight() - shiftedDownwards; y++) {
 				if (this.getCellState(x, y, BoardContainer.ACTIVEGENERATION)) {
-					lowestX = Math.min(x, lowestX);
-					highestX = Math.max(x, highestX);
-					lowestY = Math.min(y, lowestY);
-					highestY = Math.max(y, highestY);
 					for (int i = -1; i <= 1; i++)
 						for (int j = -1; j <= 1; j++) {
 							aliveNeighbors = countNeighbours(x + i, y + j);
@@ -476,19 +391,19 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	public void setCellState(int x, int y, BoardContainer container, boolean alive) {
 
 		if (x + shiftedRightwards < 0) {
-			extendBorderFromLeft(Math.abs(x + shiftedRightwards));
+			expandGameBoard((Math.abs(x + shiftedRightwards)), ExpansionDirection.LEFT);
 		}
 
 		if (x + shiftedRightwards >= this.getWidth()) {
-			extendBorderFromRight(x + shiftedRightwards);
+			expandGameBoard(x + shiftedRightwards, ExpansionDirection.RIGHT);
 		}
 
 		if (y + shiftedDownwards < 0) {
-			extendBorderFromTop(Math.abs(y + shiftedDownwards));
+			expandGameBoard((Math.abs(y + shiftedDownwards)), ExpansionDirection.TOP);
 		}
 
 		if (y + shiftedDownwards >= this.getHeight()) {
-			extendBorderFromBottom(y + shiftedDownwards);
+			expandGameBoard(y+ shiftedDownwards, ExpansionDirection.BOTTOM);
 		}
 
 		List<List<Boolean>> cells = getArrayList(container);
@@ -497,7 +412,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	}
 
 	public void nextGenerationPrintPerformance(long start, long end) {
-		System.out.printf("Time elapsed(ms): %d)\n", (end - start));
+		//System.out.printf("Time elapsed(ms): %d)\n", (end - start));
 	}
 
 	public void nextGenerationConcurrentPrintPerformance() {
@@ -507,20 +422,21 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	public boolean getCellState(int x, int y, BoardContainer container) {
 		{
 			if (x + shiftedRightwards < 0) {
-				extendBorderFromLeft(Math.abs((x + shiftedRightwards)));
+				expandGameBoard((Math.abs(x + shiftedRightwards)), ExpansionDirection.LEFT);
 			}
 
 			if (x + shiftedRightwards >= this.getWidth()) {
-				extendBorderFromRight(x + shiftedRightwards);
+				expandGameBoard(x + shiftedRightwards, ExpansionDirection.RIGHT);
 			}
 
 			if (y + shiftedDownwards < 0) {
-				extendBorderFromTop(Math.abs(y + shiftedDownwards));
+				expandGameBoard((Math.abs(y + shiftedDownwards)), ExpansionDirection.TOP);
 			}
 
 			if (y + shiftedDownwards >= this.getHeight()) {
-				extendBorderFromBottom(y + shiftedDownwards);
+				expandGameBoard(y+ shiftedDownwards, ExpansionDirection.BOTTOM);
 			}
+
 
 			List<List<Boolean>> cells = getArrayList(container);
 
@@ -605,6 +521,58 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 			}
 		}
 
+	}
+
+	public int getShiftedDownwards() {
+		return shiftedDownwards;
+	}
+
+	public void setShiftedDownwards(int shiftedDownwards) {
+		this.shiftedDownwards = shiftedDownwards;
+	}
+
+	public int getShiftedRightwards() {
+		return shiftedRightwards;
+	}
+
+	public void setShiftedRightwads(int shiftedRightwards) {
+		this.shiftedRightwards = shiftedRightwards;
+	}
+
+	@Override
+	public void nextGeneration() {
+		// TODO Auto-generated method stub
+		
+	}
+	public Object clone() {
+		DynamicGameBoard DynamicGameBoardCopy = null;
+		DynamicGameBoardCopy = (DynamicGameBoard) super.clone();
+		List<List<Boolean>> currGenCopy = new ArrayList<List<Boolean>>();
+		List<List<Boolean>> nextGenCopy = new ArrayList<List<Boolean>>();
+		List<List<Boolean>> activeGenCopy = new ArrayList<List<Boolean>>();
+		List<List<Boolean>> NextActiveGenCopy = new ArrayList<List<Boolean>>();
+
+		for (int i = 0; i < super.getWidth(); i++) {
+			currGenCopy.add(i, new ArrayList<Boolean>());
+			nextGenCopy.add(i, new ArrayList<Boolean>());
+			activeGenCopy.add(i, new ArrayList<Boolean>());
+			NextActiveGenCopy.add(i, new ArrayList<Boolean>());
+
+			for (int j = 0; j < super.getHeight(); j++) {
+				currGenCopy.get(i).add(j, this.getCurrGeneration().get(i).get(j));
+				nextGenCopy.get(i).add(j, this.getNextGeneration().get(i).get(j));
+				activeGenCopy.get(i).add(j, this.getActiveCells().get(i).get(j));
+				NextActiveGenCopy.get(i).add(j, this.getNextActiveCells().get(i).get(j));
+
+			}
+		}
+
+		DynamicGameBoardCopy.currGeneration = currGenCopy;
+		DynamicGameBoardCopy.nextGeneration = nextGenCopy;
+		DynamicGameBoardCopy.activeCells = activeGenCopy;
+		DynamicGameBoardCopy.nextActiveCells = NextActiveGenCopy;
+
+		return DynamicGameBoardCopy;
 	}
 
 }

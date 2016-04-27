@@ -66,7 +66,7 @@ public class StripDrawer extends CanvasDrawer{
 			stripHeight = Math.max(stripHeight, pattern.getHeight()*cellSize);
 			tx+= 20 + cellSize*pattern.getWidth();
 			stripWidth+=tx;
-			stripModel.startNextGeneration();
+			stripModel.nextGenerationConcurrent();;
 			setPattern(stripModel);
 			pattern = stripModel.getPattern();
 			pattern.trim();
