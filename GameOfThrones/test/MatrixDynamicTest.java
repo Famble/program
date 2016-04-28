@@ -11,6 +11,37 @@ import GameOfLife.Model.GameBoard.BoardContainer;
 
 public class MatrixDynamicTest {
 
+	
+	@Test
+	public void enlargeRightAndLeft(){
+		Rules rules = new Rules();
+		DynamicGameBoard dynamicBoard = new DynamicGameBoard(7,3, rules);
+		dynamicBoard.setExpansionPadding(0);
+		
+		//glider going left and right
+		boolean[][] board = { 
+				{true, true, true},
+				{true, false, false},
+				{false, true, false},
+				{false, false, false},
+				{false, true, false},
+				{false, false, true},
+				{true, true, true}
+		};
+		
+		String expectedResult = "000000000011000100110000011001000110000000000";	
+		
+		
+		dynamicBoard.setBoard(board);
+		dynamicBoard.nextGenerationConcurrent();
+		
+		System.out.println();
+
+		org.junit.Assert.assertEquals(dynamicBoard.toString(), expectedResult);
+	}
+	
+	
+	
 	@Test
 	public void TestEnlargeToLeft() {
 		Rules rules = new Rules();
@@ -26,12 +57,11 @@ public class MatrixDynamicTest {
 		};
 		
 		
-		String expectedResult = "000000"
-				+				"000000"
-				+ 				"001100"
-				+ 				"001100"
-				+ 				"000000"
-				+               "000000";
+		String expectedResult =
+								"0000"
+				+ 				"0110"
+				+ 				"0110"
+				+ 				"0000";
 		
 		
 		dynamicBoard.setBoard(board);
@@ -44,6 +74,9 @@ public class MatrixDynamicTest {
 		org.junit.Assert.assertEquals(dynamicBoard.toString(), expectedResult );
 
 	}
+	
+	
+	
 	
 	
 }
