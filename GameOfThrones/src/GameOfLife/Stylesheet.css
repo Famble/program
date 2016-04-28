@@ -27,7 +27,7 @@
 }
 
 .color-picker{
-	
+	     -fx-color: blue;
 	-fx-background-color: 
         #000000,
         linear-gradient(#7ebcea, #2f4b8f),
@@ -44,4 +44,11 @@
 
 #HBoxLower {
 	-fx-background-image: url("HBoxLower.png");
+	-fx-background-repeat:no-repeat;
+	-fx-background-position:center;
 }
+
+
+
+
+

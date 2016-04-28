@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.canvas.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <?import java.lang.String?>
 <?import javafx.collections.FXCollections?>
-<?import javafx.collections.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
@@ -24,7 +18,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="vBoxRoot" onKeyPressed="#keyListener" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameOfLife.Controller.Controller">
+<VBox fx:id="vBoxRoot" onKeyPressed="#keyListener" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameOfLife.Controller.Controller">
    <children>
       <MenuBar VBox.vgrow="NEVER">
         <menus>
@@ -115,7 +109,7 @@
                      </VBox.margin>
                   </Button>   
                   
-                  <Button mnemonicParsing="false" onAction="#handleResetClick" prefHeight="90.0" prefWidth="90.0" text="Reset">
+                  <Button mnemonicParsing="false" onAction="#handleResetClick" prefHeight="90.0" prefWidth="90.0" text="Respec">
                   	<VBox.margin>
                         <Insets left="30.0" top="10.0" />
                      </VBox.margin>
@@ -158,8 +152,8 @@
                      </VBox.margin>
                    </Button>
                    
-                  <Button mnemonicParsing="false" text="Save" prefHeight="31.0" prefWidth="153.0" />
-                  <Button mnemonicParsing="false" text="Load" prefHeight="31.0" prefWidth="153.0" />
+                  <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="153.0" text="Save" />
+                  <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="153.0" text="Load" />
                   
                </children></VBox>
          </children>
