@@ -195,7 +195,7 @@ public class CanvasDrawer {
 		gc.fillRect(0, 0, windowWidth, windowHeight);
 		gc.setStroke(Color.GRAY);
 		
-			gc.strokeRect(-this.getCanvasDisplacedX()-shiftedRightwards, -this.canvasDisplacedY-shiftedDownwards, model.getWidth() * cellSize,
+			gc.strokeRect(-this.getCanvasDisplacedX()-(shiftedRightwards*cellSize), -this.canvasDisplacedY-(shiftedDownwards*cellSize), model.getWidth() * cellSize,
 					model.getHeight() * cellSize);
 
 

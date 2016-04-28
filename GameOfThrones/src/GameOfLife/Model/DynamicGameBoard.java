@@ -325,8 +325,8 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	}
 
 	//assumes board has the same dimensions as gameboard
-	public <T>void setBoard(T element) {
-		boolean[][] board = (boolean[][])element;
+	public <T>void setBoard(boolean[][] element) {
+		boolean[][] board = element;
 		for(int x = 0; x < super.getWidth(); x++){
 			for(int y = 0; y < super.getHeight(); y++){
 				if(board[x][y]){
@@ -372,20 +372,20 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	public boolean getCellState(int x, int y, BoardContainer container) {
 		{
 			if (x + shiftedRightwards >= this.getWidth()) {
-				extendBorderFromRight(( 1 + x + shiftedRightwards)-this.getWidth());
+				return false; //hvis du er utenfor brettet er den alltid false;
 			}
 			
 			if (x + shiftedRightwards < 0) {
-				extendBorderFromLeft(Math.abs(x+shiftedRightwards));
+				return false;
 			}
 
 
 			if (y + shiftedDownwards < 0) {
-				extendBorderFromTop(Math.abs(y + shiftedDownwards));
+				return false;
 			}
 
 			if (y + shiftedDownwards >= this.getHeight()) {
-				extendBorderFromBottom((1 + y + shiftedDownwards) - this.getHeight());
+				return false;
 			}
 
 			ArrayList<ArrayList<Boolean>> cells = getArrayList(container);
