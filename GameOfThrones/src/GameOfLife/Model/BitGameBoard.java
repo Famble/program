@@ -330,4 +330,25 @@ public class BitGameBoard extends GameBoard {// test
 		
 	}
 
+
+	@Override
+	public void nextGeneration() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void nextGenerationConcurrent() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void determineNextGenerationConcurrent(int x, int y) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

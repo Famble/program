@@ -141,11 +141,17 @@ public class CanvasDrawer {
 	}
 
 	public void clearCanvas() {
+		int shiftedRightwards = 0;
+		int shiftedDownwards = 0;
+		if (model instanceof DynamicGameBoard) {
+			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
+			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
+		}
 		gc.setFill(Color.BLACK);
 		gc.fillRect(0, 0, windowWidth, windowHeight);
 		gc.setStroke(Color.GRAY);
-		if (this.model instanceof BitGameBoard)
-			gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth() * cellSize,
+		
+			gc.strokeRect(-this.getCanvasDisplacedX()-shiftedRightwards, -this.canvasDisplacedY-shiftedDownwards, model.getWidth() * cellSize,
 					model.getHeight() * cellSize);
 
 	}
@@ -184,13 +190,21 @@ public class CanvasDrawer {
 			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
 			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
 		}
+		
+		gc.setFill(Color.BLACK);
+		gc.fillRect(0, 0, windowWidth, windowHeight);
+		gc.setStroke(Color.GRAY);
+		
+			gc.strokeRect(-this.getCanvasDisplacedX()-shiftedRightwards, -this.canvasDisplacedY-shiftedDownwards, model.getWidth() * cellSize,
+					model.getHeight() * cellSize);
+
 
 		gc.setFill(model.getColor());
-		for (int x = 0; x < model.getWidth(); x++)
-			for (int y = 0; y < model.getHeight(); y++) {
-				if (model.getCellState(x-shiftedRightwards, y-shiftedDownwards, BoardContainer.CURRENTGENERATION)) {
-					gc.fillOval(cellSize * (x - shiftedRightwards) - canvasDisplacedX,
-							cellSize * (y - shiftedDownwards) - canvasDisplacedY, cellSize, cellSize);
+		for (int x = -shiftedRightwards; x < model.getWidth()-shiftedRightwards; x++)
+			for (int y =  - shiftedDownwards; y < model.getHeight()-shiftedDownwards; y++) {
+				if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
+					gc.fillOval(cellSize * (x) - canvasDisplacedX,
+							cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
 				}
 
 			}

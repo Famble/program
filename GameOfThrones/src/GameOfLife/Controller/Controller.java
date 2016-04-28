@@ -86,7 +86,7 @@ public class Controller implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 
 		rules = new Rules();
-		gameBoard = new DynamicGameBoard(100, (100), rules);
+		gameBoard = new DynamicGameBoard(10, (10), rules);
 
 		cd = new CanvasDrawer(gameBoard, canvas.getGraphicsContext2D());
 

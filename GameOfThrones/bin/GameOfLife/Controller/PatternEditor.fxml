@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="vBoxRoot" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameOfLife.Controller.EditorController">
+   <children>
+      <MenuBar VBox.vgrow="NEVER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="openFile" mnemonicParsing="false" text="Open" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <HBox spacing="10.0" style="-fx-background-color: white;">
+         <children>
+            <Label text="Survival:">
+               <HBox.margin>
+                  <Insets top="6.0" />
+               </HBox.margin>
+            </Label>
+            <TextField fx:id="survival" prefHeight="26.0" prefWidth="76.0" text="23">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </TextField>
+            <Label layoutX="10.0" layoutY="28.0" text="Birth:">
+               <HBox.margin>
+                  <Insets top="6.0" />
+               </HBox.margin>
+            </Label>
+            <TextField fx:id="birth" layoutX="87.0" layoutY="23.0" prefHeight="26.0" prefWidth="76.0" text="3">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </TextField>
+            <ComboBox fx:id="comboBox" layoutX="15.0" layoutY="33.0" maxWidth="-Infinity" minHeight="-Infinity" prefWidth="190.0" promptText="Conway's Life">
+		      <items>
+		        <FXCollections fx:factory="observableArrayList">
+		          <String fx:value="2x2" />
+		          <String fx:value="34Life" />
+		          <String fx:value="Amoeba" />
+		          <String fx:value="Assimilation" />
+		          <String fx:value="Coagulations" />
+		          <String fx:value="Conway's Life" />
+		          <String fx:value="Coral" />
+		          <String fx:value="Day and Night" />
+		          <String fx:value="Diamoeba" />
+		          <String fx:value="Dot Life" />
+		          <String fx:value="Dry Life" />  
+		          <String fx:value="Fredkin" />
+		          <String fx:value="Seeds" />       
+		          <String fx:value="High Life" />
+		          <String fx:value="Life Without Death" />    
+		          <String fx:value="Live Free or Die" />
+		          <String fx:value="Long Life" />  
+		          <String fx:value="Maze" />
+		          <String fx:value="Mazectric" />
+		          <String fx:value="Move" />  
+		          <String fx:value="Pseudo Life" />
+		          <String fx:value="Serviettes" />
+		          <String fx:value="Serviettes" />  
+		          <String fx:value="Stains" />
+		          <String fx:value="Vote4/5" />
+		          <String fx:value="Vote" />  
+		          <String fx:value="Gnarl" />
+		          <String fx:value="Replicator" />
+		          <String fx:value="WalledCities" />		          
+		        </FXCollections>
+		      </items>
+		     </ComboBox>
+            <Label fx:id="amountOfCells" style="-fx-font-family: Consolas;">
+               <HBox.margin>
+                  <Insets top="5.0" />
+               </HBox.margin>
+            </Label>
+            <ToggleButton fx:id="drawDrag" mnemonicParsing="false" selected="true" text="Draw" />
+            <Region maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="103.0" />
+         </children></HBox>
+      <HBox fx:id="canvasParent" minHeight="10.0" minWidth="10.0" onKeyReleased="#drawStrip" onMouseClicked="#drawStrip" onMouseDragged="#mouseDragged" prefHeight="400.0" style="-fx-background-color: black;" VBox.vgrow="ALWAYS">
+         <children>
+            <Canvas fx:id="canvas" height="10.0" nodeOrientation="INHERIT" onMouseClicked="#mouseClicked" onMouseEntered="#handleMouseEntered" onMousePressed="#handleMouseEntered" onMouseReleased="#handleMouseEntered" onScroll="#handleZoom" width="10.0" />
+            <VBox maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="250.0" style="-fx-background-color: #e9e9e9;">
+               <children>
+                  <Label alignment="CENTER" prefHeight="47.0" prefWidth="298.0" text="Pattern Data">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <TextField promptText="Name">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField promptText="Author">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField promptText="Description">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField promptText="Rules">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField promptText="Position">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TextField>
+                  <Button mnemonicParsing="false" onAction="#handleSavePattern" prefHeight="58.0" prefWidth="257.0" text="Save Pattern" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <ScrollPane fx:id="scrollPane" hbarPolicy="ALWAYS" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="200.0" prefWidth="5000.0" vbarPolicy="NEVER">
+        <content>
+          <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="0.0" prefHeight="400.0" prefWidth="5000.0">
+               <children>
+                  <Canvas fx:id="stripCanvas" height="300.0" width="5000.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+               </children></AnchorPane>
+        </content>
+      </ScrollPane>
+   </children>
+</VBox>

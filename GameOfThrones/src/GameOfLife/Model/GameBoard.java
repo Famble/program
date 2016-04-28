@@ -41,6 +41,10 @@ public abstract class GameBoard implements Cloneable
 		return this.pattern;
 	}
 	
+	public <T> void setBoard(T element){
+		
+	}
+	
 	public abstract void createPattern();
 	
 	public abstract void transferPattern(int startX, int startY);
