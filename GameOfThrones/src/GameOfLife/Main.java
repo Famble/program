@@ -30,6 +30,7 @@ public class Main extends Application {
 		VBox root = (VBox)loader.load();
 		Controller controller = loader.getController();
 		Scene scene = new Scene(root, 1000, 700);
+		scene.getStylesheets().add(getClass().getResource("Stylesheet.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		controller.setDimensions();

@@ -62,10 +62,6 @@ public class Controller implements Initializable {
 	@FXML
 	private ColorPicker colorPicker;
 	@FXML
-	private Label amountOfCells;
-	@FXML
-	private Label position;
-	@FXML
 	Rules rules;
 	@FXML
 	
@@ -86,7 +82,7 @@ public class Controller implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 
 		rules = new Rules();
-		gameBoard = new DynamicGameBoard(10, (10), rules);
+		gameBoard = new DynamicGameBoard(100, (100), rules);
 
 		cd = new CanvasDrawer(gameBoard, canvas.getGraphicsContext2D());
 
@@ -143,9 +139,6 @@ public class Controller implements Initializable {
 
 		});
 
-		amountOfCells.setText(String.format("%d Million Cells",
-				((int) gameBoard.getWidth() * gameBoard.getHeight() / (int) Math.pow(10, 6))));
-		position.setText(String.format("(x, y): (%d,%d)", cd.getCanvasDisplacedX(), cd.getCanvasDisplacedY()));
 
 		cd.clearCanvas();
 		
@@ -249,10 +242,6 @@ public class Controller implements Initializable {
 			cd.movePosition(offsetX - (int) event.getX(), offsetY - (int) event.getY());
 			offsetX = (int) event.getX();
 			offsetY = (int) event.getY();
-			
-			position.setText(
-					String.format("(x, y): (%d,%d)", (int) cd.getCanvasDisplacedX(), (int) cd.getCanvasDisplacedY()));
-
 		} else {
 			mouseClicked(event, drawDrag.isSelected());
 		}
