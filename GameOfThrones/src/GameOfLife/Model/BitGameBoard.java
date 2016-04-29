@@ -44,7 +44,7 @@ public class BitGameBoard extends GameBoard {// test
 
 	}
 
-	public void startNextGeneration() {
+	public void nextGenerationConcurrent() {
 		determineNextGeneration();
 
 		for (int x = 0; x < super.getWidth(); x++) {
@@ -57,8 +57,8 @@ public class BitGameBoard extends GameBoard {// test
 
 	public void determineNextGeneration() {
 
-		int aliveNeighbours;
-
+		int aliveNeighbors = 0;
+		
 		for (int x = 0; x < super.getHeight(); x++) {
 			for (int y = 0; y < this.yDiv64; y++) {
 
@@ -66,8 +66,26 @@ public class BitGameBoard extends GameBoard {// test
 					int j = y * 64;
 					for (int bit = 0; bit < 64; bit++) {
 						if (getCellState(x, j + bit, BoardContainer.ACTIVEGENERATION)) {
-							aliveNeighbours = countNeighbours(x, j + bit, true);
-							setCellStateFromRules(x, j + bit, aliveNeighbours);
+							for (int i = -1; i <= 1; i++)
+								for (int k = -1; k <= 1; k++) {
+									int xToCheck = x + i;
+									int yToCheck = j+bit+k;
+									
+									if (xToCheck >= super.getWidth()) {
+										xToCheck %= super.getWidth();
+									} else if (xToCheck == -1) {
+										xToCheck = super.getWidth() - 1;
+									}
+									if (yToCheck >= super.getHeight()) {
+										yToCheck %= super.getHeight();
+									} else if (yToCheck == -1) {
+										yToCheck = super.getHeight() - 1;
+
+									}
+									aliveNeighbors = countNeighbours(xToCheck, yToCheck);
+									setCellStateFromRules(xToCheck, yToCheck, aliveNeighbors);
+								}
+							
 						}
 					}
 				}
@@ -76,7 +94,7 @@ public class BitGameBoard extends GameBoard {// test
 
 	}
 
-	public int countNeighbours(int x, int y, boolean countNeighbors) {
+	public int countNeighbours(int x, int y) {
 		int aliveNeighbours = 0;
 		int neighborX;
 		int neighborY;
@@ -88,25 +106,23 @@ public class BitGameBoard extends GameBoard {// test
 					neighborX = x + i;
 					neighborY = y + j;
 
-					if (neighborX == super.getWidth()) {
+					
+					if (neighborX >= super.getWidth()) {
 						neighborX %= super.getWidth();
 					} else if (neighborX == -1) {
 						neighborX = super.getWidth() - 1;
 					}
-					if (neighborY == super.getHeight()) {
+					if (neighborY >= super.getHeight()) {
 						neighborY %= super.getHeight();
 					} else if (neighborY == -1) {
 						neighborY = super.getHeight() - 1;
 
 					}
+					
 
 					if (getCellState(neighborX, neighborY, BoardContainer.CURRENTGENERATION)) {
 						aliveNeighbours++;
 					}
-					if (countNeighbors) {
-						setCellStateFromRules(neighborX, neighborY, countNeighbours(neighborX, neighborY, false));
-					}
-
 				}
 			}
 
@@ -293,11 +309,6 @@ public class BitGameBoard extends GameBoard {// test
 
 	}
 
-	@Override
-	public int countNeighbours(int x, int y) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	/*
 	 * @Override public void determineNextGeneration(int x, int y) { // TODO
@@ -308,15 +319,11 @@ public class BitGameBoard extends GameBoard {// test
 
 	@Override
 	public void nextGeneration() {
-		// TODO Auto-generated method stub
+		nextGenerationConcurrent();
 
 	}
 
-	@Override
-	public void nextGenerationConcurrent() {
-		// TODO Auto-generated method stub
-
-	}
+	
 
 	/*
 	 * @Override public void determineNextGenerationConcurrent(int x, int y) {

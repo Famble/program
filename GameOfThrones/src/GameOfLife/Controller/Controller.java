@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import GameOfLife.FileHandler;
 import GameOfLife.RleInterpreter;
+import GameOfLife.Model.BitGameBoard;
 import GameOfLife.Model.DynamicGameBoard;
 import GameOfLife.Model.GameBoard;
 import GameOfLife.Model.GameBoard.BoardContainer;

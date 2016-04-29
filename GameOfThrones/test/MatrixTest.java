@@ -17,7 +17,7 @@ public class MatrixTest {
 	public void testStartNextGeneration() {
 
 		model.setBoard(board);
-		model.startNextGeneration();
+		model.nextGeneration();
 		assertEquals(model.toString(), "0000011001100000");
 
 	}
