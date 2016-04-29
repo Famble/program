@@ -31,16 +31,20 @@ public class RleInterpreter {
 	private boolean dynamic;
 
 	/**
-	 * Reads the file and the sets the Meta data and the game board logic.
-	 *Sets
+	 * Reads the file and the sets the Meta data and the game board logic. Sets
 	 *
-	 * @param rleFile A string of a file that will be parsed.
-	 * @param gameBoardWidth An int value of the <b>width</b> to the current game board.
-	 * @param gameBoardHeight An int value of the <b>height</b> to the current game board.
-	 * @param dynamic Boolean value that tells the parses if the board if dynamic.
+	 * @param rleFile
+	 *            A string of a file that will be parsed.
+	 * @param gameBoardWidth
+	 *            An int value of the <b>width</b> to the current game board.
+	 * @param gameBoardHeight
+	 *            An int value of the <b>height</b> to the current game board.
+	 * @param dynamic
+	 *            Boolean value that tells the parses if the board if dynamic.
 	 * @throws PatternFormatException
-     */
-	public RleInterpreter(String rleFile, int gameBoardWidth, int gameBoardHeight, boolean dynamic) throws PatternFormatException{
+	 */
+	public RleInterpreter(String rleFile, int gameBoardWidth, int gameBoardHeight, boolean dynamic)
+			throws PatternFormatException {
 		this.rleString = rleFile;
 		this.gameBoardHeight = gameBoardHeight;
 		this.gameBoardWidth = gameBoardWidth;
@@ -51,12 +55,11 @@ public class RleInterpreter {
 
 	}
 
-
 	/**
 	 * Locates the meat data for the file, as Name and Comment of the file.
 	 *
 	 * @throws PatternFormatException
-     */
+	 */
 	private void readHeader() {
 
 		Pattern regex = Pattern.compile("^#([N|C|O|P|R])\\s*(\\w.*)$", Pattern.MULTILINE);
@@ -65,23 +68,24 @@ public class RleInterpreter {
 		while (matcher.find()) {
 			if (matcher.group(1).equalsIgnoreCase("N")) {
 				name = matcher.group(2);
-				testHeader.append("#N ").append(name).append("\n");
-				
+
 			} else if (matcher.group(1).equalsIgnoreCase("C")) {
 				comment = matcher.group(2);
 				description.append(comment).append("\n");
-				testHeader.append("#C ").append(comment).append("\n");
 			}
 
 		}
 	}
 
 	/**
-	 * Locates and determinate the the dimension and rule of the pattern in the file.
+	 * Locates and determinate the the dimension and rule of the pattern in the
+	 * file.
 	 *
-	 * @throws PatternFormatException checks if width and height of the pattern is less that width and height of game board
-     */
-	private void readDimensionAndRule() throws PatternFormatException{
+	 * @throws PatternFormatException
+	 *             checks if width and height of the pattern is less that width
+	 *             and height of game board
+	 */
+	private void readDimensionAndRule() throws PatternFormatException {
 
 		Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*[0-9]*/[A-Za-z]*[0-9]*))",
 				Pattern.MULTILINE);
@@ -92,45 +96,38 @@ public class RleInterpreter {
 			if (rleString.charAt(i) == ' ')
 				amountOfSpaces++;
 
-		
 		matcher = regex.matcher(this.rleString.replaceAll(" ", ""));
 
 		while (matcher.find()) {
 			this.width = Integer.parseInt(matcher.group(1));
 			this.height = Integer.parseInt(matcher.group(2));
-			
-			if(this.width > gameBoardWidth &&  !dynamic) {
-				throw new PatternFormatException(String.format("Max width of the gameboard is %d, the pattern provided"
-						+ "in the rle file has %d width", this.gameBoardWidth, this.gameBoardHeight));
-			}
-			else if(this.height > this.gameBoardHeight && !dynamic) {
-				throw new PatternFormatException(String.format("Max height of the gameboard is %d, the pattern provided"
-						+ "in the rle file has %d height", this.gameBoardWidth, this.gameBoardHeight));
+
+			if (this.width > gameBoardWidth && !dynamic) {
+				throw new PatternFormatException(String.format(
+						"Max width of the gameboard is %d, the pattern provided" + "in the rle file has %d width",
+						this.gameBoardWidth, this.gameBoardHeight));
+			} else if (this.height > this.gameBoardHeight && !dynamic) {
+				throw new PatternFormatException(String.format(
+						"Max height of the gameboard is %d, the pattern provided" + "in the rle file has %d height",
+						this.gameBoardWidth, this.gameBoardHeight));
 			}
 
 			this.ruleString = matcher.group(3).replaceAll("[^/0-9]", "");
 			lastIndexOfHeader = matcher.end() + amountOfSpaces;
 		}
 
-		testDimensionAndRule
-				.append("x = ")
-				.append(this.width)
-				.append(", y = ")
-				.append(this.height)
-				.append(", rule = ")
-				.append(this.ruleString)
-				.append("\n");
-
-
+		testDimensionAndRule.append("x = ").append(this.width).append(", y = ").append(this.height).append(", rule = ")
+				.append(this.ruleString).append("\n");
 	}
 
 	/**
-	 *Locates and determines the <b>pattern</b> of the game, inside the file.
+	 * Locates and determines the <b>pattern</b> of the game, inside the file.
 	 *
-	 * @throws PatternFormatException checks if its a mismatch between height/width
-	 * of the game boardand with the width/height to the given pattern.
-     */
-	private void readGameBoard() throws PatternFormatException{
+	 * @throws PatternFormatException
+	 *             checks if it's a mismatch between height/width of the game
+	 *             board and with the width/height to the given pattern.
+	 */
+	private void readGameBoard() throws PatternFormatException {
 		this.initialRleGeneration = new boolean[width][height];
 
 		String rlePattern[] = this.rleString.substring(lastIndexOfHeader).split("\\$");
@@ -138,38 +135,30 @@ public class RleInterpreter {
 		int aliveCells;
 		int deadCells;
 		int x = 0;
-		String deadSymbol = "b"; // dead Cell
-		String aliveSymbol = "o"; // alive Cell
-		
-		System.out.println(this.getHeight());
-		System.out.println(rlePattern.length);
-		
-		if(this.getHeight() < rlePattern.length)
+		String deadSymbol; // dead Cell
+		String aliveSymbol; // alive Cell
+
+		if (this.getHeight() < rlePattern.length)
 			throw new PatternFormatException("Mismatch between given height dimension and actual height in pattern");
 
 		for (int y = 0; y < rlePattern.length; y++) {
 			pattern = Pattern.compile("([0-9]*)([A-Za-z])");
 			matcher = pattern.matcher(rlePattern[y]);
 			while (matcher.find()) {
-				
-				
 
-				if (matcher.group(2).equals("b")) // dead cells
-				{
+				if (matcher.group(2).equals("b")) { // dead cells
 					if (matcher.group(1).matches("[0-9]+")) {
 						deadSymbol = matcher.group(1);
 						deadCells = Integer.parseInt(deadSymbol);
-						testGameBoard.append(deadSymbol);//test
+						testGameBoard.append(deadSymbol).append("b");// test
 					} else {
 						deadCells = 1;
+						testGameBoard.append("b");
 					}
 
-					if (!(testGameBoard.charAt(testGameBoard.length() - 1) == 'b')) { //test
-						testGameBoard.append(deadSymbol);
-					}
-					
-					if( x+deadCells > this.getWidth())
-						throw new PatternFormatException("Mismatch between given width dimension and actual width in pattern");
+					if (x + deadCells > this.getWidth())
+						throw new PatternFormatException(
+								"Mismatch between given width dimension and actual width in pattern");
 
 					for (int i = 0; i < deadCells; i++) {
 						this.initialRleGeneration[x + i][y] = false;
@@ -182,20 +171,18 @@ public class RleInterpreter {
 					if (matcher.group(1).matches("[0-9]+")) {
 						aliveSymbol = matcher.group(1);
 						aliveCells = Integer.parseInt(aliveSymbol);
-						testGameBoard.append(aliveSymbol);
+						testGameBoard.append(aliveSymbol).append("o");
 					} else {
 						aliveCells = 1;
+						testGameBoard.append("o");
 					}
 
-					if (!(testGameBoard.charAt(testGameBoard.length() - 1) == 'o')) {
-						testGameBoard.append(aliveSymbol);
-					}
-					
-					if( x+aliveCells > this.getWidth())
-						throw new PatternFormatException("Mismatch between given width dimension and actual width in pattern");
-					
+					if (x + aliveCells > this.getWidth())
+						throw new PatternFormatException(
+								"Mismatch between given width dimension and actual width in pattern");
+
 					for (int i = 0; i < aliveCells; i++) {
-						this.initialRleGeneration[x+ i][y] = true;
+						this.initialRleGeneration[x + i][y] = true;
 					}
 
 					x += aliveCells;
@@ -206,30 +193,26 @@ public class RleInterpreter {
 					for (int i = 0; i < remainingCells; i++)
 						this.initialRleGeneration[x + i][y] = false;
 				}
-				
-				
 
-			}
-			
+			} //end of while((matcher.find())
+
 			x = 0;
-
-
-			if (rlePattern[y].charAt(rlePattern[y].length() - 1) == '!') {
-				System.out.println("test");
+			if( (rlePattern[y].charAt(rlePattern[y].length() - 1) == '!') ){
 				testGameBoard.append("!");
 				break;
+			}else {
+				testGameBoard.append("$");
+				
 			}
-			
-			
-		}
-		
-		
-		
-	}
+
+		} // end of for-loop
+
+	} // end of readBoard
+
 	public String getTestHeader() {
 		return testHeader.toString();
 	}
-	
+
 	public String getTestDimensionAndRule() {
 		return testDimensionAndRule.toString();
 	}
@@ -241,7 +224,7 @@ public class RleInterpreter {
 	/**
 	 * Returns a String of the whole file.
 	 *
-     */
+	 */
 	@Override
 	public String toString() {
 
@@ -255,7 +238,6 @@ public class RleInterpreter {
 	public String getName() {
 		return name;
 	}
-
 
 	public int getHeight() {
 		return height;
@@ -277,7 +259,7 @@ public class RleInterpreter {
 		return pattern;
 	}
 
-	public String  getDescription() {
+	public String getDescription() {
 		return description.toString();
 	}
 }

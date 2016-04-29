@@ -11,7 +11,7 @@ public class MatrixTest
 {
 
     @Test
-    public void testDetermineNextGeneration()
+    public void testStartNextGeneration()
     {
 	
 	
