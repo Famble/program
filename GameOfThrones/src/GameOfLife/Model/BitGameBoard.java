@@ -14,40 +14,35 @@ public class BitGameBoard extends GameBoard {// test
 	private long[][] newActiveCells;
 	public int yDiv64;
 	private int yMod64;
-	Map<String,boolean[][]>hmap = new HashMap <>();
-	
-	
+	Map<String, boolean[][]> hmap = new HashMap<>();
+
 	public BitGameBoard(int x, int y, Rules rules) {
 		super(x, y, rules);
-		
+
 		this.yDiv64 = (y / 64) + 1;
 		this.yMod64 = y % 64;
 		CurrGeneration = new long[x][yDiv64];
 		nextGeneration = new long[x][yDiv64];
 		activeCells = new long[x][yDiv64];
 		newActiveCells = new long[x][yDiv64];
-		
+
 	}
 
-
-	public void setActiveCellState(int x, int y, boolean alive)
-	{
-		if(alive)
-			this.getActiveCells()[x][y/64] |= (1L << y % 64);
+	public void setActiveCellState(int x, int y, boolean alive) {
+		if (alive)
+			this.getActiveCells()[x][y / 64] |= (1L << y % 64);
 		else
-			this.getActiveCells()[x][y/64] &= ~(1L << y % 64);
+			this.getActiveCells()[x][y / 64] &= ~(1L << y % 64);
 
 	}
-	
-	public void setNextGenActiveCellState(int x, int y, boolean alive)
-	{
-		if(alive)
-			this.getNewActiveCells()[x][y/64] |= (1L << y % 64);
+
+	public void setNextGenActiveCellState(int x, int y, boolean alive) {
+		if (alive)
+			this.getNewActiveCells()[x][y / 64] |= (1L << y % 64);
 		else
-			this.getNewActiveCells()[x][y/64] &= ~(1L << y % 64);
+			this.getNewActiveCells()[x][y / 64] &= ~(1L << y % 64);
 
 	}
-	
 
 	public void startNextGeneration() {
 		determineNextGeneration();
@@ -68,12 +63,11 @@ public class BitGameBoard extends GameBoard {// test
 			for (int y = 0; y < this.yDiv64; y++) {
 
 				if (!(this.getActiveCells()[x][y] == 0)) {
-					int j = y*64;
-					for(int bit = 0; bit<64; bit++)
-					{			
+					int j = y * 64;
+					for (int bit = 0; bit < 64; bit++) {
 						if (getCellState(x, j + bit, BoardContainer.ACTIVEGENERATION)) {
-							aliveNeighbours = countNeighbours(x, j+bit, true);
-							setCellStateFromRules(x, j+bit, aliveNeighbours);
+							aliveNeighbours = countNeighbours(x, j + bit, true);
+							setCellStateFromRules(x, j + bit, aliveNeighbours);
 						}
 					}
 				}
@@ -136,7 +130,7 @@ public class BitGameBoard extends GameBoard {// test
 				setCellState(x, y, BoardContainer.NEXTGENERATION, false);
 				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
 			}
-			
+
 		} else {
 			boolean survive = false;
 
@@ -144,7 +138,6 @@ public class BitGameBoard extends GameBoard {// test
 				if (aliveNeighbours == super.getRules().getSurvivalRules()[l])
 					survive = true;
 
-		
 			if (!survive) {
 				setCellState(x, y, BoardContainer.NEXTGENERATION, false);
 				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, true);
@@ -152,7 +145,7 @@ public class BitGameBoard extends GameBoard {// test
 				setCellState(x, y, BoardContainer.NEXTGENERATION, true);
 				setCellState(x, y, BoardContainer.NEXTACTIVEGENERATION, false);
 			}
-			
+
 		}
 	}
 
@@ -220,36 +213,11 @@ public class BitGameBoard extends GameBoard {// test
 		return this.yDiv64;
 	}
 
-
 	@Override
 	public boolean getCellState(int x, int y, BoardContainer bc) {
-		long[][]cells = null;
-		
-		switch(bc){
-		case CURRENTGENERATION:
-			cells = this.getCurrentGeneration();
-			break;
-		case NEXTGENERATION:
-			cells = this.getNextGeneration();
-			break;
-		case ACTIVEGENERATION:
-			cells = this.getActiveCells();
-			break;
-		case NEXTACTIVEGENERATION:
-			cells = this.getNewActiveCells();
-			break;			
-	}
-		
-		return (cells[x][y/64] >> y%64 & 1) == 1;
+		long[][] cells = null;
 
-		
-		
-	}
-	
-	private long[][] selectArray(BoardContainer bc){
-		
-		long[][]cells = null;
-		switch(bc){
+		switch (bc) {
 		case CURRENTGENERATION:
 			cells = this.getCurrentGeneration();
 			break;
@@ -261,61 +229,69 @@ public class BitGameBoard extends GameBoard {// test
 			break;
 		case NEXTACTIVEGENERATION:
 			cells = this.getNewActiveCells();
-			break;		
-			
+			break;
 		}
-		
+
+		return (cells[x][y / 64] >> y % 64 & 1) == 1;
+
+	}
+
+	private long[][] selectArray(BoardContainer bc) {
+
+		long[][] cells = null;
+		switch (bc) {
+		case CURRENTGENERATION:
+			cells = this.getCurrentGeneration();
+			break;
+		case NEXTGENERATION:
+			cells = this.getNextGeneration();
+			break;
+		case ACTIVEGENERATION:
+			cells = this.getActiveCells();
+			break;
+		case NEXTACTIVEGENERATION:
+			cells = this.getNewActiveCells();
+			break;
+
+		}
+
 		return cells;
 	}
 
 	@Override
 	public void setCellState(int x, int y, BoardContainer bc, boolean alive) {
-		long[][]cells = selectArray(bc);
-		
-		if(alive)
-			cells[x][y/64] |= (1L << y % 64); 
-		else
-			cells[x][y/64] &= ~(1L << y % 64);
-		}
-		
+		long[][] cells = selectArray(bc);
 
+		if (alive)
+			cells[x][y / 64] |= (1L << y % 64);
+		else
+			cells[x][y / 64] &= ~(1L << y % 64);
+	}
 
 	@Override
 	public void resetGameBoard() {
-		for(int x = 0; x < super.getWidth(); x++){
-			for(int y = 0; y < super.getHeight(); y++){
+		for (int x = 0; x < super.getWidth(); x++) {
+			for (int y = 0; y < (super.getHeight() / 64) + 1; y++) {
 				this.getCurrentGeneration()[x][y] = 0;
 				this.getNextGeneration()[x][y] = 0;
 				this.getActiveCells()[x][y] = 0;
 				this.getNewActiveCells()[x][y] = 0;
 			}
 		}
-		
+
 	}
-
-
-
-
 
 	@Override
 	public void transferPattern(int startX, int startY) {
 		// TODO Auto-generated method stub
-		
+
 	}
-
-
-
-
 
 	@Override
 	public void createPattern() {
 		// TODO Auto-generated method stub
-		
+
 	}
-
-
-
-
 
 	@Override
 	public int countNeighbours(int x, int y) {
@@ -323,32 +299,36 @@ public class BitGameBoard extends GameBoard {// test
 		return 0;
 	}
 
-
-	@Override
-	public void determineNextGeneration(int x, int y) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	/*
+	 * @Override public void determineNextGeneration(int x, int y) { // TODO
+	 * Auto-generated method stub
+	 * 
+	 * }
+	 */
 
 	@Override
 	public void nextGeneration() {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void nextGenerationConcurrent() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
+	/*
+	 * @Override public void determineNextGenerationConcurrent(int x, int y) {
+	 * // TODO Auto-generated method stub
+	 * 
+	 * }
+	 */
 
 	@Override
-	public void determineNextGenerationConcurrent(int x, int y) {
+	public void determineNextGenerationConcurrent(int x) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
