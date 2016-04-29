@@ -31,7 +31,7 @@ public class CanvasDrawer {
 		gc.setStroke(Color.GRAY);
 
 		if (model instanceof BitGameBoard) // if static gameboard then we
-												// draw border
+											// draw border
 			gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth() * cellSize,
 					model.getHeight() * cellSize);
 	}
@@ -60,66 +60,47 @@ public class CanvasDrawer {
 		int x = getCorrepondingXArrayIndex(mouseClickX);
 		int y = getCorrepondingYArrayIndex(mouseClickY);
 		
-		int shiftedRightwards = 0;
-		int shiftedDownwards = 0;
-		if (model instanceof DynamicGameBoard) {
-			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
-			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
-		}
-
-		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight())
-				&& this.model instanceof BitGameBoard) {
-
-		} else {
-
+		int posX = x * cellSize - canvasDisplacedX;
+		int posY = y * cellSize - canvasDisplacedY;
 		
-			
-			
-			boolean alive = !model.getCellState(x, y, BoardContainer.CURRENTGENERATION);
+		boolean alive = !model.getCellState(x, y, BoardContainer.CURRENTGENERATION);
+		model.setCellState(x, y, BoardContainer.CURRENTGENERATION, alive);
+		model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, alive);
 
-			model.setCellState(x, y, BoardContainer.CURRENTGENERATION, alive);
-			model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, alive);
-
-			if (alive) {
-				gc.setFill(model.getColor());
-				gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
-			} else {
-				gc.setFill(Color.BLACK);
-				gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
-			}
+		if (alive) {
+			gc.setFill(model.getColor());
+			gc.fillOval(posX, posY, cellSize, cellSize);
+		} else {
+			gc.setFill(Color.BLACK);
+			gc.fillOval(posX, posY, cellSize, cellSize);
 		}
+
 	}
 
 	public void drawCell(int mouseClickX, int mouseClickY, boolean dragDraw) {
 		int x = getCorrepondingXArrayIndex(mouseClickX);
 		int y = getCorrepondingYArrayIndex(mouseClickY);
 
-		if ((x < 0 || x > model.getWidth() || y < 0 || y > model.getHeight())
-				&& this.model instanceof BitGameBoard) {
+		int posX = x * cellSize - canvasDisplacedX;
+		int posY = y * cellSize - canvasDisplacedY;
+
+		if (dragDraw) {
+			if (!model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
+				model.setCellState(x, y, BoardContainer.CURRENTGENERATION, true);
+				model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
+				gc.setFill(model.getColor());
+				gc.fillOval(posX, posY, cellSize, cellSize);
+			}
 
 		} else {
 
-		
-
-			if (dragDraw) {
-				if (!model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
-					gc.setFill(model.getColor());
-					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, true);
-					model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
-					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
-							cellSize);
-				}
-
-			} else {
-
-				if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
-					gc.setFill(Color.BLACK);
-					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, false);
-					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
-							cellSize);
-				}
+			if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
+				model.setCellState(x, y, BoardContainer.CURRENTGENERATION, false);
+				gc.setFill(Color.BLACK);
+				gc.fillOval(posX, posY, cellSize, cellSize);
 			}
 		}
+
 	}
 
 	public void zoom(int zoom) {
@@ -150,9 +131,9 @@ public class CanvasDrawer {
 		gc.setFill(Color.BLACK);
 		gc.fillRect(0, 0, windowWidth, windowHeight);
 		gc.setStroke(Color.GRAY);
-		
-			gc.strokeRect(-this.getCanvasDisplacedX()-shiftedRightwards, -this.canvasDisplacedY-shiftedDownwards, model.getWidth() * cellSize,
-					model.getHeight() * cellSize);
+
+		gc.strokeRect(-this.getCanvasDisplacedX() - shiftedRightwards, -this.canvasDisplacedY - shiftedDownwards,
+				model.getWidth() * cellSize, model.getHeight() * cellSize);
 
 	}
 
@@ -164,17 +145,18 @@ public class CanvasDrawer {
 
 	public void zoomOnCursor(int zoom, int mousePosX, int mousePosY) {
 		if ((this.getCellSize() + zoom) > 0 && (this.getCellSize() + zoom) <= 35) {
-			
+
 			int x = getCorrepondingXArrayIndex(mousePosX);
 			int y = getCorrepondingYArrayIndex(mousePosY);
-			
+
 			int cellSize = this.getCellSize();
 
 			this.setCellSize(this.getCellSize() + zoom);
-			
 
-			this.setCanvasDisplacedX(x * (cellSize + zoom) - mousePosX + (mousePosX + this.getCanvasDisplacedX()) % cellSize);
-			this.setCanvasDisplacedY(y * (cellSize + zoom) - mousePosY + (mousePosY + this.getCanvasDisplacedY()) % cellSize);
+			this.setCanvasDisplacedX(
+					x * (cellSize + zoom) - mousePosX + (mousePosX + this.getCanvasDisplacedX()) % cellSize);
+			this.setCanvasDisplacedY(
+					y * (cellSize + zoom) - mousePosY + (mousePosY + this.getCanvasDisplacedY()) % cellSize);
 
 			this.drawNextGeneration();
 		}
@@ -190,56 +172,53 @@ public class CanvasDrawer {
 			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
 			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
 		}
-		
-		gc.setFill(Color.BLACK);
-		gc.fillRect(0, 0, windowWidth, windowHeight);
+
 		gc.setStroke(Color.GRAY);
+		gc.strokeRect(-this.getCanvasDisplacedX() - (shiftedRightwards * cellSize),
+				-this.canvasDisplacedY - (shiftedDownwards * cellSize), model.getWidth() * cellSize,
+				model.getHeight() * cellSize);
+
 		
-			gc.strokeRect(-this.getCanvasDisplacedX()-(shiftedRightwards*cellSize), -this.canvasDisplacedY-(shiftedDownwards*cellSize), model.getWidth() * cellSize,
-					model.getHeight() * cellSize);
-
-
 		gc.setFill(model.getColor());
-		for (int x = -shiftedRightwards; x < model.getWidth()-shiftedRightwards; x++)
-			for (int y =  - shiftedDownwards; y < model.getHeight()-shiftedDownwards; y++) {
+		for (int x = -shiftedRightwards; x < model.getWidth() - shiftedRightwards; x++)
+			for (int y = -shiftedDownwards; y < model.getHeight() - shiftedDownwards; y++) {
 				if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
-					gc.fillOval(cellSize * (x) - canvasDisplacedX,
-							cellSize * (y) - canvasDisplacedY, cellSize, cellSize);
+					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
+							cellSize);
 				}
 
 			}
-		
-		if (model.getSettingPattern()) 
+
+		if (model.getSettingPattern())
 			drawPattern();
 
 	}
-	
-	public void drawPattern(){
+
+	public void drawPattern() {
 
 		gc.setStroke(Color.WHITE);
 		gc.strokeRect(-this.canvasDisplacedX + pattern.getPatternTranslationX() * cellSize,
-				-this.canvasDisplacedY + pattern.getPatternTranslationY() * cellSize,
-				pattern.getWidth() * cellSize, pattern.getHeight() * cellSize);
+				-this.canvasDisplacedY + pattern.getPatternTranslationY() * cellSize, pattern.getWidth() * cellSize,
+				pattern.getHeight() * cellSize);
 
 		Affine translateXY = new Affine();
-		translateXY.setTx(pattern.getPatternTranslationX()*cellSize);
-		translateXY.setTy(pattern.getPatternTranslationY()*cellSize);
+		translateXY.setTx(pattern.getPatternTranslationX() * cellSize);
+		translateXY.setTy(pattern.getPatternTranslationY() * cellSize);
 		gc.setTransform(translateXY);
 		gc.setFill(Color.RED);
 		for (int x = 0; x < pattern.getWidth(); x++) {
 			for (int y = 0; y < pattern.getHeight(); y++) {
 				if (pattern.getPattern()[x][y]) {
-					gc.fillOval(cellSize * (x) - canvasDisplacedX,
-							cellSize * (y) - canvasDisplacedY, cellSize,
+					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
 							cellSize);
 				}
 
 			}
 		}
-		
+
 		translateXY.setTx(0.0);
 		translateXY.setTy(0.0);
-		gc.setTransform(translateXY);//reset
+		gc.setTransform(translateXY);// reset
 	}
 
 	public double getWindowWidth() {
