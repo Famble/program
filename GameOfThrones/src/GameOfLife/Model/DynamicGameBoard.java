@@ -72,10 +72,10 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		
 		
-		/*
+		
 		createWorkers();
 		
-		
+		/*
 		try {
 			runWorkers();
 		} catch (InterruptedException e) {
@@ -83,12 +83,12 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 
 		workers.clear();
-		*/
 		
+		*/
 		
 		boardSector = -1;
 		//nextGenerationPrintPerformance(start, System.currentTimeMillis());
-		determineNextGenerationConcurrent(0, super.getWidth());
+	//	determineNextGenerationConcurrent(0, super.getWidth());
 	
 		for (int i = 0; i < super.getWidth(); i++) {
 			for (int j = 0; j < super.getHeight(); j++) {
@@ -107,15 +107,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	public void createWorkers() {
 		
 		for (int i = 0; i < CPUCORES; i++) {
-			workers.add(new Thread(() -> {
-				boardSector++;
-				if(boardSector == CPUCORES-1){
-					determineNextGenerationConcurrent(boardSector*super.getWidth()/CPUCORES, super.getWidth());
-				}
-				else{
-					determineNextGenerationConcurrent(boardSector*super.getWidth()/CPUCORES, (boardSector+1)*super.getWidth()/CPUCORES);
-				}
-			}));
+			determineNextGenerationConcurrent(i);
 
 		}
 
@@ -135,22 +127,52 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	}
 
 	@Override
-	public void determineNextGenerationConcurrent(int sectorStart, int sectorEnd) {
+	public void determineNextGenerationConcurrent(int sector) {
 		int aliveNeighbors;
-		for (int x = -shiftedRightwards; x < super.getWidth() - shiftedRightwards; x++) {
-			for (int y = -shiftedDownwards; y < super.getHeight() - shiftedDownwards; y++) {
-				if (this.getCellState(x, y, BoardContainer.ACTIVEGENERATION)) {
-					for (int i = -1; i <= 1; i++)
-						for (int j = -1; j <= 1; j++) {
-							int xToCheck = x + i;
-							int yToCheck = y + j;
-							aliveNeighbors = countNeighbours(xToCheck, yToCheck);
-							setCellStateFromRules(xToCheck, yToCheck, aliveNeighbors);
-						}
+		int start = 0;
+		int end = 0;
+		int widthOfSector = super.getWidth()/CPUCORES;
+		if(sector == CPUCORES -1){
+			//start = widthOfSector * sector;
+			//end = super.getWidth();
+			
+			for (int x = super.getWidth()/CPUCORES*sector-shiftedRightwards; x < super.getWidth()-shiftedRightwards; x++) {
+				for (int y = -shiftedDownwards; y < super.getHeight() - shiftedDownwards; y++) {
+					if (this.getCellState(x, y, BoardContainer.ACTIVEGENERATION)) {
+						for (int i = -1; i <= 1; i++)
+							for (int j = -1; j <= 1; j++) {
+								int xToCheck = x + i;
+								int yToCheck = y + j;
+								aliveNeighbors = countNeighbours(xToCheck, yToCheck);
+								setCellStateFromRules(xToCheck, yToCheck, aliveNeighbors);
+							}
 
+					}
 				}
 			}
 		}
+		else
+		{
+	
+			
+			for (int x = super.getWidth()/CPUCORES*sector-shiftedRightwards; x < super.getWidth()/CPUCORES*(sector+1)-shiftedRightwards; x++) {
+				for (int y = -shiftedDownwards; y < super.getHeight() - shiftedDownwards; y++) {
+					if (this.getCellState(x, y, BoardContainer.ACTIVEGENERATION)) {
+						for (int i = -1; i <= 1; i++)
+							for (int j = -1; j <= 1; j++) {
+								int xToCheck = x + i;
+								int yToCheck = y + j;
+								aliveNeighbors = countNeighbours(xToCheck, yToCheck);
+								setCellStateFromRules(xToCheck, yToCheck, aliveNeighbors);
+							}
+
+					}
+				}
+			}
+		}
+		
+		
+		
 
 	}
 
