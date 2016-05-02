@@ -93,7 +93,7 @@ public class Controller implements Initializable {
 
 		});
 
-		colorPicker.setValue(Color.web("#42dd50"));
+		colorPicker.setValue(Color.web("#248cdb"));
 
 		survival.textProperty().addListener((observable, oldValue, survivalString) -> {
 			this.rules.setUserDefinedSurvivalRules(survivalString);
@@ -318,13 +318,12 @@ public class Controller implements Initializable {
 		edController.initialize(this.gameBoard);
 		DynamicGameBoard gameBoardClone = (DynamicGameBoard)this.gameBoard.clone();
 		Scene scene = new Scene(root, 1000, 700);
+		//scene.getStylesheets().add(getClass().getResource("Stylesheet.css").toExternalForm());
 		editor.setScene(scene);
 		editor.setTitle("Pattern Editor");
 		editor.show();
 		edController.setDimensions();
 		edController.drawStrip(gameBoardClone);
-
-
 
 	}
 

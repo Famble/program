@@ -18,7 +18,7 @@ public abstract class GameBoard implements Cloneable
 	private int width;
 	private int height;
 	private Rules rules;
-	private Color cellColor = Color.web("#42dd50");
+	private Color cellColor = Color.web("#248cdb");
 	private RLEPattern pattern;
 	private boolean settingPattern = false;
 	

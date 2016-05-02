@@ -10,6 +10,7 @@ import javafx.scene.shape.Box;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.nio.file.*;
@@ -26,6 +27,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Game of Life");
+		//primaryStage.initStyle(StageStyle.TRANSPARENT); test dette på deres PC, fungerer ikke på min (Dusan)
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("View/GUI.fxml"));
 		VBox root = (VBox)loader.load();
 		Controller controller = loader.getController();
