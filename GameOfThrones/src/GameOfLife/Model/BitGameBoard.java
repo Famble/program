@@ -99,6 +99,10 @@ public class BitGameBoard extends GameBoard {// test
 		int neighborX;
 		int neighborY;
 
+		if(x >= super.getWidth() || y >= super.getHeight()){ //check if its valid x and y
+			return 0;
+		}
+
 		for (int i = -1; i <= 1; i++) // (2)
 			for (int j = -1; j <= 1; j++) {
 				if (!(i == 0 && j == 0))// (3)
@@ -183,8 +187,6 @@ public class BitGameBoard extends GameBoard {// test
 
 			if (y == this.yDiv64 - 1)
 				cellsInLong = this.yMod64;
-			else
-				cellsInLong = 64;
 
 			for (int k = 0; k < cellsInLong; k++) {
 				for (int x = 0; x < super.getWidth(); x++) {
@@ -248,7 +250,7 @@ public class BitGameBoard extends GameBoard {// test
 			break;
 		}
 
-		return (cells[x][y / 64] >> y % 64 & 1) == 1;
+		return (cells[x][y / 64] >>> y % 64 & 1) == 1;
 
 	}
 
