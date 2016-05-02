@@ -116,7 +116,7 @@ public abstract class GameBoard implements Cloneable
 		
 		return gameBoardCopy;
 	}
-	
+	@Override
 	public String toString(){
 		return String.format("Width: %d\nHeight: %d\n", this.getWidth(), this.getHeight());
 	}
