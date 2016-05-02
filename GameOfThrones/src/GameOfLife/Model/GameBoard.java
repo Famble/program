@@ -120,6 +120,13 @@ public abstract class GameBoard implements Cloneable
 	public String toString(){
 		return String.format("Width: %d\nHeight: %d\n", this.getWidth(), this.getHeight());
 	}
+
+
+
+	public void determineNextGenerationConcurrent(int start, int end) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 
