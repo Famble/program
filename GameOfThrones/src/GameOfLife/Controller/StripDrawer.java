@@ -91,7 +91,7 @@ public class StripDrawer extends CanvasDrawer{
 		int shiftedRightwards = 0;
 		int shiftedDownwards = 0;
 		if (board instanceof DynamicGameBoard) {
-			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
+			shiftedRightwards = ((DynamicGameBoard) this.model).getInsertedColumnsFromLeft();
 			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
 		}
 		RLEPattern pattern = new RLEPattern(board.getWidth(), board.getHeight());

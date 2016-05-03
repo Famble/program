@@ -70,10 +70,7 @@ public class Controller implements Initializable {
 	private TextField birth;
 	@FXML
 	private ColorPicker colorPicker;
-	@FXML
-	Rules rules;
-	@FXML
-	
+	@FXML	
 	private Toggle drawDrag;
 	private ExecutionControl GOL;
 	boolean start = true;
@@ -88,8 +85,7 @@ public class Controller implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-		rules = new Rules();
-		gameBoard = new DynamicGameBoard(30, (30), rules);
+		gameBoard = new DynamicGameBoard();
 
 		cd = new CanvasDrawer(gameBoard, canvas.getGraphicsContext2D());
 
@@ -100,13 +96,15 @@ public class Controller implements Initializable {
 		});
 
 		colorPicker.setValue(Color.web("#42dd50"));
+		
+		Rules rules = gameBoard.getRules();
 
 		survival.textProperty().addListener((observable, oldValue, survivalString) -> {
-			this.rules.setUserDefinedSurvivalRules(survivalString);
+			rules.setUserDefinedSurvivalRules(survivalString);
 		});
 
 		birth.textProperty().addListener((observable, oldValue, birthString) -> {
-			this.rules.setUserDefinedBirthRules(birthString);
+			rules.setUserDefinedBirthRules(birthString);
 
 		});
 		canvasParent.widthProperty().addListener((a, b, c) -> {
@@ -121,12 +119,11 @@ public class Controller implements Initializable {
 
 		comboBox.valueProperty().addListener((observable, oldValue, survivalString) -> {
 
-			int shiftedRightwards = 0;
-			int shiftedDownwards = 0;
-			if (this.gameBoard instanceof DynamicGameBoard) {
-				shiftedRightwards = ((DynamicGameBoard) this.gameBoard).getShiftedRightwards();
-				shiftedDownwards = ((DynamicGameBoard) this.gameBoard).getShiftedDownwards();
-			}
+			int insertedColumnsFromLeft = 0;
+			int insertedRowsFromTop = 0;
+		
+			
+			
 			
 			survival.setText("");
 			birth.setText("");
@@ -138,16 +135,17 @@ public class Controller implements Initializable {
 			for (int i : rules.getSurvivalRules())
 				birth.setText(birth.getText() + i);
 
-			for (int i = 0; i < gameBoard.getWidth(); i++)
-				for (int j = 0; j < (gameBoard.getHeight() + 1)/64; j++)
-					gameBoard.setCellState(i-shiftedRightwards, j-shiftedDownwards, BoardContainer.ACTIVEGENERATION, false);
+			if (this.gameBoard instanceof BitGameBoard) {
+				for (int i = 0; i < gameBoard.getWidth(); i++)
+					for (int j = 0; j < gameBoard.getHeight(); j++)
+						gameBoard.setCellState(i, j, BoardContainer.ACTIVEGENERATION, false);
+			}
+			
 
 			gameBoard.nextGenerationConcurrent();
 
 		});
 
-
-		cd.clearCanvas();
 		
 		Platform.runLater(() -> canvas.requestFocus());
 

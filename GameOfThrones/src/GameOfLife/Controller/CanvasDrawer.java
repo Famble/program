@@ -26,14 +26,29 @@ public class CanvasDrawer {
 	public CanvasDrawer(GameBoard model, GraphicsContext gc) {
 		this.model = model;
 		this.gc = gc;
-		canvasDisplacedX = 0; // model.getX() * cellSize / 2;
-		canvasDisplacedY = 0; // model.getRealY() * cellSize / 2;
+		canvasDisplacedX = 0;
+		canvasDisplacedY = 0;
 		gc.setStroke(Color.GRAY);
 
-		if (model instanceof BitGameBoard) // if static gameboard then we
-											// draw border
-			gc.strokeRect(-this.getCanvasDisplacedX(), -this.canvasDisplacedY, model.getWidth() * cellSize,
-					model.getHeight() * cellSize);
+		
+	}
+	
+	public int getInsertedColumnsFromLeft(){
+		int insertedColumnsFromLeft = 0;
+		if(this.model instanceof DynamicGameBoard){
+			insertedColumnsFromLeft  = ((DynamicGameBoard) this.model).getInsertedColumnsFromLeft();
+		}
+		
+		return insertedColumnsFromLeft;
+	}
+	
+	public int getInsertedRowsFromTop(){
+		int insertedRowsFromTop = 0;
+		if(this.model instanceof DynamicGameBoard){
+			insertedRowsFromTop  = ((DynamicGameBoard) this.model).getInsertedRowsFromTop();
+		}
+		
+		return insertedRowsFromTop;
 	}
 
 	public void setGameBoard(GameBoard board) {
@@ -125,11 +140,11 @@ public class CanvasDrawer {
 	}
 
 	public void clearCanvas() {
-		int shiftedRightwards = 0;
-		int shiftedDownwards = 0;
+		int insertedColumnsFromLeft = 0;
+		int insertedRowsFromTop = 0;
 		if (model instanceof DynamicGameBoard) {
-			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
-			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
+			insertedColumnsFromLeft = ((DynamicGameBoard) this.model).getInsertedColumnsFromLeft();
+			insertedRowsFromTop = ((DynamicGameBoard) this.model).getInsertedRowsFromTop();
 		}
 		gc.setFill(Color.BLACK);
 		gc.fillRect(0, 0, windowWidth, windowHeight);
@@ -168,12 +183,9 @@ public class CanvasDrawer {
 	public void drawNextGeneration() {
 
 		clearCanvas();
-		int shiftedRightwards = 0;
-		int shiftedDownwards = 0;
-		if (model instanceof DynamicGameBoard) {
-			shiftedRightwards = ((DynamicGameBoard) this.model).getShiftedRightwards();
-			shiftedDownwards = ((DynamicGameBoard) this.model).getShiftedDownwards();
-		}
+		int shiftedRightwards = getInsertedColumnsFromLeft();
+		int shiftedDownwards = getInsertedRowsFromTop();
+		
 
 		gc.setStroke(Color.GRAY);
 		gc.strokeRect(-this.getCanvasDisplacedX() - (shiftedRightwards * cellSize),

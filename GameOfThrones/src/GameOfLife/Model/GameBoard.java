@@ -17,7 +17,7 @@ public abstract class GameBoard implements Cloneable
 	
 	private int width;
 	private int height;
-	private Rules rules;
+	private Rules rules = new Rules();
 	private Color cellColor = Color.web("#42dd50");
 	private RLEPattern pattern;
 	private boolean settingPattern = false;
@@ -25,14 +25,11 @@ public abstract class GameBoard implements Cloneable
 	
 	
 	
-	public GameBoard(int width, int height, Rules rules)
+	public GameBoard(int width, int height)
 	{
 		this.width = width;
 		this.height = height;
-		this.rules = rules;
 	}
-	
-	
 	
 	public abstract void nextGeneration();
 	public abstract void nextGenerationConcurrent();
@@ -50,7 +47,7 @@ public abstract class GameBoard implements Cloneable
 	public abstract void transferPattern(int startX, int startY);
 	
 	public abstract boolean getCellState(int x, int y, BoardContainer bc);
-	public abstract void determineNextGenerationConcurrent(int x);
+	public abstract void determineNextGenerationConcurrent(int start, int end);
 	
 	public abstract void setCellState(int x, int y, BoardContainer bc, boolean alive);
 	
@@ -123,7 +120,7 @@ public abstract class GameBoard implements Cloneable
 
 
 
-	public void determineNextGenerationConcurrent(int start, int end) {
+	public void determineNextGeneration() {
 		// TODO Auto-generated method stub
 		
 	}
