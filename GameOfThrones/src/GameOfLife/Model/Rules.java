@@ -45,7 +45,7 @@ public class Rules implements Cloneable {
 		return survivalRules;
 	}
 
-	public void setRules(String name) {
+	public void setRulesFromName(String name) {
 		System.out.println(Arrays.toString(rules.get(name)[1]));
 		this.survivalRules = new int[rules.get(name)[0].length];
 		this.birthRules = new int[rules.get(name)[1].length];

@@ -14,11 +14,14 @@ import GameOfLife.Model.PatternFormatException;
 public class RleInterpreter {
 	private Pattern pattern;
 	private Matcher matcher;
-	private String name;
-	private String comment;
+	private String nameOfRle;
+	private String commentOfRle;
+	private String authorOfRle;
+	private String birthOfRle;
+	private String survivalOfRle;
 	private int height;
 	private int width;
-	private String ruleString;
+	private String rule;
 	private String rleString;
 	private StringBuilder description = new StringBuilder();
 	private boolean[][] initialRleGeneration;
@@ -31,7 +34,8 @@ public class RleInterpreter {
 	private boolean dynamic;
 
 	/**
-	 * Reads the file and the sets the Meta data and the game board logic. Sets
+	 * Constructor of RleInterpreter
+	 * Reads the file and the sets the Meta data and the game board logic. Sets the instance variable.
 	 *
 	 * @param rleFile
 	 *            A string of a file that will be parsed.
@@ -67,11 +71,17 @@ public class RleInterpreter {
 
 		while (matcher.find()) {
 			if (matcher.group(1).equalsIgnoreCase("N")) {
-				name = matcher.group(2);
+				nameOfRle = matcher.group(2);
 
 			} else if (matcher.group(1).equalsIgnoreCase("C")) {
-				comment = matcher.group(2);
-				description.append(comment).append("\n");
+				commentOfRle = matcher.group(2);
+				description.append(commentOfRle).append("\n");
+			}else if (matcher.group(1).equalsIgnoreCase("c")) {
+				commentOfRle = matcher.group(2);
+				description.append(commentOfRle).append("\n");
+			}else if (matcher.group(1).equalsIgnoreCase("O")) {
+				authorOfRle = matcher.group(2);
+				description.append(commentOfRle).append("\n");
 			}
 
 		}
@@ -87,7 +97,7 @@ public class RleInterpreter {
 	 */
 	private void readDimensionAndRule() throws PatternFormatException {
 
-		Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*[0-9]*/[A-Za-z]*[0-9]*))",
+		Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=([A-Za-z]*([0-9]*)/[A-Za-z]*([0-9]*)))",
 				Pattern.MULTILINE);
 
 		// System.out.println(this.rleString);
@@ -112,12 +122,16 @@ public class RleInterpreter {
 						this.gameBoardWidth, this.gameBoardHeight));
 			}
 
-			this.ruleString = matcher.group(3).replaceAll("[^/0-9]", "");
+			birthOfRle = matcher.group(5);
+			survivalOfRle = matcher.group(6);
+			//this.survivalOfRle = matcher.group((3)(1));
+			this.rule = matcher.group(3).replaceAll("[^/0-9]", "");
+			System.out.println(rule);
 			lastIndexOfHeader = matcher.end() + amountOfSpaces;
 		}
 
 		testDimensionAndRule.append("x = ").append(this.width).append(", y = ").append(this.height).append(", rule = ")
-				.append(this.ruleString).append("\n");
+				.append(this.rule).append("\n");
 	}
 
 	/**
@@ -235,8 +249,8 @@ public class RleInterpreter {
 		return testGameBoard.length();
 	}
 
-	public String getName() {
-		return name;
+	public String getNameOfRle() {
+		return nameOfRle;
 	}
 
 	public int getHeight() {
@@ -251,12 +265,24 @@ public class RleInterpreter {
 		return initialRleGeneration;
 	}
 
-	public String getComment() {
-		return comment;
+	public String getCommentOfRle() {
+		return commentOfRle;
 	}
 
-	public Pattern getPattern() {
-		return pattern;
+	public String getAuthorOfRle(){
+		return authorOfRle;
+	}
+
+	public String getRule(){
+		return rule;
+	}
+
+	public String getSurvivalOfRle() {
+		return survivalOfRle;
+	}
+
+	public String getBirthOfRle() {
+		return birthOfRle;
 	}
 
 	public String getDescription() {

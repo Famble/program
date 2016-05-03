@@ -1,5 +1,3 @@
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -28,7 +26,7 @@ public class RleTest {
 
 		RleInterpreter rleInt = new RleInterpreter(stringOfFile, 100, 100, false);
 
-		org.junit.Assert.assertEquals(rleInt.getName(), nameExpect);
+		org.junit.Assert.assertEquals(rleInt.getNameOfRle(), nameExpect);
 		org.junit.Assert.assertEquals(rleInt.getDescription(), commentExpect);
 		org.junit.Assert.assertEquals(rleInt.getTestDimensionAndRule(), dimensionAndRuleExpect);
 		org.junit.Assert.assertEquals(rleInt.getTestGameBoard(), gameBoardExpect);

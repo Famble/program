@@ -121,7 +121,7 @@
                      </VBox.margin>
                   </Button>
                   	
-                  <ToggleButton fx:id="drawDrag" mnemonicParsing="false" prefHeight="50.0" prefWidth="90.0" selected="true" text="Draw">
+                  <ToggleButton fx:id="drawDrag" mnemonicParsing="false" prefHeight="50.0" prefWidth="90.0" selected="true" text="Draw" onMouseClicked="#handleDrawClick">
                   	<VBox.margin>
                         <Insets left="30.0" top="10.0" />
                      </VBox.margin>

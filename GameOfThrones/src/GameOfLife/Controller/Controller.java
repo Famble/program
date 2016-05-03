@@ -21,15 +21,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -127,7 +120,7 @@ public class Controller implements Initializable {
 			
 			survival.setText("");
 			birth.setText("");
-			rules.setRules(comboBox.getValue().toString());
+			rules.setRulesFromName(comboBox.getValue().toString());
 
 			for (int i : rules.getSurvivalRules())
 				survival.setText(survival.getText() + i);
@@ -168,6 +161,11 @@ public class Controller implements Initializable {
 				pattern.setPattern(rleInterp.getInitialRleGeneration());
 				pattern.setWidth(rleInterp.getWidth());
 				pattern.setHeight(rleInterp.getHeight());
+				pattern.setNameOfPattern(rleInterp.getNameOfRle());
+				pattern.setAuthorOfPattern(rleInterp.getAuthorOfRle());
+				pattern.setCommentOfPattern(rleInterp.getCommentOfRle());
+				gameBoard.getRules().setUserDefinedBirthRules(rleInterp.getBirthOfRle());
+				gameBoard.getRules().setUserDefinedSurvivalRules(rleInterp.getSurvivalOfRle());
 				gameBoard.setSettingPattern(true);
 				gameBoard.setPattern(pattern);
 				cd.setRLEPattern(pattern);
@@ -199,6 +197,17 @@ public class Controller implements Initializable {
 		} else if (event.getDeltaY() < 1) {
 			sliderZoom.setValue(cd.getCellSize() - 1);
 			cd.zoomOnCursor(-1, (int)event.getX(), (int)event.getY());
+		}
+	}
+
+	/**
+	 * Listen to when drawDrag is toggled on and changs the lable of the toggel.
+	 */
+	public void handleDrawClick(){
+		if(drawDrag.isSelected()){
+			((Labeled) drawDrag).setText("Draw");
+		} else {
+			((Labeled) drawDrag).setText("Erase");
 		}
 	}
 
