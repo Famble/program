@@ -18,7 +18,7 @@ public abstract class GameBoard implements Cloneable
 	private int width;
 	private int height;
 	private Rules rules;
-	private Color cellColor = Color.web("#248cdb");
+	private Color cellColor = Color.web("#42dd50");
 	private RLEPattern pattern;
 	private boolean settingPattern = false;
 	
@@ -116,9 +116,16 @@ public abstract class GameBoard implements Cloneable
 		
 		return gameBoardCopy;
 	}
-	@Override
+	
 	public String toString(){
 		return String.format("Width: %d\nHeight: %d\n", this.getWidth(), this.getHeight());
+	}
+
+
+
+	public void determineNextGenerationConcurrent(int start, int end) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
