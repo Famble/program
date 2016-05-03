@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import java.lang.String?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
@@ -18,7 +24,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="vBoxRoot" onKeyPressed="#keyListener" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameOfLife.Controller.Controller">
+<VBox fx:id="vBoxRoot" onKeyPressed="#keyListener" style="-fx-background-color: Black;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameOfLife.Controller.Controller">
    <children>
       <MenuBar VBox.vgrow="NEVER">
         <menus>
@@ -39,29 +45,29 @@
           </Menu>
         </menus>
       </MenuBar>
-      <HBox spacing="10.0" style="-fx-background-color: white;">
+      <HBox fx:id="HBoxUpper" spacing="10.0">
          <children>
             <Label text="Survival:">
                <HBox.margin>
-                  <Insets top="6.0" />
+                  <Insets top="12.0" />
                </HBox.margin>
             </Label>
-            <TextField fx:id="survival" prefHeight="26.0" prefWidth="76.0" text="23">
+            <TextField fx:id="survival" prefHeight="40.0" prefWidth="76.0" text="23">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
             </TextField>
             <Label layoutX="10.0" layoutY="28.0" text="Birth:">
                <HBox.margin>
-                  <Insets top="6.0" />
+                  <Insets top="12.0" />
                </HBox.margin>
             </Label>
-            <TextField fx:id="birth" layoutX="87.0" layoutY="23.0" prefHeight="26.0" prefWidth="76.0" text="3">
+            <TextField fx:id="birth" layoutX="87.0" layoutY="23.0" prefHeight="40.0" prefWidth="76.0" text="3">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
             </TextField>
-            <ComboBox fx:id="comboBox" layoutX="15.0" layoutY="33.0" maxWidth="-Infinity" minHeight="-Infinity" prefWidth="190.0" promptText="Conway's Life">
+            <ComboBox fx:id="comboBox" layoutX="15.0" layoutY="33.0" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="40.0" prefWidth="150.0" promptText="Conway's Life">
 		      <items>
 		        <FXCollections fx:factory="observableArrayList">
 		          <String fx:value="2x2" />
@@ -101,7 +107,7 @@
       <HBox fx:id="canvasParent" minHeight="10.0" minWidth="10.0" onMouseDragged="#mouseDragged" prefHeight="400.0" style="-fx-background-color: black;" VBox.vgrow="ALWAYS">
          <children>
             <Canvas fx:id="canvas" height="10.0" nodeOrientation="INHERIT" onMouseClicked="#mouseClicked" onMouseEntered="#handleMouseEntered" onMousePressed="#handleMouseEntered" onMouseReleased="#handleMouseEntered" onScroll="#handleZoom" width="10.0" />
-            <VBox fx:id="VBoxRight" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="150.0" style="-fx-background-color: white;">
+            <VBox fx:id="VBoxRight" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="150.0">
                <children>
                   <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartClick" prefHeight="90.0" prefWidth="90.0" text="Play">
                   	<VBox.margin>
@@ -109,7 +115,7 @@
                      </VBox.margin>
                   </Button>   
                   
-                  <Button mnemonicParsing="false" onAction="#handleResetClick" prefHeight="90.0" prefWidth="90.0" text="Respec">
+                  <Button mnemonicParsing="false" onAction="#handleResetClick" prefHeight="90.0" prefWidth="90.0" text="Reset">
                   	<VBox.margin>
                         <Insets left="30.0" top="10.0" />
                      </VBox.margin>
@@ -123,17 +129,20 @@
                   
                   <Label text="Speed">
                      <VBox.margin>
-                        <Insets left="30.0" top="10.0" />
+                        <Insets left="55.0" top="10.0" />
                      </VBox.margin>
                   </Label>
+                  <Slider fx:id="sliderSpeed" blockIncrement="100" max="150.0" min="1.0" onMouseDragged="#speedSliderDragged" showTickMarks="true" value="0.1">
+                  	<VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Slider>   
                   
-                  <Slider fx:id="sliderSpeed" blockIncrement="100" max="150.0" min="1.0" onMouseDragged="#speedSliderDragged" showTickMarks="true" value="0.1" />
                   <Label text="Zoom:">
                      <VBox.margin>
-                        <Insets left="40.0" />
+                        <Insets top="10.0" left="55.0" />
                      </VBox.margin>
                   </Label>
-                  
                   <Slider fx:id="sliderZoom" max="10.0" min="1.0" onMouseDragged="#zoomSliderDragged" showTickMarks="true" value="5.0">
                   	 <VBox.margin>
                         <Insets top="10.0" />
@@ -153,13 +162,13 @@
                    </Button>
                    
                   <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="153.0" text="Save" />
-                  <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="153.0" text="Load" />
+                  <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="153.0" text="Load" onAction="#handleOpen"/>
                   
                </children></VBox>
          </children>
       </HBox>
       <HBox style="-fx-background-color: #e9e9e9;" />
-      <HBox fx:id="HBoxLower" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0" spacing="40.0" style="-fx-background-color: #e9e9e9;" VBox.vgrow="NEVER">
+      <HBox fx:id="HBoxLower" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0" spacing="40.0" VBox.vgrow="NEVER">
          <children>
             <VBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="90.0">
                <HBox.margin>
