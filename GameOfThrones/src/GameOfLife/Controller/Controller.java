@@ -39,6 +39,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+/**
+ * <h1>Controller</h1>
+ * This class controls how the view and model interacts.
+ *
+ * Event listener is all handel in controller.
+ */
+
+
 public class Controller implements Initializable {
 
 	public FXCollections ting;
@@ -69,11 +77,9 @@ public class Controller implements Initializable {
 	private Toggle drawDrag;
 	private ExecutionControl GOL;
 	boolean start = true;
+    int offsetY = 0;
 	int offsetX = 0;
 	CanvasDrawer cd;
-
-
-	int offsetY = 0;
 	GameBoard gameBoard;
 	Pattern pattern;
 	
@@ -136,31 +142,23 @@ public class Controller implements Initializable {
 				for (int j = 0; j < (gameBoard.getHeight() + 1)/64; j++)
 					gameBoard.setCellState(i-shiftedRightwards, j-shiftedDownwards, BoardContainer.ACTIVEGENERATION, false);
 
-			gameBoard.nextGenerationConcurrent();;
+			gameBoard.nextGenerationConcurrent();
 
 		});
 
 
 		cd.clearCanvas();
 		
-		Platform.runLater(new Runnable()
-		  {
-            @Override
-            public void run() 
-            {
-                canvas.requestFocus();
-            }
-         });
-		
-	}
+		Platform.runLater(() -> canvas.requestFocus());
 
-	/**
-	 * Opens the window for file chooser, and interprets the file, and then
-	 * draw the pattern from the file to the game board.
-	 * 
-	 * @see RleInterpreter
-	 */
-	
+    } // end of Initialize
+
+    /**
+     * Opens the window for file chooser, and interprets the file, and then
+     * draws the pattern from the file to the game board.
+     *
+     * @see RleInterpreter
+     */
 	public void handleOpen()  { 
 		RLEPattern pattern = new RLEPattern();
 		FileHandler file = new FileHandler(vBoxRoot.getScene().getWindow());
@@ -188,10 +186,14 @@ public class Controller implements Initializable {
 			System.out.println("File was not found");
 		}
 	
-	}
-	
+	} // end of handleOpen
 
 
+    /**
+     * Uses the scroll function of the user to zoom on the canvas board
+     *
+     * @param event Used to track where the mouse of the user is.
+     */
 	public void handleZoom(ScrollEvent event) {
 
 		if (event.getDeltaY() > 1) {
@@ -202,25 +204,37 @@ public class Controller implements Initializable {
 		}
 	}
 
-	public void speedSliderDragged() {
+    /**
+     *  Handel the slider which changes the speed of the game.
+     */
+    public void speedSliderDragged() {
 		GOL.setDelay(Math.pow(10, 9) * (1 / sliderSpeed.getValue()));
 	}
 
-	public void zoomSliderDragged() {
+    /**
+     * Handel the slider which zooms the gameboard
+     */
+    public void zoomSliderDragged() {
 
 		if (cd.getCellSize() - (int) sliderZoom.getValue() == -1)
-			cd.zoom((int) 1);
+			cd.zoom(1);
 		else if (cd.getCellSize() - (int) sliderZoom.getValue() == 1)
 			cd.zoom(-1);
 
 	}
 
+    /**
+     * Changes the color of the alive game cells
+     */
 	public void changeColor() {
 		gameBoard.setColor(colorPicker.getValue());
 		cd.drawNextGeneration();
 	}
 
-	public void handleStartClick() {
+    /**
+     * Starts and stops the game
+     */
+    public void handleStartClick() {
 		if (start) {
 
 			GOL.startGame();
@@ -233,32 +247,54 @@ public class Controller implements Initializable {
 		start = !start;
 	}
 
-	public void handleMouseEntered(MouseEvent event) {
+    /**
+     * sets the offset of X and Y when the mouse enters the canvas
+     * @param event takes the X and Y value of the mouse position
+     */
+    public void handleMouseEntered(MouseEvent event) {
 		offsetX = (int) event.getX();
 		offsetY = (int) event.getY();
 	}
 
-	public void mouseDragged(MouseEvent event) {
+    /**
+     * Listens to when the users drags the mouse over the canvas,
+     * and drags the canvas if the user is also holding Control Down while dragging.
+     *
+     * @param event checks where the mouse is on the canvas
+     */
+    public void mouseDragged(MouseEvent event) {
 		if (event.isControlDown()) {
 			cd.movePosition(offsetX - (int) event.getX(), offsetY - (int) event.getY());
 			offsetX = (int) event.getX();
 			offsetY = (int) event.getY();
 		} else {
-			mouseClicked(event, drawDrag.isSelected());
+			mouseClicked(event);
 		}
 
 	}
 
+	/**
+	 * Listens to when the user clicks on the board, and draws or removes the cell from the canvas.
+	 *
+	 * @param event checks where the mouse position is.
+	 *
+	 */
 	public void mouseClicked(MouseEvent event) {
-		cd.drawCell((int) event.getX(), (int) event.getY());
-	}
-
-	public void mouseClicked(MouseEvent event, boolean dragDraw) {
-		cd.drawCell((int) event.getX(), (int) event.getY(), dragDraw);
+		cd.drawCell((int) event.getX(), (int) event.getY(),drawDrag.isSelected());
+		//drawDrag.isSelected() decides on whenever the cells will be drawn or removed
 
 	}
 
-	public void keyListener(KeyEvent event) throws IOException
+    /**
+     * Makes an object of RLEPattern and controls how to move and set the object.
+     *
+     * Moves the object that user have opened with <i>ARROWKEY</i>,
+     * and sets the object into the board when user presses <i>ENTER</i>.
+     *
+     * @param event Checks if the arrows key or enter is pressed
+     *
+     */
+    public void keyListener(KeyEvent event) throws IOException
 	{
 		RLEPattern pattern = gameBoard.getPattern();
 		if(event.getCode() == KeyCode.RIGHT)
@@ -283,36 +319,35 @@ public class Controller implements Initializable {
 		
 		}
 		
-		Platform.runLater(new Runnable()
-		  {
-    @Override
-    public void run() 
-    {
-        canvas.requestFocus();
-    }
- });
+		Platform.runLater(() -> canvas.requestFocus());
 		
 		cd.drawNextGeneration();
 		
-	}
-	
-	
+	} // end of keyListener
 
-	public void handlePauseClick() {
-		GOL.stop();
-	}
-	
-	public void setDimensions(){
+    /**
+     * Sets the <b>width</b> and <b>height</b> of the canvas,
+     * and draw the an array of next generation.
+     */
+
+    public void setDimensions(){
 		canvas.setWidth(vBoxRoot.getWidth()-150);
 		canvas.setHeight(canvasParent.getHeight());
 		cd.drawNextGeneration();
 	}
-	
-	public void handleEditorClick() throws IOException{
+
+    /**
+     *Opens up a new window for a pattern editor,
+     * where you can follow the next generation on a timeline.
+     *
+     * @throws IOException
+     * @see EditorController
+     */
+    public void handleEditorClick() throws IOException{
 		
 		Stage editor = new Stage();
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("PatternEditor.fxml"));
-		VBox root = (VBox)loader.load();
+		VBox root = loader.load();
 		EditorController edController = loader.getController();
 		GOL.stop();	
 		edController.initialize(this.gameBoard);
@@ -328,8 +363,14 @@ public class Controller implements Initializable {
 
 	}
 
-	
-	public void handleResetClick() {
+    /**
+     * Resets the Game Board by calling on <b>resetGameBoard</b>,
+     * and then draws the board by calling on <b>drawNextGeneration</b>.
+     *
+     * @see GameBoard#resetGameBoard
+     * @see CanvasDrawer#drawNextGeneration
+     */
+    public void handleResetClick() {
 		
 		gameBoard.resetGameBoard();
 		cd.drawNextGeneration();
