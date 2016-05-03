@@ -65,9 +65,7 @@ public class CanvasDrawer {
 		
 		boolean alive = !model.getCellState(x, y, BoardContainer.CURRENTGENERATION);
 		model.setCellState(x, y, BoardContainer.CURRENTGENERATION, alive);
-		
-		if(this.model instanceof BitGameBoard)
-			model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, alive);
+		model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, alive);
 
 		if (alive) {
 			gc.setFill(model.getColor());
@@ -89,8 +87,7 @@ public class CanvasDrawer {
 		if (dragDraw) {
 			if (!model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
 				model.setCellState(x, y, BoardContainer.CURRENTGENERATION, true);
-				if(this.model instanceof BitGameBoard)
-					model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
+				model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
 				gc.setFill(model.getColor());
 				gc.fillOval(posX, posY, cellSize, cellSize);
 			}
@@ -135,7 +132,8 @@ public class CanvasDrawer {
 		gc.fillRect(0, 0, windowWidth, windowHeight);
 		gc.setStroke(Color.GRAY);
 
-		
+		gc.strokeRect(-this.getCanvasDisplacedX() - shiftedRightwards, -this.canvasDisplacedY - shiftedDownwards,
+				model.getWidth() * cellSize, model.getHeight() * cellSize);
 
 	}
 
