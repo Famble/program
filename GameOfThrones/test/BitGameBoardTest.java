@@ -8,11 +8,11 @@ import GameOfLife.Model.Rules;
 import GameOfLife.Model.BitGameBoard;
 
 @SuppressWarnings("deprecation")
-public class MatrixTest {
+public class BitGameBoardTest {
 
     long[][] board = {{0L}, {6L}, {6L}, {0L}};
     Rules rules = new Rules();
-    BitGameBoard model = new BitGameBoard(4, 4, rules);
+    BitGameBoard model = new BitGameBoard(4, 4);
 
     @Test
     public void testStartNextGeneration() {

@@ -9,8 +9,8 @@ import GameOfLife.Model.GameBoard.BoardContainer;
 
 
 
-public class MatrixDynamicTest {
-
+public class DynamicGameBoardTest {
+/*
 	
 	@Test
 	public void enlargeRightAndLeft(){
@@ -75,7 +75,7 @@ public class MatrixDynamicTest {
 
 	}
 	
-	
+	*/
 	
 	
 	

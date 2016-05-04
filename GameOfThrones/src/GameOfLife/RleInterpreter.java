@@ -12,10 +12,8 @@ import GameOfLife.Model.PatternFormatException;
  * @author Johnny Lam, Markus Hellestveit
  */
 public class RleInterpreter {
-	private Pattern pattern;
 	private Matcher matcher;
 	private String nameOfRle;
-	private String commentOfRle;
 	private String authorOfRle;
 	private String birthOfRle;
 	private String survivalOfRle;
@@ -23,7 +21,7 @@ public class RleInterpreter {
 	private int width;
 	private String rule;
 	private String rleString;
-	private StringBuilder description = new StringBuilder();
+	private StringBuilder commentOfRle = new StringBuilder();
 	private boolean[][] initialRleGeneration;
 	private int lastIndexOfHeader;
 	private StringBuilder testHeader = new StringBuilder();
@@ -70,18 +68,21 @@ public class RleInterpreter {
 		Matcher matcher = regex.matcher(this.rleString);
 
 		while (matcher.find()) {
+			String commentHolder;
 			if (matcher.group(1).equalsIgnoreCase("N")) {
 				nameOfRle = matcher.group(2);
-
+				testHeader.append(nameOfRle).append("\n");
 			} else if (matcher.group(1).equalsIgnoreCase("C")) {
-				commentOfRle = matcher.group(2);
-				description.append(commentOfRle).append("\n");
+				commentHolder = matcher.group(2);
+				commentOfRle.append(commentHolder).append("\n");
+				testHeader.append(commentHolder).append("\n");
 			}else if (matcher.group(1).equalsIgnoreCase("c")) {
-				commentOfRle = matcher.group(2);
-				description.append(commentOfRle).append("\n");
+				commentHolder = matcher.group(2);
+				commentOfRle.append(commentHolder).append("\n");
+				testHeader.append(commentHolder).append("\n");
 			}else if (matcher.group(1).equalsIgnoreCase("O")) {
 				authorOfRle = matcher.group(2);
-				description.append(commentOfRle).append("\n");
+				testHeader.append(authorOfRle).append("\n");
 			}
 
 		}
@@ -124,9 +125,7 @@ public class RleInterpreter {
 
 			birthOfRle = matcher.group(5);
 			survivalOfRle = matcher.group(6);
-			//this.survivalOfRle = matcher.group((3)(1));
 			this.rule = matcher.group(3).replaceAll("[^/0-9]", "");
-			System.out.println(rule);
 			lastIndexOfHeader = matcher.end() + amountOfSpaces;
 		}
 
@@ -156,8 +155,8 @@ public class RleInterpreter {
 			throw new PatternFormatException("Mismatch between given height dimension and actual height in pattern");
 
 		for (int y = 0; y < rlePattern.length; y++) {
-			pattern = Pattern.compile("([0-9]*)([A-Za-z])");
-			matcher = pattern.matcher(rlePattern[y]);
+			Pattern regex = Pattern.compile("([0-9]*)([A-Za-z])");
+			matcher = regex.matcher(rlePattern[y]);
 			while (matcher.find()) {
 
 				if (matcher.group(2).equals("b")) { // dead cells
@@ -265,10 +264,6 @@ public class RleInterpreter {
 		return initialRleGeneration;
 	}
 
-	public String getCommentOfRle() {
-		return commentOfRle;
-	}
-
 	public String getAuthorOfRle(){
 		return authorOfRle;
 	}
@@ -285,7 +280,7 @@ public class RleInterpreter {
 		return birthOfRle;
 	}
 
-	public String getDescription() {
-		return description.toString();
+	public String getCommentOfRle() {
+		return commentOfRle.toString();
 	}
 }
