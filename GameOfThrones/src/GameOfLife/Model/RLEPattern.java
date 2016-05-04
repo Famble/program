@@ -154,4 +154,14 @@ public class RLEPattern implements Cloneable {
     public void setCommentOfPattern(String commentOfPattern) {
         this.commentOfPattern = commentOfPattern;
     }
+
+    public boolean hasName(){
+        return nameOfPattern != null;
+    }
+    public boolean hasAuthor(){
+        return authorOfPattern != null || authorOfPattern != "";
+    }
+    public boolean hasComment(){
+        return commentOfPattern != null || commentOfPattern != "";
+    }
 }
