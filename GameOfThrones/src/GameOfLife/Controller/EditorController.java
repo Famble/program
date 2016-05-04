@@ -141,7 +141,7 @@ public class EditorController implements Initializable {
 
 			survival.setText("");
 			birth.setText("");
-			rules.setRules(comboBox.getValue().toString());
+			rules.setRulesFromName(comboBox.getValue().toString());
 
 			for (int i : rules.getSurvivalRules())
 				survival.setText(survival.getText() + i);
