@@ -99,7 +99,8 @@
                   </FXCollections>
                </items>
             </ComboBox>
-            <Button fx:id="HowTo" mnemonicParsing="false" onAction="#handleHowToClick" text="Button" />
+            <ToggleButton fx:id="ShowBorder" mnemonicParsing="false" text="Show Border" prefHeight="40.0"/>
+            <Button fx:id="HowTo" mnemonicParsing="false" onAction="#handleHowToClick" prefHeight="40.0" text="How To.." />
             <Region maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="103.0" />
          </children>
       </HBox>
@@ -154,7 +155,6 @@
                </VBox.margin>
             </Button>
             <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="150.0" text="Save" />
-            
             <Label text="Load Pattern From:">
                <VBox.margin>
                   <Insets bottom="10.0" left="25.0" top="20.0" />

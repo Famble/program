@@ -23,6 +23,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -69,6 +70,8 @@ public class Controller implements Initializable {
 	private ColorPicker colorPicker;
 	@FXML	
 	private Toggle drawDrag;
+	@FXML
+	private Toggle BorderSelected;
 	@FXML
 	private BorderPane borderPaneRoot;
 	private ExecutionControl executionControl;
@@ -231,7 +234,7 @@ public class Controller implements Initializable {
 	
 	} // end of handleOpen
 
-
+	
     /**
      * Uses the scroll function of the user to zoom on the canvas board
      *
@@ -448,6 +451,7 @@ public class Controller implements Initializable {
     		executionControl.stop();	
     		//creates a new stage for the pattern editor
     		Stage editor = new Stage();
+    		editor.getIcons().add(new Image(getClass().getResourceAsStream("golIcon.png")));
     		//loads the fxml file containen the GUI.
     		FXMLLoader loader = new FXMLLoader(getClass().getResource("PatternEditor.fxml"));
     		VBox root = loader.load();
@@ -465,12 +469,21 @@ public class Controller implements Initializable {
     		//draws the strip showing 20 subsequent generation of the pattern.
     		edController.drawStrip(gameBoardClone);
     	}
-	
-
-
-
 	}
-
+    
+    public void handleHowToClick() throws IOException{
+    		//creates a new stage for the pattern editor
+    		Stage howTo = new Stage();
+    		howTo.setResizable(false);
+    		howTo.getIcons().add(new Image(getClass().getResourceAsStream("golIcon.png")));
+    		FXMLLoader loader = new FXMLLoader(getClass().getResource("HowTo.fxml"));
+    		VBox root = (VBox)loader.load();
+    		Scene scene = new Scene(root, 600, 400);
+    		howTo.setScene(scene);
+    		howTo.setTitle("HowTo");
+    		howTo.show();
+    	}
+    
     /**
      * Resets the Game Board by calling on <b>resetGameBoard</b>,
      * and then draws the board by calling on <b>drawNextGeneration</b>.
