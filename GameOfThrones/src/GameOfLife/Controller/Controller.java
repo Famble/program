@@ -43,7 +43,7 @@ import javafx.stage.Stage;
 
 
 public class Controller implements Initializable {
-	
+	int endring = 3;
 	@FXML
 	private Label descriptionText;
 	public FXCollections ting;
