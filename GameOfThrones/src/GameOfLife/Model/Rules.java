@@ -7,6 +7,7 @@ import java.util.Map;
 public class Rules implements Cloneable {
 	private int[] survivalRules = { 2, 3 };
 	private int[] birthRules = { 3 };
+	int a = 3;
 
 	Map<String, int[][]> rules = new HashMap<>();
 
@@ -39,7 +40,7 @@ public class Rules implements Cloneable {
 		rules.put("Replicator", new int[][] { { 1, 3, 5, 7 }, { 1, 3, 5, 7 } });
 		rules.put("Walled Cities", new int[][] { { 2, 3, 4, 5 }, { 4, 5, 6, 7, 8 } });
 
-	}
+	}//lol
 
 	public int[] getSurvivalRules() {
 		return survivalRules;
