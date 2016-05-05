@@ -1,7 +1,9 @@
 package GameOfLife.Controller;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -185,54 +187,116 @@ public class Controller implements Initializable {
      *
      * @see RleInterpreter
      */
-	public void handleOpen()  { 
-		RLEPattern pattern = new RLEPattern();
-		FileHandler file = new FileHandler(borderPaneRoot.getScene().getWindow());
-		//returns a string representation of the rle or null.
-		String rleString = file.toString(); 
-		if(rleString != null){
-			RleInterpreter rleInterp;
+	public void handleOpenUrlRle(){
+		TextInputDialog inputDialog = new TextInputDialog("https://");
+		inputDialog.setTitle("Text Input Dialog");
+		inputDialog.setHeaderText("Get Rle pattern from Url");
+		inputDialog.setContentText("Please enter the Url:");
+
+		FileHandler file = new FileHandler();
+		String rleString = null;
+
+
+		Optional<String> result = inputDialog.showAndWait();
+		if(result.isPresent()){
 			try {
-				rleInterp = new RleInterpreter(rleString, gameBoard.getWidth(), gameBoard.getHeight(), this.gameBoard instanceof DynamicGameBoard);
-				pattern.setPattern(rleInterp.getInitialRleGeneration());
-				pattern.setWidth(rleInterp.getWidth());
-				pattern.setHeight(rleInterp.getHeight());
-				pattern.setNameOfPattern(rleInterp.getNameOfRle());
-				pattern.setAuthorOfPattern(rleInterp.getAuthorOfRle());
-				pattern.setCommentOfPattern(rleInterp.getCommentOfRle());
-				System.out.println(rleInterp.getBirthOfRle());
-				System.out.println(rleInterp.getSurvivalOfRle());
-				gameBoard.getRules().setUserDefinedBirthRules(rleInterp.getBirthOfRle());
-				gameBoard.getRules().setUserDefinedSurvivalRules(rleInterp.getSurvivalOfRle());
-				gameBoard.setSettingPattern(true);
-				gameBoard.setPattern(pattern);
-				cd.setRLEPattern(pattern);
-				cd.drawNextGeneration();
-				descriptionText.setTextFill(Color.BLACK);
-				descriptionText.setText(pattern.getCommentOfPattern());
-			
-			} catch (PatternFormatException e) {
-			
-				Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("PatternFormatException");
-				alert.setContentText(e.getMessage());
-				alert.showAndWait();
+				rleString = result.get();
+
+				if (!((rleString.equals("https://")) || (rleString.equals("http://")))) {
+					System.out.println("fkml");
+					rleString = file.readUrl(rleString);
+					rleReading(rleString);
+				} else {
+					Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("URL ERROR");
+					alert.setContentText("Please enter a valid URL");
+					alert.showAndWait();
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			
+
+
+
 		}else{
-			System.out.println("File was not found");
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("File not found");
+			alert.setContentText("File was not found");
+			alert.showAndWait();
 		}
-		
-		Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	canvas.requestFocus();
-	        }
-	    });
-    	
-	
-	
-	} // end of handleOpen
+
+		Platform.runLater(() -> canvas.requestFocus());
+	}
+
+
+
+
+
+
+
+	/**
+	 * Opens the window for file chooser, and interprets the file, and then
+	 * draws the pattern from the file to the game board.
+	 *
+	 * @see RleInterpreter
+	 */
+	public void handleOpenFileRle()  {
+
+		FileHandler file = new FileHandler();
+		//returns a string representation of the rle or null.
+
+		String rleString = null;
+		try {
+			rleString = file.readDisk(borderPaneRoot.getScene().getWindow());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if(rleString != null){
+
+			rleReading(rleString);
+
+		}else{
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("File not found");
+			alert.setContentText("File was not found");
+			alert.showAndWait();
+		}
+
+		Platform.runLater(() -> canvas.requestFocus());
+
+
+
+	}
+
+	private void rleReading(String rleString){
+		RLEPattern pattern = new RLEPattern();
+		RleInterpreter rleInterp;
+		try {
+			rleInterp = new RleInterpreter(rleString, gameBoard.getWidth(), gameBoard.getHeight(), this.gameBoard instanceof DynamicGameBoard);
+			pattern.setPattern(rleInterp.getInitialRleGeneration());
+			pattern.setWidth(rleInterp.getWidth());
+			pattern.setHeight(rleInterp.getHeight());
+			pattern.setNameOfPattern(rleInterp.getNameOfRle());
+			pattern.setAuthorOfPattern(rleInterp.getAuthorOfRle());
+			pattern.setCommentOfPattern(rleInterp.getCommentOfRle());
+			gameBoard.getRules().setUserDefinedBirthRules(rleInterp.getBirthOfRle());
+			gameBoard.getRules().setUserDefinedSurvivalRules(rleInterp.getSurvivalOfRle());
+			gameBoard.setSettingPattern(true);
+			gameBoard.setPattern(pattern);
+			cd.setRLEPattern(pattern);
+			cd.drawNextGeneration();
+			descriptionText.setTextFill(Color.BLACK);
+			descriptionText.setText(pattern.getCommentOfPattern());
+
+		} catch (PatternFormatException e) {
+
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("PatternFormatException");
+			alert.setContentText(e.getMessage());
+			alert.showAndWait();
+		}
+	}
 
 	
     /**

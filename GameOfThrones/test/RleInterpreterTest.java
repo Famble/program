@@ -9,10 +9,13 @@ public class RleInterpreterTest {
 	String stringOfFile = "#N Gosper glider gun\n"
 			+ "#C This was the first gun discovered.\n"
 			+ "#C As its name suggests, it was discovered by Bill Gosper.\n"
-			+ "x = 36, y = 9, rule = B3/S23\n"
+			+ "x = 36, y = 9, rule = S23/B3\n"
 			+ "24bo$22bobo$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o$2o8bo3bob2o4b\n"
 			+ "obo$10bo5bo7bo$11bo3bo$12b2o!";
 
+	String stringOfFile2 = "#C This is a glider. \n"
+			+ "x = 3, y = 3 \n"
+			+ "bo$2bo$3o!";
 
 	@Test
 	public void testRegexForRleName() throws IOException, PatternFormatException {
@@ -20,8 +23,10 @@ public class RleInterpreterTest {
 		String nameExpect = "Gosper glider gun";
 
 		RleInterpreter rleInt = new RleInterpreter(stringOfFile, 50, 50, false);
+		RleInterpreter rleInt2 = new RleInterpreter(stringOfFile2, 50, 50, false);
 
 		assertEquals(rleInt.getNameOfRle(), nameExpect);
+		assertEquals(rleInt2.getNameOfRle(), null);
 
 	}
 
