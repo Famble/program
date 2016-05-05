@@ -37,7 +37,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class EditorController implements Initializable {
+public class EditorController extends Controller implements Initializable {
 
 	@FXML
 	private VBox vBoxRoot;
@@ -109,6 +109,7 @@ public class EditorController implements Initializable {
 	}
 	
 	public void drawStrip(GameBoard board){
+		
 		sd.drawStrip(board);
 		scrollPane.setPrefHeight(sd.getStripHeight()+ 20);
 		scrollPane.setPrefWidth(sd.getStripWidth());
@@ -116,19 +117,36 @@ public class EditorController implements Initializable {
 
 
 	}
+	public void setPattern(GameBoard board){
+		int shiftedRightwards = 0;
+		int shiftedDownwards = 0;
+			shiftedRightwards = ((DynamicGameBoard) this.board).getInsertedColumnsFromLeft();
+			shiftedDownwards = ((DynamicGameBoard) this.board).getInsertedRowsFromTop();
+		
+		RLEPattern pattern = new RLEPattern(board.getWidth(), board.getHeight());
+		for(int x = 0; x < board.getWidth();x++)
+			for(int y = 0; y< board.getHeight(); y++){
+				if(board.getCellState(x-shiftedRightwards, y-shiftedDownwards, BoardContainer.CURRENTGENERATION))
+					pattern.getPattern()[x][y] = true;
+			}
+		
+		board.setPattern(pattern);
+	}	
 	
-	
-	
+	/**
+	 * 
+	 * @param board deep copy of the board running in the main window.
+	 */
 	public void initialize(GameBoard board){
 		
-
+		
 		this.board = board;
 	
 		this.sd = new StripDrawer(board, canvas.getGraphicsContext2D(), stripCanvas.getGraphicsContext2D());
 		this.GOL = new ExecutionControl(board, sd);
 		
 		canvasParent.widthProperty().addListener((a, b, c) -> {
-			canvas.setWidth((double) c-250);
+			canvas.setWidth((double) c-200);
 			sd.setWindowWidth((double) c);
 		});
 

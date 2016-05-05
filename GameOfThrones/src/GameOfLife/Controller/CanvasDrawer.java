@@ -78,19 +78,24 @@ public class CanvasDrawer {
 		int posX = x * cellSize - canvasDisplacedX;
 		int posY = y * cellSize - canvasDisplacedY;
 		
-		boolean alive = !model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION);
-		model.setCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION, alive);
-		
-		if(this.model instanceof BitGameBoard)
-			model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, alive);
+		try{
+			boolean alive = !model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION);
+			model.setCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION, alive);
+			
+			if(this.model instanceof BitGameBoard)
+				model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, alive);
 
-		if (alive) {
-			gc.setFill(model.getColor());
-			gc.fillOval(posX, posY, cellSize, cellSize);
-		} else {
-			gc.setFill(Color.BLACK);
-			gc.fillOval(posX, posY, cellSize, cellSize);
+			if (alive) {
+				gc.setFill(model.getColor());
+				gc.fillOval(posX, posY, cellSize, cellSize);
+			} else {
+				gc.setFill(Color.BLACK);
+				gc.fillOval(posX, posY, cellSize, cellSize);
+			}
+		}catch(IndexOutOfBoundsException e){
+			System.out.println("clicked outside of broder");
 		}
+		
 
 	}
 
@@ -101,24 +106,29 @@ public class CanvasDrawer {
 		int posX = x * cellSize - canvasDisplacedX;
 		int posY = y * cellSize - canvasDisplacedY;
 
-		if (dragDraw) {
-			if (!model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION)) {
-				model.setCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION, true);
-				if(this.model instanceof BitGameBoard)
-					model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
-				gc.setFill(model.getColor());
-				gc.fillOval(posX, posY, cellSize, cellSize);
+		try{
+			if (dragDraw) {
+				if (!model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION)) {
+					model.setCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION, true);
+					if(this.model instanceof BitGameBoard)
+						model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
+					gc.setFill(model.getColor());
+					gc.fillOval(posX, posY, cellSize, cellSize);
+				}
+
+			} else {
+
+				if (model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION)) {
+					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, false);
+					gc.setFill(Color.BLACK);
+					gc.fillOval(posX, posY, cellSize, cellSize);
+				}
 			}
 
-		} else {
-
-			if (model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION)) {
-				model.setCellState(x, y, BoardContainer.CURRENTGENERATION, false);
-				gc.setFill(Color.BLACK);
-				gc.fillOval(posX, posY, cellSize, cellSize);
-			}
+		}catch(IndexOutOfBoundsException e){
+			System.out.println("Clicked outside of the border");
 		}
-
+		
 	}
 
 	public void zoom(int zoom) {
@@ -211,6 +221,8 @@ public class CanvasDrawer {
 	public void drawPattern() {
 
 		gc.setStroke(Color.WHITE);
+		
+		//draws the border outlining the pattern.
 		gc.strokeRect(-this.canvasDisplacedX + pattern.getPatternTranslationX() * cellSize,
 				-this.canvasDisplacedY + pattern.getPatternTranslationY() * cellSize, pattern.getWidth() * cellSize,
 				pattern.getHeight() * cellSize);
@@ -220,6 +232,7 @@ public class CanvasDrawer {
 		translateXY.setTy(pattern.getPatternTranslationY() * cellSize);
 		gc.setTransform(translateXY);
 		gc.setFill(Color.RED);
+		
 		for (int x = 0; x < pattern.getWidth(); x++) {
 			for (int y = 0; y < pattern.getHeight(); y++) {
 				if (pattern.getPattern()[x][y]) {

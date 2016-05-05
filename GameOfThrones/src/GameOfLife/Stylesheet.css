@@ -96,9 +96,18 @@
 	-fx-background-color: #333333;
 }
 
+#scrollPane{
+		-fx-background-color: #333333;
+}
+#VBoxLeft{
+		-fx-background-color: #333333;
+}
+
 #HBoxUpper {
 	-fx-background-color: #333333;	
 }
+
+
 
 
 

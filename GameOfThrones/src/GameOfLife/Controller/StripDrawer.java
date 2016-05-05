@@ -35,8 +35,12 @@ public class StripDrawer extends CanvasDrawer{
 		
 		Affine transform = new Affine();
 		double tx = 0;
+		//determines the next generation
+		stripModel.nextGenerationConcurrent();
 		setPattern(stripModel);
 		RLEPattern pattern = stripModel.getPattern();
+		//makes the width and height of the pattern as small as possible
+		//while still showing the board.
 		pattern.trim();
 		
 		stripHeight = 0;
@@ -47,7 +51,7 @@ public class StripDrawer extends CanvasDrawer{
 		System.out.printf("cellsize, patternHeight, patternWidth", cellSize, pattern.getHeight(), pattern.getWidth());
 
 		int height = (int) (pattern.getHeight()*cellSize + 20*cellSize);
-		for(int i = 0; i < 20; i++){
+		for(int i = 0; i < 19; i++){
 			for(int x = 0; x < pattern.getWidth(); x++) {
 				for(int y = 0; y < pattern.getHeight(); y++){
 					transform.setTx(tx);
@@ -90,11 +94,11 @@ public class StripDrawer extends CanvasDrawer{
 	public void setPattern(GameBoard board){
 		int shiftedRightwards = 0;
 		int shiftedDownwards = 0;
-		if (board instanceof DynamicGameBoard) {
 			shiftedRightwards = ((DynamicGameBoard) this.model).getInsertedColumnsFromLeft();
 			shiftedDownwards = ((DynamicGameBoard) this.model).getInsertedRowsFromTop();
-		}
+		
 		RLEPattern pattern = new RLEPattern(board.getWidth(), board.getHeight());
+		
 		for(int x = 0; x < board.getWidth();x++)
 			for(int y = 0; y< board.getHeight(); y++){
 				if(board.getCellState(x-shiftedRightwards, y-shiftedDownwards, BoardContainer.CURRENTGENERATION))

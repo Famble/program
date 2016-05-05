@@ -1,6 +1,7 @@
 package GameOfLife.Model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -134,8 +135,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		updateCurrentGeneration();
 
-		nextGenerationConcurrentPrintPerformance(start, System.currentTimeMillis());
-		
+		//nextGenerationConcurrentPrintPerformance(start, System.currentTimeMillis());
 		currentInsertedFromLeft = 0;
 		currentInsertedFromTop = 0;
 	}
@@ -189,7 +189,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		currentInsertedFromLeft = 0;
 		currentInsertedFromTop = 0;
 		
-		nextGenerationPrintPerformance(start, System.currentTimeMillis());
+		//nextGenerationPrintPerformance(start, System.currentTimeMillis());
 
 	}
 
@@ -467,9 +467,9 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	public void resetGameBoard() {
 		for (int i = 0; i < super.getWidth(); i++) {
 			for (int j = 0; j < super.getHeight(); j++) {
-				setCellState(i - insertedColumnsFromLeft, j - insertedRowsFromTop, BoardContainer.CURRENTGENERATION,
+				setCellState(i, j, BoardContainer.CURRENTGENERATION,
 						false);
-				setCellState(i - insertedColumnsFromLeft, j - insertedRowsFromTop, BoardContainer.NEXTGENERATION,
+				setCellState(i , j, BoardContainer.NEXTGENERATION,
 						false);
 			}
 		}
@@ -478,12 +478,17 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	@Override
 	public void transferPattern(int startX, int startY) {
+		//no longer setting the pattern
 		super.setSettingPattern(false);
 		RLEPattern pattern = super.getPattern();
 		for (int x = 0; x < pattern.getWidth(); x++) {
 			for (int y = 0; y < pattern.getHeight(); y++) {
-				setCellState(x + startX, y + startY, BoardContainer.CURRENTGENERATION, pattern.getPattern()[x][y]);
-
+				{
+					setCellState(x + startX+insertedColumnsFromLeft, y + startY+insertedRowsFromTop, BoardContainer.CURRENTGENERATION, pattern.getPattern()[x][y]);
+					currentInsertedFromLeft = 0;
+					currentInsertedFromTop  = 0;
+				}
+				
 			}
 		}
 

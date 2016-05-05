@@ -27,9 +27,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
@@ -41,7 +43,9 @@ import javafx.stage.Stage;
 
 
 public class Controller implements Initializable {
-
+	
+	@FXML
+	private Label descriptionText;
 	public FXCollections ting;
 	@FXML
 	private VBox vBoxRoot;
@@ -65,7 +69,9 @@ public class Controller implements Initializable {
 	private ColorPicker colorPicker;
 	@FXML	
 	private Toggle drawDrag;
-	private ExecutionControl GOL;
+	@FXML
+	private BorderPane borderPaneRoot;
+	private ExecutionControl executionControl;
 	boolean start = true;
     int offsetY = 0;
 	int offsetX = 0;
@@ -78,46 +84,74 @@ public class Controller implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
+		Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	canvas.requestFocus();
+	        	System.out.println("REQUESTER FOCUS");
+	        }
+	    });
+
+		
+		//creates an instance of the gameboard
 		gameBoard = new DynamicGameBoard();
 
+		//creates an instance of canvasdrawer, used to draw the game board.
 		cd = new CanvasDrawer(gameBoard, canvas.getGraphicsContext2D());
 
-		GOL = new ExecutionControl(gameBoard, cd);		
+		//create an instance of ExecutionControl, used to control the execution of the game(start,stop,paus,speed)
+		executionControl = new ExecutionControl(gameBoard, cd);		
 
-		canvas.setOnZoom((zoomEvent) -> {
-
-		});
 
 		colorPicker.setValue(Color.web("#42dd50"));
 		
+		//gets the rules used by the game board instance
 		Rules rules = gameBoard.getRules();
-
+		
+		//create aleart object to warn about wrong user input when user sets rules through the textFields.
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Invalid input");
+	
+		//called whenever the user inputs data into the survival text field.
+		//Update survival condition for if the input is valid.
 		survival.textProperty().addListener((observable, oldValue, survivalString) -> {
-			rules.setUserDefinedSurvivalRules(survivalString);
+			if (survivalString.matches("[1-9]*"))
+				rules.setUserDefinedSurvivalRules(survivalString);
+			else
+			{
+				alert.setContentText("Please only enter integers");
+				alert.showAndWait();
+			}
 		});
 
+		//works as described just above, but with the birth conditions of a cell.
 		birth.textProperty().addListener((observable, oldValue, birthString) -> {
-			rules.setUserDefinedBirthRules(birthString);
+			if(birthString.matches("[1-9]*"))
+				rules.setUserDefinedBirthRules(birthString);
+			else{
+				alert.setContentText("Please only enter integers");
+				alert.showAndWait();
+			}
 
 		});
-		canvasParent.widthProperty().addListener((a, b, c) -> {
-			canvas.setWidth((double) c-150);
-			cd.setWindowWidth((double) c-150);
+		
+		//the canvas is wrapped inside the canvasParent HBox and will fill the parent
+		//whenever the canvasParent changes width this linstener ensure that
+		//the width of the canvas also changes its width.
+		borderPaneRoot.widthProperty().addListener((a, b, newWidthOfBorder) -> {
+			canvas.setWidth((double) newWidthOfBorder-325);
+			cd.setWindowWidth((double) newWidthOfBorder-325);
 		});
 
-		canvasParent.heightProperty().addListener((a, b, c) -> {
-			canvas.setHeight((double) c);
-			cd.setWindowHeight((double) c);
+		//same as above, but with the height of the canvas.
+		borderPaneRoot.heightProperty().addListener((a, b, newHeightOfCanvas) -> {
+			canvas.setHeight((double) newHeightOfCanvas-130);
+			cd.setWindowHeight((double) newHeightOfCanvas-130);
 		});
+		
 
 		comboBox.valueProperty().addListener((observable, oldValue, survivalString) -> {
-
-			int insertedColumnsFromLeft = 0;
-			int insertedRowsFromTop = 0;
-		
-			
-			
-			
+						
 			survival.setText("");
 			birth.setText("");
 			rules.setRulesFromName(comboBox.getValue().toString());
@@ -138,9 +172,7 @@ public class Controller implements Initializable {
 			gameBoard.nextGenerationConcurrent();
 
 		});
-
 		
-		Platform.runLater(() -> canvas.requestFocus());
 
     } // end of Initialize
 
@@ -152,8 +184,9 @@ public class Controller implements Initializable {
      */
 	public void handleOpen()  { 
 		RLEPattern pattern = new RLEPattern();
-		FileHandler file = new FileHandler(vBoxRoot.getScene().getWindow());
-		String rleString = file.toString(); //returns a string representation of the rle or null.
+		FileHandler file = new FileHandler(borderPaneRoot.getScene().getWindow());
+		//returns a string representation of the rle or null.
+		String rleString = file.toString(); 
 		if(rleString != null){
 			RleInterpreter rleInterp;
 			try {
@@ -164,12 +197,17 @@ public class Controller implements Initializable {
 				pattern.setNameOfPattern(rleInterp.getNameOfRle());
 				pattern.setAuthorOfPattern(rleInterp.getAuthorOfRle());
 				pattern.setCommentOfPattern(rleInterp.getCommentOfRle());
+				System.out.println(rleInterp.getBirthOfRle());
+				System.out.println(rleInterp.getSurvivalOfRle());
 				gameBoard.getRules().setUserDefinedBirthRules(rleInterp.getBirthOfRle());
 				gameBoard.getRules().setUserDefinedSurvivalRules(rleInterp.getSurvivalOfRle());
 				gameBoard.setSettingPattern(true);
 				gameBoard.setPattern(pattern);
 				cd.setRLEPattern(pattern);
 				cd.drawNextGeneration();
+				descriptionText.setTextFill(Color.BLACK);
+				descriptionText.setText(pattern.getCommentOfPattern());
+			
 			} catch (PatternFormatException e) {
 			
 				Alert alert = new Alert(AlertType.ERROR);
@@ -181,6 +219,15 @@ public class Controller implements Initializable {
 		}else{
 			System.out.println("File was not found");
 		}
+		
+		Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	canvas.requestFocus();
+	        }
+	    });
+    	
+	
 	
 	} // end of handleOpen
 
@@ -215,7 +262,7 @@ public class Controller implements Initializable {
      *  Handel the slider which changes the speed of the game.
      */
     public void speedSliderDragged() {
-		GOL.setDelay(Math.pow(10, 9) * (1 / sliderSpeed.getValue()));
+		executionControl.setDelay(Math.pow(10, 9) * (1 / sliderSpeed.getValue()));
 	}
 
     /**
@@ -244,11 +291,11 @@ public class Controller implements Initializable {
     public void handleStartClick() {
 		if (start) {
 
-			GOL.startGame();
+			executionControl.startGame();
 			startButton.setText("Stop");
 
 		} else {
-			GOL.stop();
+			executionControl.stop();
 			startButton.setText("Play");
 		}
 		start = !start;
@@ -289,6 +336,13 @@ public class Controller implements Initializable {
 	public void mouseClicked(MouseEvent event) {
 		cd.drawCell((int) event.getX(), (int) event.getY(),drawDrag.isSelected());
 		//drawDrag.isSelected() decides on whenever the cells will be drawn or removed
+		Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	canvas.requestFocus();
+	        }
+	    });
+		
 
 	}
 
@@ -303,30 +357,57 @@ public class Controller implements Initializable {
      */
     public void keyListener(KeyEvent event) throws IOException
 	{
+
 		RLEPattern pattern = gameBoard.getPattern();
-		if(event.getCode() == KeyCode.RIGHT)
-			pattern.setPatternTranslationX(pattern.getPatternTranslationX() + 10);
-		else if(event.getCode() == KeyCode.LEFT)
-			pattern.setPatternTranslationX(pattern.getPatternTranslationX() - 10);
-		else if(event.getCode() == KeyCode.DOWN)
-			pattern.setPatternTranslationY(pattern.getPatternTranslationY() + 10);
-		else if(event.getCode() == KeyCode.UP)
-			pattern.setPatternTranslationY(pattern.getPatternTranslationY() - 10);
-		else if(event.getCode() == KeyCode.ENTER)
+		
+		if(gameBoard.getSettingPattern())
 		{
-			if(gameBoard.getSettingPattern())
+			if(event.getCode() == KeyCode.RIGHT)
 			{
-				gameBoard.transferPattern(pattern.getPatternTranslationX(), pattern.getPatternTranslationY());
-				cd.drawNextGeneration();
-				pattern.setPatternTranslationX(0);
-				pattern.setPatternTranslationY(0);
-				gameBoard.setSettingPattern(false);
+				pattern.setPatternTranslationX(pattern.getPatternTranslationX() + 5);
+				System.out.println("RIGHT");
 			}
+			else if(event.getCode() == KeyCode.LEFT)
+			{
+				pattern.setPatternTranslationX(pattern.getPatternTranslationX() - 5);
+				System.out.println("LEFT");
+			}
+			else if(event.getCode() == KeyCode.DOWN)
+			{
+				pattern.setPatternTranslationY(pattern.getPatternTranslationY() + 5);
+				System.out.println("DOWN");
+			}
+			else if(event.getCode() == KeyCode.UP)
+			{
+				pattern.setPatternTranslationY(pattern.getPatternTranslationY() - 5);
+				System.out.println("UP");
+			}
+			else if(event.getCode() == KeyCode.ENTER)
+			{
+				System.out.println("DET SKJEDDE");
+				
+					gameBoard.transferPattern(pattern.getPatternTranslationX(), pattern.getPatternTranslationY());
+					cd.drawNextGeneration();
+					//reset the translation.
+					pattern.setPatternTranslationX(0);
+					pattern.setPatternTranslationY(0);
+					
+					//pattern has been set to the main game board, so we set the settingPattern field to false
+					gameBoard.setSettingPattern(false);
 			
+				
+			
+			}
+			}
+			Platform.runLater(new Runnable() {
+		        @Override
+		        public void run() {
+		        	canvas.requestFocus();
+		        }
+		    });
+	    	
 		
-		}
-		
-		Platform.runLater(() -> canvas.requestFocus());
+	
 		
 		cd.drawNextGeneration();
 		
@@ -338,9 +419,11 @@ public class Controller implements Initializable {
      */
 
     public void setDimensions(){
+    	/*
 		canvas.setWidth(vBoxRoot.getWidth()-150);
 		canvas.setHeight(canvasParent.getHeight());
 		cd.drawNextGeneration();
+		*/
 	}
 
     /**
@@ -352,19 +435,37 @@ public class Controller implements Initializable {
      */
     public void handleEditorClick() throws IOException{
 		
-		Stage editor = new Stage();
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("PatternEditor.fxml"));
-		VBox root = loader.load();
-		EditorController edController = loader.getController();
-		GOL.stop();	
-		edController.initialize(this.gameBoard);
-		DynamicGameBoard gameBoardClone = (DynamicGameBoard)this.gameBoard.clone();
-		Scene scene = new Scene(root, 1000, 700);
-		editor.setScene(scene);
-		editor.setTitle("Pattern Editor");
-		editor.show();
-		edController.setDimensions();
-		edController.drawStrip(gameBoardClone);
+    	if(!(this.gameBoard instanceof DynamicGameBoard))
+    	{
+    		Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Pattern editor not supported");
+			alert.setContentText("Pattern editor is only supported by using the dynamic game board");
+			alert.showAndWait();
+    	}
+    	else
+    	{
+    		//stops the execution of the main game.
+    		executionControl.stop();	
+    		//creates a new stage for the pattern editor
+    		Stage editor = new Stage();
+    		//loads the fxml file containen the GUI.
+    		FXMLLoader loader = new FXMLLoader(getClass().getResource("PatternEditor.fxml"));
+    		VBox root = loader.load();
+    		//gets the controller of PatternEditor.fxml.
+    		EditorController edController = loader.getController();
+    		//initializes the controller with the copy of the game board
+    		DynamicGameBoard gameBoardClone = (DynamicGameBoard)this.gameBoard.clone();
+    		//sendes the clone of the game board to be initialized in the editor controller
+    		edController.initialize(gameBoardClone);
+    		Scene scene = new Scene(root, 1000, 700);
+    		editor.setScene(scene);
+    		editor.setTitle("Pattern Editor");
+    		editor.show();
+    		edController.setDimensions();
+    		//draws the strip showing 20 subsequent generation of the pattern.
+    		edController.drawStrip(gameBoardClone);
+    	}
+	
 
 
 
