@@ -1,42 +1,64 @@
 package GameOfLife.Controller;
 
 import GameOfLife.Model.GameBoard;
-import GameOfLife.Model.DynamicGameBoard;
 import GameOfLife.Model.BitGameBoard;
 import javafx.animation.AnimationTimer;
 
 /**
- * <h1>Game of life</h1>
- * The GameOfLife controles the speed of the game, can both change
+ * <h1>Execution Control</h1>
+ * The ExecutionControl controls the speed of the game, can both change
  * the speed of the game, stop and start the game.
  * 
- * @author Markus Hellestveit
+ * @author
  *
  */
 public class ExecutionControl extends AnimationTimer {
+	/**
+	 * An instant of the game board.
+	 * @see GameBoard
+	 */
 	private GameBoard model;
+
+	/**
+	 *  An instant of a Canvas Drawer
+	 *  @see CanvasDrawer
+	 */
 	private CanvasDrawer cd;
-	private long a = System.nanoTime();
+
+	/**
+	 * Timestamp manages the time of the game.
+	 */
+	private long timeStamp = 0;
+
+	/**
+	 * Decides the time of each iteration, of the game.
+	 */
 	private long delay = (long) Math.pow(10, 9);
 
 	/**
 	 * Class constructor. Initializes the {@link #model} 
 	 * and {@link #cd}.
 	 * 
-	 * @param model This is an object of {@link BitGameBoard}
-	 * @param cd This is an object of {@link CanvasDrawer}
+	 * @param model This is an object of {@link BitGameBoard BitGameBoard}
+	 * @param cd This is an object of {@link CanvasDrawer CanvasDrawer}
 	 */
 	public ExecutionControl(GameBoard model, CanvasDrawer cd) {
 		this.model = model;
 		this.cd = cd;
 	}
 
+
+	/**
+	 *Handle is called very time
+	 *
+	 * @param now the time of current time.
+     */
 	@Override
 	public void handle(long now) {
-		if (now - a > delay) {
+		if (now - timeStamp > delay) {
 			model.nextGenerationConcurrent();
 			cd.drawNextGeneration();
-			a = now;
+			timeStamp = now;
 		}
 	}
 
