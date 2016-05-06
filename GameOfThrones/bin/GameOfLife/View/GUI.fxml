@@ -174,9 +174,9 @@
                         <Insets />
                      </opaqueInsets>
                   </TextArea>
-                  <Text layoutX="21.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Description">
+                  <Text layoutX="5.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pattern Description">
                      <font>
-                        <Font name="System Bold" size="21.0" />
+                        <Font name="System Bold" size="18.0" />
                      </font>
                   </Text>
                </children>

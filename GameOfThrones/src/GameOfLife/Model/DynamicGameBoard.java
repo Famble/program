@@ -62,7 +62,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	 * The arrayList holding the threads that determine each subsequent
 	 * generation
 	 */
-	public ArrayList<Thread> workers = new ArrayList<>();
+	public ArrayList<Thread> workers = new ArrayList<Thread>();
 
 	/**
 	 * how many columns has been inserted from the left of the game board this generation
@@ -503,6 +503,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	@Override
 	public void nextGeneration() {
 
+		long start = System.currentTimeMillis();
 		int aliveNeighbors;
 		// loops through every cell in the board, including every cell just one
 		// unit outside of the border
@@ -565,7 +566,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		if (alive) {
 			boolean survive = false;
 
-			for (int l = 0; l < super.getRules().getSurvivalRules().length && !survive; l++)
+			for (int l = 0; l < super.getRules().getSurvivalRules().length && survive == false; l++)
 				if (aliveNeighbours == super.getRules().getSurvivalRules()[l])
 					survive = true;
 
@@ -574,7 +575,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		} else {
 			boolean birth = false;
 
-			for (int l = 0; l < super.getRules().getBirthRules().length && !birth; l++)// (2)
+			for (int l = 0; l < super.getRules().getBirthRules().length && birth == false; l++)// (2)
 				if (aliveNeighbours == super.getRules().getBirthRules()[l])
 					birth = true;
 
@@ -584,10 +585,11 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	}
 
 	// assumes board has the same dimensions as gameboard
-	public void setBoard(boolean[][] element) {
+	public <T> void setBoard(boolean[][] element) {
+		boolean[][] board = element;
 		for (int x = 0; x < super.getWidth(); x++) {
 			for (int y = 0; y < super.getHeight(); y++) {
-				if (element[x][y]) {
+				if (board[x][y]) {
 					setCellState(x - insertedColumnsFromLeft, y - insertedColumnsFromLeft,
 							BoardContainer.CURRENTGENERATION, true);
 
@@ -654,8 +656,16 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		return insertedRowsFromTop;
 	}
 
+	public void setInsertedRowsFromTop(int insertedRowsFromTop) {
+		this.insertedRowsFromTop = insertedRowsFromTop;
+	}
+
 	public int getInsertedColumnsFromLeft() {
 		return insertedColumnsFromLeft;
+	}
+
+	public void setInsertedColumnsFromLeft(int insertedColumnsFromLeft) {
+		this.insertedColumnsFromLeft = insertedColumnsFromLeft;
 	}
 
 
@@ -696,8 +706,9 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	 * the insertedColumnsFromLeft variable to keep track of how much the game
 	 * board has been shifted downwards.
 	 * 
-	 * @param rowsRequired
-	 *            the amount of rows required to encompass the cell set by   setCellState
+	 * @param columnsRequired
+	 *            the amount of rows required to encompass the cell set by
+	 *            setCellState
 	 */
 	private void extendBorderFromTop(int rowsRequired) {
 
@@ -726,6 +737,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	 * @param columnsRequired
 	 *            The amount of columns to encompass the living cell set by
 	 *            setCellState()
+	 * @see setCellState(int x, int y, BoardContainer bc, boolean alive)
 	 */
 	private void extendBorderFromRight(int columnsRequired) {
 
@@ -753,42 +765,25 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	 *            setCellState()
 	 * 
 	 */
-	private void extendBorderFromBottom(int rowsRequired) {
-
-		for (int i = 0; i < this.getWidth(); i++) {
-
-			for (int j = this.getHeight(); j < rowsRequired + this.getHeight(); j++) {
-				currGeneration.get(i).add(j, false);
-				nextGeneration.get(i).add(j, false);
+		private void extendBorderFromBottom(int rowsRequired) {
+			int rowsToInsert = rowsRequired;
+	
+			for (int i = 0; i < this.getWidth(); i++) {
+	
+				for (int j = this.getHeight(); j < rowsToInsert + this.getHeight(); j++) {
+					currGeneration.get(i).add(j, false);
+					nextGeneration.get(i).add(j, false);
+				}
 			}
+	
+			super.setHeight(super.getHeight() + rowsToInsert);
+	
 		}
 
-		super.setHeight(super.getHeight() + rowsRequired);
-
-	}
-
-	/**
-	 * Used to compare the performance of concurrent <b>single thread</b>.
-	 *
-	 * Prints the amount of second it takes to determine the next generation and copy
-	 * the next generation to current generation without using threads
-	 *
-	 * @param start time when #nextGeneration started
-	 * @param end time when #nextGeneration ended
-     */
 	public void nextGenerationPrintPerformance(long start, long end) {
 		System.out.printf("Time elapsed(ms): %d)\n", (end - start));
 	}
 
-	/**
-	 * Used to compare the performance of concurrent <b>single thread</b>.
-	 *
-	 * Prints the amount of second it takes to determine the next generation and copy
-	 * the next generation to current generation without using threads
-	 *
-	 * @param start time when #nextGeneration started
-	 * @param end time when #nextGeneration ended
-	 */
 	public void nextGenerationConcurrentPrintPerformance(long start, long end) {
 		System.out.printf("Time elapsed(ms): %d)\n", (end - start));
 	}
@@ -797,8 +792,16 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		return currGeneration;
 	}
 
+	public void setCurrGeneration(ArrayList<ArrayList<Boolean>> currGeneration) {
+		this.currGeneration = currGeneration;
+	}
+
 	public ArrayList<ArrayList<Boolean>> getNextGeneration() {
 		return nextGeneration;
+	}
+
+	public void setNextGeneration(ArrayList<ArrayList<Boolean>> nextGeneration) {
+		this.nextGeneration = nextGeneration;
 	}
 
 	/**

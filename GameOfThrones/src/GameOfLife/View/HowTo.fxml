@@ -9,7 +9,7 @@
    <children>
       <ImageView fitHeight="499.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@HelpInterface.jpg" />
+            <Image url="@HowToInterface.jpg" />
          </image>
       </ImageView>
    </children>
