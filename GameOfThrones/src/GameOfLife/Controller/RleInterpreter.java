@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 /**
  * This class decodes/parses a RLE file, and then stores an array for later use.
  *
- * @author Johnny Lam, Markus Hellestveit
+ * @author Johnny Lam and Dusan Jakovic have done pair-programming, while Markus helped to impliment smaller method
  */
 public class RleInterpreter {
     private Matcher matcher;
@@ -55,7 +55,6 @@ public class RleInterpreter {
     /**
      * Locates the meat data for the file, as Name and Comment of the file.
      *
-     * @throws PatternFormatException
      */
     private void readHeader() {
 
@@ -71,10 +70,6 @@ public class RleInterpreter {
                 commentHolder = matcher.group(2);
                 commentOfRle.append(commentHolder).append("\n");
                 testHeader.append(commentHolder).append("\n");
-            } else if (matcher.group(1).equalsIgnoreCase("c")) {
-                commentHolder = matcher.group(2);
-                commentOfRle.append(commentHolder).append("\n");
-                testHeader.append(commentHolder).append("\n");
             } else if (matcher.group(1).equalsIgnoreCase("O")) {
                 authorOfRle = matcher.group(2);
                 testHeader.append(authorOfRle).append("\n");
@@ -84,7 +79,8 @@ public class RleInterpreter {
     }
 
     /**
-     * Locates and determinate the the dimension and rule of the pattern in the
+     * Locates
+     * and determinate the the dimension and rule of the pattern in the
      * file.
      *
      * @throws PatternFormatException checks if width and height of the pattern is less that width
@@ -92,10 +88,9 @@ public class RleInterpreter {
      */
     private void readDimensionAndRule() throws PatternFormatException {
 
-        Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=(([A-Za-z])*([0-9]*)/([A-Za-z])*([0-9]*)))",
+        Pattern regex = Pattern.compile("x=([0-9]+),y=([0-9]+)(,rule=(([A-Za-z])*([0-9]*)/([A-Za-z])*([0-9]*)))?",
                 Pattern.MULTILINE);
 
-        // System.out.println(this.rleString);
         int amountOfSpaces = 0;
         for (int i = 0; i < this.rleString.length(); i++)
             if (rleString.charAt(i) == ' ')
@@ -117,26 +112,28 @@ public class RleInterpreter {
                         this.gameBoardWidth, this.gameBoardHeight));
             }
 
-            if (matcher.group(5).equalsIgnoreCase("B")){
-                birthOfRle = matcher.group(6);
-                System.out.println("sadfe");
-            }else if(matcher.group(5).equalsIgnoreCase("S")){
-                survivalOfRle = matcher.group(6);
+            if(matcher.group(3)== null){ //Checks if there is set any rules, if not sets the default rules
+                birthOfRle = "3";
+                survivalOfRle = "23";
+
+            }else {
+                if (matcher.group(5).equalsIgnoreCase("B")) {
+                    birthOfRle = matcher.group(6);
+                } else if (matcher.group(5).equalsIgnoreCase("S")) {
+                    survivalOfRle = matcher.group(6);
+                }
+
+                if (matcher.group(7).equalsIgnoreCase("B")) {
+                    birthOfRle = matcher.group(8);
+
+                } else if (matcher.group(7).equalsIgnoreCase("S")) {
+                    survivalOfRle = matcher.group(8);
+
+                }
+                this.rule = matcher.group(3).replaceAll("[^/0-9]", "");
             }
 
-            if (matcher.group(7).equalsIgnoreCase("B")){
-                birthOfRle = matcher.group(8);
-                System.out.println(matcher.group(7));
-                System.out.println(birthOfRle);
 
-            }else if(matcher.group(7).equalsIgnoreCase("S")){
-                survivalOfRle = matcher.group(8);
-                System.out.println("Survival:");
-                System.out.println(matcher.group(7));
-
-            }
-
-            this.rule = matcher.group(3).replaceAll("[^/0-9]", "");
             lastIndexOfHeader = matcher.end() + amountOfSpaces;
         }
 
@@ -154,7 +151,6 @@ public class RleInterpreter {
         this.initialRleGeneration = new boolean[width][height];
 
         String rlePattern[] = this.rleString.substring(lastIndexOfHeader).split("\\$");
-        // System.out.println(this.rleString.substring(lastIndexOfHeader));
         int aliveCells;
         int deadCells;
         int x = 0;
@@ -164,8 +160,11 @@ public class RleInterpreter {
         if (this.getHeight() < rlePattern.length)
             throw new PatternFormatException("Mismatch between given height dimension and actual height in pattern");
 
+
+        boolean ending = false;
         for (int y = 0; y < rlePattern.length; y++) {
-            Pattern regex = Pattern.compile("([0-9]*)([A-Za-z])");
+
+            Pattern regex = Pattern.compile("([0-9]*)([A-Za-z])([!])?");
             matcher = regex.matcher(rlePattern[y]);
             while (matcher.find()) {
 
@@ -217,29 +216,30 @@ public class RleInterpreter {
                         this.initialRleGeneration[x + i][y] = false;
                 }
 
+                if(matcher.group(3) != null && (matcher.group(3).equals("!"))){
+                    ending = true;
+                    testGameBoard.append("!");
+                    break;
+                }
+
+
             } //end of while((matcher.find())
 
             x = 0;
-            if ((rlePattern[y].charAt(rlePattern[y].length() - 1) == '!')) {
-                testGameBoard.append("!");
+
+            if(ending){
                 break;
-            } else {
+            }else{
                 testGameBoard.append("$");
-
             }
-
         } // end of for-loop
 
     } // end of readBoard
 
-    public String getTestHeader() {
-        return testHeader.toString();
-    }
-
-    public String getTestDimensionAndRule() {
-        return testDimensionAndRule.toString();
-    }
-
+    /**
+     * This method is mainly in use in RleInterpreterTest, and the
+     * @return String of the gameboard that is read in the pattern
+     */
     public String getTestGameBoard() {
         return testGameBoard.toString();
     }
@@ -253,42 +253,69 @@ public class RleInterpreter {
         return testHeader.toString() + testDimensionAndRule.toString() + testGameBoard.toString();
     }
 
-    public int getCap() {
-        return testGameBoard.length();
-    }
-
+    /**
+     * Gets the name of the pattern
+     * @return pattern name
+     */
     public String getNameOfRle() {
         return nameOfRle;
     }
 
+    /**
+     * Gets the high that is provided in the pattern
+     * @return high of the pattern
+     */
     public int getHeight() {
         return height;
     }
 
+    /**
+     * Gets the width that is provided in the pattern
+     * @return width of the pattern
+     */
     public int getWidth() {
         return width;
     }
 
+    /**
+     * Gives a pattern as an boolean array, that is interpret from the pattern given
+     * @return pattern of
+     */
     public boolean[][] getInitialRleGeneration() {
         return initialRleGeneration;
     }
 
+    /**
+     * Gets the author and date of the pattern, if there are any.
+     * @return Author and/or date of pattern
+     */
     public String getAuthorOfRle() {
         return authorOfRle;
     }
 
-    public String getRule() {
-        return rule;
-    }
-
+    /**
+     * gets the survival rule of the pattern
+     *
+     * @return value of when a cell should survive
+     */
     public String getSurvivalOfRle() {
         return survivalOfRle;
     }
 
+    /**
+     * gets the birth rule of the pattern
+     *
+     * @return value of when a cell should birth
+     */
     public String getBirthOfRle() {
         return birthOfRle;
     }
 
+    /**
+     * gets the comment rule of the pattern, if there are any.
+     *
+     * @return comment that is provided in pattern.
+     */
     public String getCommentOfRle() {
         return commentOfRle.toString();
     }
