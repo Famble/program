@@ -43,7 +43,14 @@ public abstract class GameBoard implements Cloneable
 	 * the color of each individual cell
 	 */
 	private Color cellColor = Color.web("#42dd50");
+	/**
+	 * A pattern that can be loaded from RLE.
+	 */
 	private RLEPattern pattern;
+	/**
+	 * This boolean is set to true whenever the user loads an rle file, and remain true until the user presses
+	 * enter and stores the pattern in its current generation container.
+	 */
 	private boolean settingPattern = false;
 	
 	
@@ -133,6 +140,7 @@ public abstract class GameBoard implements Cloneable
 	public void setPattern(RLEPattern pattern){
 		this.pattern = pattern;
 	}
+	
 	
 	public void setSettingPattern(boolean settingPattern) {
 		this.settingPattern = settingPattern;

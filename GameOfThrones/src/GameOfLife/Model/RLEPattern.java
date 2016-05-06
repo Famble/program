@@ -2,9 +2,20 @@ package GameOfLife.Model;
 
 import java.util.Arrays;
 
+/**
+ * 
+ * @author Johnny Lam, Markus Hellestveit.
+ *
+ */
 public class RLEPattern implements Cloneable {
 
+	/**
+	 * Width of pattern
+	 */
     private int width;
+    /**
+     * height of pattern
+     */
     private int height;
 
 
@@ -31,6 +42,9 @@ public class RLEPattern implements Cloneable {
         this.pattern = new boolean[width][height];
     }
 
+    /**
+     * Makes the pattern a small as a rectangle possible while still holding every living cell in the original pattern
+ 	*/
     public void trim() {
         int lowestX = getWidth();
         int lowestY = getHeight();

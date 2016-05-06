@@ -75,9 +75,15 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	 * it's either 1 or 0.
 	 */
 	public int currentInsertedRowsFromTop = 0;
+	
+	/**
+	 * static instance of the dynamic game board.
+	 */
+	private static DynamicGameBoard dynamicGameBoard;
+
 
 	/**
-	 * Constructor that sets the initial size of the game board to a 100x100
+	 * Private constructor that sets the initial size of the game board to a 100x100
 	 * grid and gets the available processors of the client to be used by
 	 * threads.
 	 * 
@@ -106,6 +112,14 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 	}
 	
+	
+	/**
+	 * Clears the current ArrayLists and creates new 2d arraylists
+	 * based on the width and heigh specified by the parameters
+	 * Used for testing.
+	 * @param width of the game board
+	 * @param height of the game board.
+	 */
 	public void setNewWidthAndHeight(int width, int height){
 		currGeneration.clear();
 		nextGeneration.clear();
@@ -121,8 +135,14 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 		
 	}
-	private static DynamicGameBoard dynamicGameBoard;
 	
+	
+	/**
+	 * returns a single instance of the game board by envoking the private constructor if this class if
+	 * not instance exists. If there exists an instance, then that instance will be returnd. Ensuring only
+	 * one game board can be initializes.
+	 * @return
+	 */
 	public static DynamicGameBoard getInstance(){
 		if(dynamicGameBoard == null)
 			dynamicGameBoard = new DynamicGameBoard();
@@ -130,6 +150,126 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		return dynamicGameBoard;
 	}
 	 
+	
+	/**
+	 * Determines the next generation using threads and updates the game board.
+	 */
+	@Override
+	public void nextGenerationConcurrent() {
+		long start = System.currentTimeMillis();
+
+		createThreads();
+
+		/**
+		 * runs each thread, that together determine the next generation of the
+		 * board concurrently. The threads only determine and sets the next
+		 * generation of the cell within the currently defined border. the for
+		 * loops later in this method checks if any cells is alive one unit
+		 * outside the border. This is done to avoid concurrency issues, where
+		 * one thread extends the board, but the other already has operated on
+		 * the board that is not extended.
+		 */
+		try {
+			runThreads();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		/**
+		 * clears the threads from the ArrayList(can't delete the because of
+		 * garbage collection in java)
+		 */
+		workers.clear();
+
+		nextGenerationOutsideLeftBorder();
+
+		nextGenerationOutsideRightBorder();
+
+		nextGenerationOutsideTopBorder();
+
+		nextGenerationOutsideBottomBorder();
+
+		// copies the next generation to the current generation
+		updateCurrentGeneration();
+
+		// print the amount of time the next generation method has taken.
+		nextGenerationConcurrentPrintPerformance(start, System.currentTimeMillis());
+
+		currentInsertedColumnsFromLeft = 0;
+		currentInsertedRowsFromTop = 0;
+	}
+	
+	/**
+	 * Creates the threads used to determine each subsequent generation. The
+	 * width of the game board is divided into sectors by the amount of CPUCORES
+	 * the client computer has. Each thread is responsible for determining the
+	 * next generation of its respective sector. The threads perform
+	 * determineNextGenerationOfSector concurrently.
+	 * 
+	 */
+	public void createThreads() {
+
+		for (int sector = 0; sector < CPUCORES; sector++) {
+			// the width of the sector each thread is responsible for(except the
+			// last if super.getWidth() does not divide evenly into CPUCORES)
+			int WidthOfSector = super.getWidth() / CPUCORES;
+			int start;
+			int end;
+			// for the last sector we set end endpoint to super.getWidth();
+			if (sector == CPUCORES - 1) {
+				start = WidthOfSector * sector;
+				end = super.getWidth();
+
+			} else {
+				start = WidthOfSector * sector;
+				end = WidthOfSector * (sector + 1);
+			}
+			workers.add(new Thread(() -> {
+				determineNextGenerationOfSector(start, end);
+			}));
+		}
+
+	}
+	
+	/**
+	 * t.start(); runs every thread concurrently, while t.join() waits for every
+	 * thread to finish before continuing the main thread.
+	 * 
+	 * @throws InterruptedException
+	 */
+	public void runThreads() throws InterruptedException {
+
+		for (Thread t : workers) {
+			t.start();
+		}
+
+		// ensures that all threads are completed before
+		for (Thread t : workers) {
+			t.join();
+		}
+
+	}
+	
+	
+	/**
+	 * loops trough the sector specified by the start and end parameters, counts
+	 * the neighbors and determines the next state of every cell within it.
+	 * 
+	 */
+	private void determineNextGenerationOfSector(int start, int end) {
+		int aliveNeighbors;
+		for (int x = start; x < end; x++) {
+			for (int y = 0; y < super.getHeight(); y++) {
+				{
+					aliveNeighbors = countNeighbours(x, y);
+					setCellStateFromRules(x, y, aliveNeighbors);
+				}
+
+			}
+		}
+
+	}
+
 
 
 
@@ -200,85 +340,8 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 	}
 
-	/**
-	 * Determines the next generation using threads and updates the game board.
-	 */
-	@Override
-	public void nextGenerationConcurrent() {
-		long start = System.currentTimeMillis();
-
-		createThreads();
-
-		/**
-		 * runs each thread, that together determine the next generation of the
-		 * board concurrently. The threads only determine and sets the next
-		 * generation of the cell within the currently defined border. the for
-		 * loops later in this method checks if any cells is alive one unit
-		 * outside the border. This is done to avoid concurrency issues, where
-		 * one thread extends the board, but the other already has operated on
-		 * the board that is not extended.
-		 */
-		try {
-			runThreads();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		/**
-		 * clears the threads from the ArrayList(can't delete the because of
-		 * garbage collection in java)
-		 */
-		workers.clear();
-
-		nextGenerationOutsideLeftBorder();
-
-		nextGenerationOutsideRightBorder();
-
-		nextGenerationOutsideTopBorder();
-
-		nextGenerationOutsideBottomBorder();
-
-		// copies the next generation to the current generation
-		updateCurrentGeneration();
-
-		// print the amount of time the next generation method has taken.
-		nextGenerationConcurrentPrintPerformance(start, System.currentTimeMillis());
-
-		currentInsertedColumnsFromLeft = 0;
-		currentInsertedRowsFromTop = 0;
-	}
-
-	/**
-	 * Creates the threads used to determine each subsequent generation. The
-	 * width of the game board is divided into sectors by the amount of CPUCORES
-	 * the client computer has. Each thread is responsible for determining the
-	 * next generation of its respective sector. The threads perform
-	 * determineNextGenerationOfSector concurrently.
-	 * 
-	 */
-	public void createThreads() {
-
-		for (int sector = 0; sector < CPUCORES; sector++) {
-			// the width of the sector each thread is responsible for(except the
-			// last if super.getWidth() does not divide evenly into CPUCORES)
-			int WidthOfSector = super.getWidth() / CPUCORES;
-			int start;
-			int end;
-			// for the last sector we set end endpoint to super.getWidth();
-			if (sector == CPUCORES - 1) {
-				start = WidthOfSector * sector;
-				end = super.getWidth();
-
-			} else {
-				start = WidthOfSector * sector;
-				end = WidthOfSector * (sector + 1);
-			}
-			workers.add(new Thread(() -> {
-				determineNextGenerationOfSector(start, end);
-			}));
-		}
-
-	}
+	
+	
 
 	/**
 	 * <p>
@@ -414,24 +477,24 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	/**
 	 * Determines the next generation of each game board and updates the current
-	 * game board to the next generation using the private helper method @see
-	 * updateCurrentGeneration(). The for loop loops through every cell in the
+	 * game board to the next generation using the private helper method updateCurrentGeneration
+	 * .The for loop loops through every cell in the
 	 * board and calls countNeighbors() in order to get the amount of living
 	 * neighbors around that cell. Then that cells along with the amount of
-	 * neighbours are sent as arguments to
+	 * neighbors are sent as arguments to
 	 * <code>setCellStateFromRules(x, y, aliveNieghbors)</code> which stores the
 	 * new state of the cell, depending on the current rule set.
 	 * <p>
-	 * The we add subtract 1 from the start point of both for loops, and add 1
+	 * The we subtract 1 from the start point of both for loops, and add 1
 	 * to the end of both end points. We do this so we are able to count the
 	 * neighbors of cells one row/columns outside of the border. If a cell
 	 * outside the main border has 3 dead neighbors(regular conway's life
 	 * rules), then we extend the the game board one row or column and sets the
-	 * state of that cell to alive. For example if a cell is one column right of
+	 * state of that cell to alive. For example if a cell  one column right of
 	 * the current border has 3 dead neighbors, then the method
 	 * extendBorderFromRight is called and the main game board is expanded by
 	 * one column to encompass that alive cell. However if all cells just
-	 * outside the border are dead in the next generation as well, the game
+	 * outside the border are dead in the next generation , the game
 	 * board will not be expanded.
 	 * 
 	 * 
@@ -465,43 +528,6 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
-	/**
-	 * t.start(); runs every thread concurrently, while t.join() waits for every
-	 * thread to finish before continuing the main thread.
-	 * 
-	 * @throws InterruptedException
-	 */
-	public void runThreads() throws InterruptedException {
-
-		for (Thread t : workers) {
-			t.start();
-		}
-
-		// ensures that all threads are completed before
-		for (Thread t : workers) {
-			t.join();
-		}
-
-	}
-
-	/**
-	 * loops trough the sector specified by the start and end parameters, counts
-	 * the neighbors and determines the next state of every cell within it.
-	 * 
-	 */
-	private void determineNextGenerationOfSector(int start, int end) {
-		int aliveNeighbors;
-		for (int x = start; x < end; x++) {
-			for (int y = 0; y < super.getHeight(); y++) {
-				{
-					aliveNeighbors = countNeighbours(x, y);
-					setCellStateFromRules(x, y, aliveNeighbors);
-				}
-
-			}
-		}
-
-	}
 
 	/**
 	 * 
@@ -588,6 +614,9 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
+	/**
+	 * kills every cell
+	 */
 	@Override
 	public void resetGameBoard() {
 		for (int i = 0; i < super.getWidth(); i++) {
@@ -599,6 +628,11 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	}
 
+	/**
+	 * Transfer the pattern from the superclass into the current generation And
+	 * disables setting pattern sice the pattern is now stored in the current
+	 * generation. Also makes every cell in the scope of the pattern active.
+	 */
 	@Override
 	public void transferPattern(int startX, int startY) {
 		// no longer setting the pattern
@@ -796,6 +830,10 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		this.nextGeneration = nextGeneration;
 	}
 
+	/**
+	 * Converts the current generation to a one-dimensional string representation and returns it
+	 * @return One dimensional string representation of the game board.
+	 */
 	@Override
 	public String toString() {
 		String currentGen = "";

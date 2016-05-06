@@ -95,18 +95,12 @@ public class Controller implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-		Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	canvas.requestFocus();
-	        	System.out.println("REQUESTER FOCUS");
-	        }
-	    });
+		
 
 		GameBoardFactorySingleTon GameBoardFactorySingleton = new GameBoardFactorySingleTon();
 		
 		//creates an instance of the gameboard
-		gameBoard = GameBoardFactorySingleton.getInstance(GameBoardType.DynamicGameBoard);
+		gameBoard = GameBoardFactorySingleton.getInstance(GameBoardType.BitGameBoard);
 
 		//creates an instance of canvasdrawer, used to draw the game board.
 		canvasDrawer = new CanvasDrawer(canvas.getGraphicsContext2D());
@@ -181,7 +175,15 @@ public class Controller implements Initializable {
 			}
 			
 
-			gameBoard.nextGenerationConcurrent();
+			gameBoard.nextGeneration();
+			
+			Platform.runLater(new Runnable() {
+		        @Override
+		        public void run() {
+		        	canvas.requestFocus();
+		        	System.out.println("REQUESTER FOCUS");
+		        }
+		    });
 
 		});
 		
