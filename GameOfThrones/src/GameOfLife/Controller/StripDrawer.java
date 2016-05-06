@@ -25,9 +25,9 @@ public class StripDrawer extends CanvasDrawer{
 	}
 
 
-	public StripDrawer(GameBoard model, GraphicsContext gc, GraphicsContext gcStrip) {
-		super(model, gc);
-		this.gcStrip = gcStrip;
+	public StripDrawer(GraphicsContext graphicsContext, GraphicsContext graphicsContextStrip) {
+		super(graphicsContext);
+		this.gcStrip = graphicsContextStrip;
 	}
 	
 	
@@ -36,7 +36,7 @@ public class StripDrawer extends CanvasDrawer{
 		Affine transform = new Affine();
 		double tx = 0;
 		//determines the next generation
-		stripModel.nextGenerationConcurrent();
+		stripModel.nextGeneration();
 		setPattern(stripModel);
 		RLEPattern pattern = stripModel.getPattern();
 		//makes the width and height of the pattern as small as possible
@@ -70,7 +70,7 @@ public class StripDrawer extends CanvasDrawer{
 			stripHeight = Math.max(stripHeight, pattern.getHeight()*cellSize);
 			tx+= 20 + cellSize*pattern.getWidth();
 			stripWidth+=tx;
-			stripModel.nextGenerationConcurrent();;
+			stripModel.nextGeneration();;
 			setPattern(stripModel);
 			pattern = stripModel.getPattern();
 			pattern.trim();

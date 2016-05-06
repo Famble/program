@@ -6,7 +6,6 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import GameOfLife.FileHandler;
-import GameOfLife.RleInterpreter;
 import GameOfLife.Model.DynamicGameBoard;
 import GameOfLife.Model.GameBoard;
 import GameOfLife.Model.GameBoard.BoardContainer;
@@ -142,8 +141,8 @@ public class EditorController extends Controller implements Initializable {
 		
 		this.board = board;
 	
-		this.sd = new StripDrawer(board, canvas.getGraphicsContext2D(), stripCanvas.getGraphicsContext2D());
-		this.GOL = new ExecutionControl(board, sd);
+		this.sd = new StripDrawer(canvas.getGraphicsContext2D(), stripCanvas.getGraphicsContext2D());
+		this.GOL = new ExecutionControl(sd);
 		
 		canvasParent.widthProperty().addListener((a, b, c) -> {
 			canvas.setWidth((double) c-200);
@@ -171,7 +170,7 @@ public class EditorController extends Controller implements Initializable {
 				for (int j = 0; j < (board.getHeight() + 1)/64; j++)
 					board.setCellState(i, j, BoardContainer.ACTIVEGENERATION, false);
 
-			board.nextGenerationConcurrent();
+			board.nextGeneration();
 
 		});
 
@@ -192,7 +191,7 @@ public class EditorController extends Controller implements Initializable {
 	public void setDimensions(){
 		canvas.setWidth(vBoxRoot.getWidth()-250);
 		canvas.setHeight(canvasParent.getHeight());
-		sd.drawNextGeneration();
+		sd.drawBoard();
 	}
 	
 	@Override
@@ -227,9 +226,9 @@ public class EditorController extends Controller implements Initializable {
 	public void zoomSliderDragged() {
 
 		if (sd.getCellSize() - (int) sliderZoom.getValue() == -1)
-			sd.zoom((int) 1);
+			sd.zoomInMiddleOfScreen((int) 1);
 		else if (sd.getCellSize() - (int) sliderZoom.getValue() == 1)
-			sd.zoom(-1);
+			sd.zoomInMiddleOfScreen(-1);
 
 	}
 
@@ -252,9 +251,7 @@ public class EditorController extends Controller implements Initializable {
 
 	}
 
-	public void mouseClicked(MouseEvent event) {
-		sd.drawCell((int) event.getX(), (int) event.getY());
-	}
+
 
 	public void mouseClicked(MouseEvent event, boolean dragDraw) {
 		sd.drawCell((int) event.getX(), (int) event.getY(), dragDraw);

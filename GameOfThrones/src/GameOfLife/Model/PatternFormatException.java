@@ -1,5 +1,9 @@
 package GameOfLife.Model;
-
+/**
+ * 
+ * @author Johnny Lam(s305063)
+ *
+ */
 public class PatternFormatException extends Exception{
 
 

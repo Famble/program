@@ -29,11 +29,11 @@ public class Main extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Game of Life");
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("View/GUI.fxml"));
-		primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("golIcon.png")));
+		primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("View/golIcon.png")));
 		BorderPane root = (BorderPane)loader.load();
 		Controller controller = loader.getController();
 		Scene scene = new Scene(root, 1000, 700);
-		scene.getStylesheets().add(getClass().getResource("Stylesheet.css").toExternalForm());
+		scene.getStylesheets().add(getClass().getResource("View/Stylesheet.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		controller.setDimensions();

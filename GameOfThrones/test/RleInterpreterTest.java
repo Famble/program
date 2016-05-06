@@ -2,7 +2,7 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-import GameOfLife.RleInterpreter;
+import GameOfLife.Controller.RleInterpreter;
 import GameOfLife.Model.PatternFormatException;
 
 public class RleInterpreterTest {

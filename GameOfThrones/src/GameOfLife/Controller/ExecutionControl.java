@@ -1,6 +1,7 @@
 package GameOfLife.Controller;
 
 import GameOfLife.Model.GameBoard;
+import GameOfLife.Model.GameBoardFactorySingleTon;
 import GameOfLife.Model.BitGameBoard;
 import javafx.animation.AnimationTimer;
 
@@ -9,7 +10,7 @@ import javafx.animation.AnimationTimer;
  * The ExecutionControl controls the speed of the game, can both change
  * the speed of the game, stop and start the game.
  * 
- * @author
+ * @author 
  *
  */
 public class ExecutionControl extends AnimationTimer {
@@ -40,11 +41,11 @@ public class ExecutionControl extends AnimationTimer {
 	 * and {@link #cd}.
 	 * 
 	 * @param model This is an object of {@link BitGameBoard BitGameBoard}
-	 * @param cd This is an object of {@link CanvasDrawer CanvasDrawer}
+	 * @param canvasDrawer This is an object of {@link CanvasDrawer CanvasDrawer}
 	 */
-	public ExecutionControl(GameBoard model, CanvasDrawer cd) {
-		this.model = model;
-		this.cd = cd;
+	public ExecutionControl(CanvasDrawer canvasDrawer) {
+		this.model = GameBoardFactorySingleTon.getInstance();
+		this.cd = canvasDrawer;
 	}
 
 
@@ -57,7 +58,7 @@ public class ExecutionControl extends AnimationTimer {
 	public void handle(long now) {
 		if (now - timeStamp > delay) {
 			model.nextGenerationConcurrent();
-			cd.drawNextGeneration();
+			cd.drawBoard();
 			timeStamp = now;
 		}
 	}

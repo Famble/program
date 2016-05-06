@@ -18,8 +18,7 @@ import GameOfLife.Model.GameBoard.BoardContainer;
  * cells required. The data type used in the game board is an
  * ArrayList<ArrayList<Boolean>>. We use boolean cells to show that our
  * implementation of game of life both supports a "bit board" and a regular
- * boolean board. The optimalization using active cells is not used in this
- * class.
+ * boolean board. The optimization using active cells is not used in this class.
  * </p>
  * <p>
  * The x(horizontal) position of each cell is determined by index of the
@@ -33,7 +32,13 @@ import GameOfLife.Model.GameBoard.BoardContainer;
  */
 public class DynamicGameBoard extends GameBoard implements Cloneable {
 
+	/**
+	 * Holds the current generation of game of life.
+	 */
 	private ArrayList<ArrayList<Boolean>> currGeneration;
+	/**
+	 * Holdes the next generation of game of life.
+	 */
 	private ArrayList<ArrayList<Boolean>> nextGeneration;
 
 	/**
@@ -59,8 +64,17 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	 */
 	public ArrayList<Thread> workers = new ArrayList<Thread>();
 
-	public int currentInsertedFromLeft = 0;
-	public int currentInsertedFromTop = 0;
+	/**
+	 * how many columns has been inserted from the left of the game board this generation
+	 * It's either 1 or 0.
+	 *
+	 */
+	public int currentInsertedColumnsFromLeft = 0;
+	/**
+	 * How many rows has been inserted from the top of the game board this generation
+	 * it's either 1 or 0.
+	 */
+	public int currentInsertedRowsFromTop = 0;
 
 	/**
 	 * Constructor that sets the initial size of the game board to a 100x100
@@ -68,7 +82,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	 * threads.
 	 * 
 	 */
-	public DynamicGameBoard() {
+	private DynamicGameBoard() {
 		super(100, 100);
 
 		// Gets the available processor cores available on the client machine.
@@ -91,53 +105,311 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		}
 	}
+	
+	public void setNewWidthAndHeight(int width, int height){
+		currGeneration.clear();
+		nextGeneration.clear();
+		super.setWidth(width);
+		super.setHeight(height);
+		
+		for (int i = 0; i < super.getWidth(); i++) {
+			currGeneration.add(new ArrayList<Boolean>());
+			nextGeneration.add(new ArrayList<Boolean>());
 
+			currGeneration.get(i).addAll(Collections.nCopies(super.getHeight(), false));
+			nextGeneration.get(i).addAll(Collections.nCopies(super.getHeight(), false));
+		}
+		
+	}
+	private static DynamicGameBoard dynamicGameBoard;
+	
+	public static DynamicGameBoard getInstance(){
+		if(dynamicGameBoard == null)
+			dynamicGameBoard = new DynamicGameBoard();
+		
+		return dynamicGameBoard;
+	}
+	 
+
+
+
+	/**
+	 * Checks the neighbors of each cell one unit left of the left border, if
+	 * any cell meets the condition to become alive, then the board is extended
+	 * one unit leftwards and currentInsertedFromLeft = 1. the column that
+	 * previously was one unit left of the left border is now just inside the
+	 * new extended borer, thus we add currentInsertFromLeft variable to keep
+	 * checking the neighbors of that column.
+	 * 
+	 */
+	private void nextGenerationOutsideLeftBorder() {
+		int aliveNeighbors;
+		int outSideLeftBorder = -1;
+		for (int y = 0; y < super.getHeight(); y++) {
+			aliveNeighbors = countNeighbours(outSideLeftBorder + currentInsertedColumnsFromLeft, y);
+			setCellStateFromRules(outSideLeftBorder + currentInsertedColumnsFromLeft, y, aliveNeighbors);
+		}
+	}
+
+	/**
+	 * Checks the neighbors of each cell out unit right of the right border. If
+	 * any cell meet the condition to become alive, then the board is extended
+	 * one unit leftwards. Since adding an element at the end of an ArrayList
+	 * does not alter any other element, we don't we don't need to keep track of
+	 * how much the array has been displaced.
+	 * 
+	 */
+	private void nextGenerationOutsideRightBorder() {
+
+		int aliveNeighbors;
+		int outsideRightBorder = super.getWidth();
+		for (int y = 0; y < super.getHeight(); y++) {
+			aliveNeighbors = countNeighbours(outsideRightBorder, y);
+			setCellStateFromRules(outsideRightBorder, y, aliveNeighbors);
+		}
+	}
+
+	/**
+	 * Works the same way as nextGenerationOutsideLeftBorder, only with the top
+	 * of the border.
+	 * 
+	 * @see #nextGenerationOutsideLeftBorder()
+	 */
+	private void nextGenerationOutsideTopBorder() {
+		int aliveNeighbors;
+		int outsideTopBorder = -1;
+		for (int x = 0; x < super.getWidth(); x++) {
+			aliveNeighbors = countNeighbours(x, outsideTopBorder + currentInsertedRowsFromTop);
+			setCellStateFromRules(x, outsideTopBorder + currentInsertedRowsFromTop, aliveNeighbors);
+		}
+
+	}
+
+	/**
+	 * Works the same way as nextGenerationOutsideRightBorder, only with the
+	 * bottom border
+	 * 
+	 * @see #nextGenerationOutsideRightBorder()
+	 */
+	private void nextGenerationOutsideBottomBorder() {
+		int outsideBottomBorder = super.getHeight();
+		int aliveNeighbors;
+		for (int x = 0; x < super.getWidth(); x++) {
+			aliveNeighbors = countNeighbours(x, outsideBottomBorder);
+			setCellStateFromRules(x, outsideBottomBorder, aliveNeighbors);
+		}
+	}
+
+	/**
+	 * Determines the next generation using threads and updates the game board.
+	 */
+	@Override
 	public void nextGenerationConcurrent() {
 		long start = System.currentTimeMillis();
 
-		int aliveNeighbors;
-		createWorkers();
+		createThreads();
 
+		/**
+		 * runs each thread, that together determine the next generation of the
+		 * board concurrently. The threads only determine and sets the next
+		 * generation of the cell within the currently defined border. the for
+		 * loops later in this method checks if any cells is alive one unit
+		 * outside the border. This is done to avoid concurrency issues, where
+		 * one thread extends the board, but the other already has operated on
+		 * the board that is not extended.
+		 */
 		try {
-			runWorkers();
+			runThreads();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
+		/**
+		 * clears the threads from the ArrayList(can't delete the because of
+		 * garbage collection in java)
+		 */
 		workers.clear();
 
-		int x;
-		int y;
-	
-		for (y = 0; y < super.getHeight(); y++) {
-			aliveNeighbors = countNeighbours(currentInsertedFromLeft-1, y);
-			setCellStateFromRules(currentInsertedFromLeft-1, y, aliveNeighbors);
-		}
-		
+		nextGenerationOutsideLeftBorder();
 
-		x = super.getWidth();
-		for (y = 0; y < super.getHeight(); y++) {
-			aliveNeighbors = countNeighbours(x, y);
-			setCellStateFromRules(x, y, aliveNeighbors);
-		}
+		nextGenerationOutsideRightBorder();
 
-		for (x = 0; x < super.getWidth(); x++) {	
-			aliveNeighbors = countNeighbours(x, -1+currentInsertedFromTop);
-			setCellStateFromRules(x, -1+currentInsertedFromTop, aliveNeighbors);
-		}
-		
-		y = super.getHeight();
-		for (x = 0; x < super.getWidth(); x++) {
-			aliveNeighbors = countNeighbours(x, y);
-			setCellStateFromRules(x, y, aliveNeighbors);
-		}
-		
+		nextGenerationOutsideTopBorder();
 
+		nextGenerationOutsideBottomBorder();
+
+		// copies the next generation to the current generation
 		updateCurrentGeneration();
 
-		//nextGenerationConcurrentPrintPerformance(start, System.currentTimeMillis());
-		currentInsertedFromLeft = 0;
-		currentInsertedFromTop = 0;
+		// print the amount of time the next generation method has taken.
+		nextGenerationConcurrentPrintPerformance(start, System.currentTimeMillis());
+
+		currentInsertedColumnsFromLeft = 0;
+		currentInsertedRowsFromTop = 0;
+	}
+
+	/**
+	 * Creates the threads used to determine each subsequent generation. The
+	 * width of the game board is divided into sectors by the amount of CPUCORES
+	 * the client computer has. Each thread is responsible for determining the
+	 * next generation of its respective sector. The threads perform
+	 * determineNextGenerationOfSector concurrently.
+	 * 
+	 */
+	public void createThreads() {
+
+		for (int sector = 0; sector < CPUCORES; sector++) {
+			// the width of the sector each thread is responsible for(except the
+			// last if super.getWidth() does not divide evenly into CPUCORES)
+			int WidthOfSector = super.getWidth() / CPUCORES;
+			int start;
+			int end;
+			// for the last sector we set end endpoint to super.getWidth();
+			if (sector == CPUCORES - 1) {
+				start = WidthOfSector * sector;
+				end = super.getWidth();
+
+			} else {
+				start = WidthOfSector * sector;
+				end = WidthOfSector * (sector + 1);
+			}
+			workers.add(new Thread(() -> {
+				determineNextGenerationOfSector(start, end);
+			}));
+		}
+
+	}
+
+	/**
+	 * <p>
+	 * Sets the cell specified by the x and y parameters to the state specified
+	 * by the alive parameter. the BoardContainer parameter specifies which
+	 * ArrayList should be altered(either nextGeneration or currentGeneration)
+	 * in this class.
+	 * </p>
+	 * <p>
+	 * If a cell state is set to be <b>alive</b> and the position of the cell is
+	 * outside of the current game board, then the method will call either of
+	 * the extendborderFrom.... methods, to enlarge the board, making it
+	 * encompass the relevant cell. However if a cell outside the border is set
+	 * to be dead, then no extension is made, since getCellState threats every
+	 * cell outside the border as dead.
+	 * </p>
+	 * 
+	 * <p>
+	 * 
+	 * 
+	 * 
+	 * @param x
+	 *            the vertical position of the cell minus
+	 *            <code>insertedColumnsFromLeft</code>
+	 * @param y
+	 *            the horizontal position of the cell minus
+	 *            <code>insertedRowsFromTop</code>
+	 * @param container
+	 *            the Enum that maps to the array that will be altered by
+	 *            setCellState
+	 * @param alive
+	 *            a boolean value that determines what state the cell should be
+	 *            set to.
+	 * @see #getCellState(int, int, BoardContainer)
+	 */
+	@Override
+	public void setCellState(int x, int y, BoardContainer container, boolean alive) {
+
+		/*
+		 *  if x is greater than the width of the border and the cell is set
+		 * to be alive, then we extend the border rightwards.
+		 * 
+		 */
+		if (x >= this.getWidth()) {
+			if (alive)
+				extendBorderFromRight((1 + x) - this.getWidth());
+			else
+				return;
+		}
+
+		// if x is less than the left border of the game board and the cell is
+		// set to be alive, then
+		// we extend to border leftwards.
+		// when we extend the border leftwards, the whole board is shifted
+		// rightwards by Math.(x) positions.
+		// we add currentInserted to x to account for this rightward shift of the game board.
+		if (x < 0) {
+			if (alive) {
+				extendBorderFromLeft(Math.abs(x));
+				x += currentInsertedColumnsFromLeft;
+			} else
+				return;
+		}
+
+		//works the as if(x<0) only with respect to the height of the game board
+		if (y < 0) {
+			if (alive) {
+				extendBorderFromTop(Math.abs(y));
+				y += currentInsertedRowsFromTop;
+			} else
+				return;
+		}
+
+		//works the same way as if(x >= this.getWidth()), but with respect to the height
+		if (y >= this.getHeight()) {
+			if (alive) {
+				extendBorderFromBottom((1 + y) - this.getHeight());
+			} else
+				return;
+		}
+
+		ArrayList<ArrayList<Boolean>> cells = getArrayList(container);
+
+		cells.get(x).set(y, alive);
+	}
+
+	/**
+	 * gets state of the cell specified by the parameters and the BoardContainer enum.
+	 * if the cell is beyond the border, the method with always return false.
+	 */
+	
+	@Override
+	public boolean getCellState(int x, int y, BoardContainer container) {
+		{
+			if (x >= this.getWidth()) {
+				return false;
+			}
+
+			if (x < 0) {
+				return false;
+			}
+
+			if (y < 0) {
+				return false;
+			}
+
+			if (y >= this.getHeight()) {
+				return false;
+			}
+
+			ArrayList<ArrayList<Boolean>> cells = getArrayList(container);
+
+			return cells.get(x).get(y);
+
+		}
+	}
+
+	/**
+	 * When determining a new generation, the new generation is stored in the
+	 * <code>nextGeneration</code> ArrayList. After the entire next generation
+	 * has been determine, the values from <code<NnextGeneration</code> are
+	 * copies to currentGeneration, which is the container used for drawing the
+	 * next generation.
+	 */
+	private void updateCurrentGeneration() {
+		for (int i = 0; i < super.getWidth(); i++) {
+			for (int j = 0; j < super.getHeight(); j++) {
+				this.getCurrGeneration().get(i).set(j, this.getNextGeneration().get(i).get(j));
+
+			}
+		}
 	}
 
 	/**
@@ -163,7 +435,7 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	 * board will not be expanded.
 	 * 
 	 * 
-	 * @see updateCurrentGeneration()
+	 * @see #updateCurrentGeneration()
 	 */
 	@Override
 	public void nextGeneration() {
@@ -176,195 +448,50 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 			for (int y = -1; y < super.getHeight() + 1; y++) {
 				{
 					// get the amount of living neighbors each cell has.
-					aliveNeighbors = countNeighbours(x + currentInsertedFromLeft, y + currentInsertedFromTop);
+					aliveNeighbors = countNeighbours(x + currentInsertedColumnsFromLeft, y + currentInsertedRowsFromTop);
 					// stores the cell's next state in the nextGeneration
 					// ArrayList.
-					setCellStateFromRules(x + currentInsertedFromLeft, y + currentInsertedFromTop, aliveNeighbors);
+					setCellStateFromRules(x + currentInsertedColumnsFromLeft, y + currentInsertedRowsFromTop, aliveNeighbors);
 				}
 			}
 		}
 		// copies the values of the nextGeneration onto the current generation
 		// ArrayList.
 		updateCurrentGeneration();
-		currentInsertedFromLeft = 0;
-		currentInsertedFromTop = 0;
-		
-		//nextGenerationPrintPerformance(start, System.currentTimeMillis());
+		currentInsertedColumnsFromLeft = 0;
+		currentInsertedRowsFromTop = 0;
+
+		// nextGenerationPrintPerformance(start, System.currentTimeMillis());
 
 	}
 
 	/**
-	 * <p>
-	 * Sets the cell specified by the x and y parameters to the state specified
-	 * by the alive parameter. the BoardContainer parameter specifies which
-	 * ArrayList should be altered(either nextGeneration or currentGeneration)
-	 * in this class.
-	 * </p>
-	 * <p>
-	 * The left border is given <code>-insertedColumnsfromLeft</code> and the
-	 * top border is given by <code>-insertedRowsFromTop</code>, the bottom
-	 * border is given by
+	 * t.start(); runs every thread concurrently, while t.join() waits for every
+	 * thread to finish before continuing the main thread.
 	 * 
-	 * </p>
-	 * If a cell state is set to be <b>alive</b> and the position of the cell is
-	 * outside of the current game board, then the method will call either of
-	 * the extendborderFrom.... method, to enlarge the board, making it
-	 * encompass the relevant cell. However if a cell outside the border i set
-	 * to be dead, then no extension is made, since getCellState threats every
-	 * cell outside the border as dead.
-	 * </p>
-	 * 
-	 * <p>
-	 * 
-	 * 
-	 * 
-	 * @param x
-	 *            the vertical position of the cell minus
-	 *            <code>insertedColumnsFromLeft</code>
-	 * @param y
-	 *            the horizontal position of the cell minus
-	 *            <code>insertedRowsFromTop</code>
-	 * @param container
-	 *            the Enum that maps to the array that will be altered by
-	 *            setCellState
-	 * @param alive
-	 *            a boolean value that determines what state the cell should be
-	 *            set to.
+	 * @throws InterruptedException
 	 */
-	@Override
-	public void setCellState(int x, int y, BoardContainer container, boolean alive) {
-
-		boolean inside = true;
-
-		if (x >= this.getWidth()) {
-			if (alive)
-				extendBorderFromRight((1 + x) - this.getWidth());
-
-			inside = false;
-		}
-
-		if (x < 0) {
-			if (alive) {
-				extendBorderFromLeft(Math.abs(x));
-				x += currentInsertedFromLeft;
-			}
-
-			inside = false;
-		}
-
-		if (y < 0) {
-			if (alive)
-				extendBorderFromTop(Math.abs(y));
-				y+= currentInsertedFromTop;
-
-
-			inside = false;
-		}
-
-		if (y >= this.getHeight()) {
-			if (alive)
-				extendBorderFromBottom((1 + y) - this.getHeight());
-
-			inside = false;
-		}
-
-		ArrayList<ArrayList<Boolean>> cells = getArrayList(container);
-
-		if (inside || !inside && alive)
-			cells.get(x).set(y, alive);
-	}
-
-	@Override
-	public boolean getCellState(int x, int y, BoardContainer container) {
-		{
-			if (x >= this.getWidth()) {
-				return false; // hvis du er utenfor brettet er den alltid false;
-			}
-
-			if (x < 0) {
-				return false;
-			}
-
-			if (y < 0) {
-				return false;
-			}
-
-			if (y >= this.getHeight()) {
-				return false;
-			}
-
-			ArrayList<ArrayList<Boolean>> cells = getArrayList(container);
-
-			return cells.get(x).get(y);
-
-		}
-	}
-
-	/**
-	 * Loops through the entire gameBoard
-	 */
-	@Override
-	public void determineNextGeneration() {
-
-	}
-
-	/**
-	 * When determining a new generation, the new generation is stored in the
-	 * <code>nextGeneration</code> arraylist. After the entired next generation
-	 * has been determine, the values from <code<NnextGeneration</code> are
-	 * copies to currentGeneration, which is the container used for drawing the
-	 * next generation.
-	 */
-	private void updateCurrentGeneration() {
-		for (int i = 0; i < super.getWidth(); i++) {
-			for (int j = 0; j < super.getHeight(); j++) {
-				this.getCurrGeneration().get(i).set(j, this.getNextGeneration().get(i).get(j));
-
-			}
-		}
-	}
-
-	@Override
-	public void createPattern() {
-
-	}
-
-	public void createWorkers() {
-
-		for (int i = 0; i < CPUCORES; i++) {
-
-			int starte;
-			int slutte;
-			if (i == CPUCORES - 1) {
-				starte = (super.getWidth() / CPUCORES) * i;
-				slutte = super.getWidth();
-			} else {
-				starte = ((super.getWidth()) / CPUCORES) * i ;
-				slutte = ((super.getWidth()) / CPUCORES) * (i + 1);
-			}
-			workers.add(new Thread(() -> {
-				determineNextGenerationOfSector(starte, slutte);
-			}));
-		}
-
-	}
-
-	public void runWorkers() throws InterruptedException {
+	public void runThreads() throws InterruptedException {
 
 		for (Thread t : workers) {
 			t.start();
 		}
 
+		// ensures that all threads are completed before
 		for (Thread t : workers) {
 			t.join();
 		}
 
 	}
 
-	@Override
-	public void determineNextGenerationOfSector(int starte, int slutte) {
+	/**
+	 * loops trough the sector specified by the start and end parameters, counts
+	 * the neighbors and determines the next state of every cell within it.
+	 * 
+	 */
+	private void determineNextGenerationOfSector(int start, int end) {
 		int aliveNeighbors;
-		for (int x = starte; x < slutte; x++) {
+		for (int x = start; x < end; x++) {
 			for (int y = 0; y < super.getHeight(); y++) {
 				{
 					aliveNeighbors = countNeighbours(x, y);
@@ -392,10 +519,9 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		int neighborX;
 		int neighborY;
 
-		for (int i = -1; i <= 1; i++) // (2)
+		for (int i = -1; i <= 1; i++)
 			for (int j = -1; j <= 1; j++) {
-				if (!(i == 0 && j == 0))// (3)
-				{
+				if (!(i == 0 && j == 0)) {
 					neighborX = x + i;
 					neighborY = y + j;
 
@@ -409,26 +535,26 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	}
 
 	private void setCellStateFromRules(int x, int y, int aliveNeighbours) {
-		boolean alive = getCellState(x, y, BoardContainer.CURRENTGENERATION); // (1)
+		boolean alive = getCellState(x, y, BoardContainer.CURRENTGENERATION);
 
 		if (alive) {
 			boolean survive = false;
-			
+
 			for (int l = 0; l < super.getRules().getSurvivalRules().length && survive == false; l++)
 				if (aliveNeighbours == super.getRules().getSurvivalRules()[l])
 					survive = true;
 
 			setCellState(x, y, BoardContainer.NEXTGENERATION, survive);
-			
+
 		} else {
 			boolean birth = false;
 
 			for (int l = 0; l < super.getRules().getBirthRules().length && birth == false; l++)// (2)
 				if (aliveNeighbours == super.getRules().getBirthRules()[l])
 					birth = true;
-		
-				setCellState(x, y, BoardContainer.NEXTGENERATION, birth);
-					
+
+			setCellState(x, y, BoardContainer.NEXTGENERATION, birth);
+
 		}
 	}
 
@@ -445,7 +571,6 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 			}
 		}
 	}
-
 
 	private ArrayList<ArrayList<Boolean>> getArrayList(BoardContainer bc) {
 		ArrayList<ArrayList<Boolean>> cells = null;
@@ -467,10 +592,8 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 	public void resetGameBoard() {
 		for (int i = 0; i < super.getWidth(); i++) {
 			for (int j = 0; j < super.getHeight(); j++) {
-				setCellState(i, j, BoardContainer.CURRENTGENERATION,
-						false);
-				setCellState(i , j, BoardContainer.NEXTGENERATION,
-						false);
+				setCellState(i, j, BoardContainer.CURRENTGENERATION, false);
+				setCellState(i, j, BoardContainer.NEXTGENERATION, false);
 			}
 		}
 
@@ -478,17 +601,18 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 	@Override
 	public void transferPattern(int startX, int startY) {
-		//no longer setting the pattern
+		// no longer setting the pattern
 		super.setSettingPattern(false);
 		RLEPattern pattern = super.getPattern();
 		for (int x = 0; x < pattern.getWidth(); x++) {
 			for (int y = 0; y < pattern.getHeight(); y++) {
 				{
-					setCellState(x + startX+insertedColumnsFromLeft, y + startY+insertedRowsFromTop, BoardContainer.CURRENTGENERATION, pattern.getPattern()[x][y]);
-					currentInsertedFromLeft = 0;
-					currentInsertedFromTop  = 0;
+					setCellState(x + startX + insertedColumnsFromLeft, y + startY + insertedRowsFromTop,
+							BoardContainer.CURRENTGENERATION, pattern.getPattern()[x][y]);
+					currentInsertedColumnsFromLeft = 0;
+					currentInsertedRowsFromTop = 0;
 				}
-				
+
 			}
 		}
 
@@ -563,11 +687,9 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		// keeps track of how many columns we have inserted from the left.
 		this.insertedColumnsFromLeft += columnsRequired;
-		this.currentInsertedFromLeft += columnsRequired;
-		System.out.println(columnsRequired);
+		this.currentInsertedColumnsFromLeft += columnsRequired;
 		// adds the required columns to the width of the game board.
 		super.setWidth(super.getWidth() + columnsRequired);
-		//System.out.println("LEFT + " + columnsRequired);
 	}
 
 	/**
@@ -593,12 +715,11 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 			}
 
 		}
-		
-		this.currentInsertedFromTop += rowsRequired;
+
+		this.currentInsertedRowsFromTop += rowsRequired;
 		this.insertedRowsFromTop += rowsRequired;
 		// adds the required rows to the height of the game board
 		super.setHeight(rowsRequired + super.getHeight());
-		//System.out.println("TOP + " + rowsRequired);
 	}
 
 	/**
@@ -624,7 +745,6 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		}
 
 		super.setWidth(super.getWidth() + columnsRequired);
-		//System.out.println("Right: " + columnsRequired);
 
 	}
 
@@ -650,9 +770,8 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 
 		super.setHeight(super.getHeight() + rowsToInsert);
 
-		//System.out.println("BOT + " + rowsToInsert);
 	}
-	
+
 	public void nextGenerationPrintPerformance(long start, long end) {
 		System.out.printf("Time elapsed(ms): %d)\n", (end - start));
 	}

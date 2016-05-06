@@ -9,9 +9,10 @@ public class Rules implements Cloneable {
 	private int[] birthRules = { 3 };
 	int a = 3;
 
-	Map<String, int[][]> rules = new HashMap<>();
+	   HashMap<String, int[][]> rules = new HashMap<String, int[][]>();
 
-	public Rules() {
+	    public Rules()
+	    {
 
 		rules.put("2x2", new int[][] { { 1, 2, 5 }, { 3, 6 } });
 		rules.put("34Life", new int[][] { { 3, 4 }, { 3, 4 } });
@@ -28,17 +29,19 @@ public class Rules implements Cloneable {
 		rules.put("Gnarl", new int[][] { { 1 }, { 1 } });
 		rules.put("High Life", new int[][] { { 2, 3 }, { 3, 6 } });
 		rules.put("Life Without Death", new int[][] { { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, { 3 } });
-		rules.put("Live Free or Die", new int[][] { { 0 }, { 2 } });
 		rules.put("Long Life", new int[][] { { 5 }, { 3, 4, 5 } });
 		rules.put("Maze", new int[][] { { 1, 2, 3, 4, 5 }, { 3 } });
 		rules.put("Mazectric", new int[][] { { 1, 2, 3, 4 }, { 3 } });
 		rules.put("Move", new int[][] { { 2, 4, 5 }, { 3, 6, 8 } });
 		rules.put("Pseudo Life", new int[][] { { 2, 3, 8 }, { 3, 5, 7 } });
+		rules.put("Serviettes", new int[][] { { 9 }, // should be empty
+			{ 2, 3, 4 } });
+		rules.put("Seeds", new int[][] { { 9 }, // should be empty but put 9 to
+						       // prevent error
+			{ 2 } });
 		rules.put("Stains", new int[][] { { 2, 3, 5, 6, 7, 8 }, { 3, 6, 7, 8 } });
-		rules.put("Vote 4/5", new int[][] { { 3, 5, 6, 7, 8 }, { 4, 6, 7, 8 } });
 		rules.put("Vote", new int[][] { { 4, 5, 6, 7, 8 }, { 5, 6, 7, 8 } });
 		rules.put("Replicator", new int[][] { { 1, 3, 5, 7 }, { 1, 3, 5, 7 } });
-		rules.put("Walled Cities", new int[][] { { 2, 3, 4, 5 }, { 4, 5, 6, 7, 8 } });
 
 	}//lol
 
@@ -92,7 +95,7 @@ public class Rules implements Cloneable {
 			for(HashMap.Entry<String, int[][]> entry : rules.entrySet()){
 				mapCopy.put(entry.getKey(), entry.getValue());
 			}
-			rulesCopy.rules = mapCopy;
+			rulesCopy.rules = (HashMap<String, int[][]>) mapCopy;
 
 			
 		}catch(CloneNotSupportedException e){

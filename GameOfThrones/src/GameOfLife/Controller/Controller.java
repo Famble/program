@@ -8,11 +8,12 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import GameOfLife.FileHandler;
-import GameOfLife.RleInterpreter;
 import GameOfLife.Model.BitGameBoard;
 import GameOfLife.Model.DynamicGameBoard;
 import GameOfLife.Model.GameBoard;
 import GameOfLife.Model.GameBoard.BoardContainer;
+import GameOfLife.Model.GameBoardFactorySingleTon;
+import GameOfLife.Model.GameBoardFactorySingleTon.GameBoardType;
 import GameOfLife.Model.PatternFormatException;
 import GameOfLife.Model.RLEPattern;
 import GameOfLife.Model.Rules;
@@ -35,7 +36,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+
+
 
 /**
  * <h1>Controller</h1>
@@ -46,9 +50,11 @@ import javafx.stage.Stage;
 
 
 public class Controller implements Initializable {
-	int endring = 3;
 	@FXML
-	private Label descriptionText;
+	private TextArea descriptionText;
+	@FXML
+	private ToggleButton ShowBorder;
+	@FXML
 	public FXCollections ting;
 	@FXML
 	private VBox vBoxRoot;
@@ -80,7 +86,7 @@ public class Controller implements Initializable {
 	boolean start = true;
     int offsetY = 0;
 	int offsetX = 0;
-	CanvasDrawer cd;
+	CanvasDrawer canvasDrawer;
 	GameBoard gameBoard;
 	Pattern pattern;
 	
@@ -97,15 +103,16 @@ public class Controller implements Initializable {
 	        }
 	    });
 
+		GameBoardFactorySingleTon GameBoardFactorySingleton = new GameBoardFactorySingleTon();
 		
 		//creates an instance of the gameboard
-		gameBoard = new DynamicGameBoard();
+		gameBoard = GameBoardFactorySingleton.getInstance(GameBoardType.DynamicGameBoard);
 
 		//creates an instance of canvasdrawer, used to draw the game board.
-		cd = new CanvasDrawer(gameBoard, canvas.getGraphicsContext2D());
+		canvasDrawer = new CanvasDrawer(canvas.getGraphicsContext2D());
 
 		//create an instance of ExecutionControl, used to control the execution of the game(start,stop,paus,speed)
-		executionControl = new ExecutionControl(gameBoard, cd);		
+		executionControl = new ExecutionControl(canvasDrawer);		
 
 
 		colorPicker.setValue(Color.web("#42dd50"));
@@ -145,13 +152,13 @@ public class Controller implements Initializable {
 		//the width of the canvas also changes its width.
 		borderPaneRoot.widthProperty().addListener((a, b, newWidthOfBorder) -> {
 			canvas.setWidth((double) newWidthOfBorder-325);
-			cd.setWindowWidth((double) newWidthOfBorder-325);
+			canvasDrawer.setWindowWidth((double) newWidthOfBorder-325);
 		});
 
 		//same as above, but with the height of the canvas.
 		borderPaneRoot.heightProperty().addListener((a, b, newHeightOfCanvas) -> {
 			canvas.setHeight((double) newHeightOfCanvas-130);
-			cd.setWindowHeight((double) newHeightOfCanvas-130);
+			canvasDrawer.setWindowHeight((double) newHeightOfCanvas-130);
 		});
 		
 
@@ -284,10 +291,11 @@ public class Controller implements Initializable {
 			gameBoard.getRules().setUserDefinedSurvivalRules(rleInterp.getSurvivalOfRle());
 			gameBoard.setSettingPattern(true);
 			gameBoard.setPattern(pattern);
-			cd.setRLEPattern(pattern);
-			cd.drawNextGeneration();
-			descriptionText.setTextFill(Color.BLACK);
-			descriptionText.setText(pattern.getCommentOfPattern());
+			canvasDrawer.setRLEPattern(pattern);
+			canvasDrawer.drawBoard();
+			descriptionText.setText("Author: " +pattern.getAuthorOfPattern() + "\n\n" +pattern.getCommentOfPattern());
+			
+		
 
 		} catch (PatternFormatException e) {
 
@@ -307,10 +315,10 @@ public class Controller implements Initializable {
 	public void handleZoom(ScrollEvent event) {
 
 		if (event.getDeltaY() > 1) {
-			cd.zoomOnCursor(1, (int)event.getX(), (int)event.getY());
+			canvasDrawer.zoomOnCursor(1, (int)event.getX(), (int)event.getY());
 		} else if (event.getDeltaY() < 1) {
-			sliderZoom.setValue(cd.getCellSize() - 1);
-			cd.zoomOnCursor(-1, (int)event.getX(), (int)event.getY());
+			sliderZoom.setValue(canvasDrawer.getCellSize() - 1);
+			canvasDrawer.zoomOnCursor(-1, (int)event.getX(), (int)event.getY());
 		}
 	}
 
@@ -337,10 +345,10 @@ public class Controller implements Initializable {
      */
     public void zoomSliderDragged() {
 
-		if (cd.getCellSize() - (int) sliderZoom.getValue() == -1)
-			cd.zoom(1);
-		else if (cd.getCellSize() - (int) sliderZoom.getValue() == 1)
-			cd.zoom(-1);
+		if (canvasDrawer.getCellSize() - (int) sliderZoom.getValue() == -1)
+			canvasDrawer.zoomInMiddleOfScreen(1);
+		else if (canvasDrawer.getCellSize() - (int) sliderZoom.getValue() == 1)
+			canvasDrawer.zoomInMiddleOfScreen(-1);
 
 	}
 
@@ -349,7 +357,7 @@ public class Controller implements Initializable {
      */
 	public void changeColor() {
 		gameBoard.setColor(colorPicker.getValue());
-		cd.drawNextGeneration();
+		canvasDrawer.drawBoard();
 	}
 
     /**
@@ -385,7 +393,7 @@ public class Controller implements Initializable {
      */
     public void mouseDragged(MouseEvent event) {
 		if (event.isControlDown()) {
-			cd.movePosition(offsetX - (int) event.getX(), offsetY - (int) event.getY());
+			canvasDrawer.movePosition(offsetX - (int) event.getX(), offsetY - (int) event.getY());
 			offsetX = (int) event.getX();
 			offsetY = (int) event.getY();
 		} else {
@@ -401,8 +409,7 @@ public class Controller implements Initializable {
 	 *
 	 */
 	public void mouseClicked(MouseEvent event) {
-		cd.drawCell((int) event.getX(), (int) event.getY(),drawDrag.isSelected());
-		//drawDrag.isSelected() decides on whenever the cells will be drawn or removed
+		canvasDrawer.drawCell((int) event.getX(), (int) event.getY(),drawDrag.isSelected());
 		Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
@@ -454,7 +461,7 @@ public class Controller implements Initializable {
 				System.out.println("DET SKJEDDE");
 				
 					gameBoard.transferPattern(pattern.getPatternTranslationX(), pattern.getPatternTranslationY());
-					cd.drawNextGeneration();
+					canvasDrawer.drawBoard();
 					//reset the translation.
 					pattern.setPatternTranslationX(0);
 					pattern.setPatternTranslationY(0);
@@ -476,7 +483,7 @@ public class Controller implements Initializable {
 		
 	
 		
-		cd.drawNextGeneration();
+		canvasDrawer.drawBoard();
 		
 	} // end of keyListener
 
@@ -492,6 +499,10 @@ public class Controller implements Initializable {
 		cd.drawNextGeneration();
 		*/
 	}
+    
+    public void handleShowBorder(){
+    	canvasDrawer.setShowBorder(ShowBorder.isSelected());
+    }
 
     /**
      *Opens up a new window for a pattern editor,
@@ -539,8 +550,8 @@ public class Controller implements Initializable {
     		//creates a new stage for the pattern editor
     		Stage howTo = new Stage();
     		howTo.setResizable(false);
-    		howTo.getIcons().add(new Image(getClass().getResourceAsStream("golIcon.png")));
-    		FXMLLoader loader = new FXMLLoader(getClass().getResource("HowTo.fxml"));
+    		howTo.getIcons().add(new Image(getClass().getResourceAsStream("../View/golIcon.png")));
+    		FXMLLoader loader = new FXMLLoader(getClass().getResource("../View/HowTo.fxml"));
     		VBox root = (VBox)loader.load();
     		Scene scene = new Scene(root, 600, 400);
     		howTo.setScene(scene);
@@ -556,9 +567,11 @@ public class Controller implements Initializable {
      * @see CanvasDrawer#drawNextGeneration
      */
     public void handleResetClick() {
-		
+		executionControl.stop();
 		gameBoard.resetGameBoard();
-		cd.drawNextGeneration();
+		canvasDrawer.drawBoard();
+		startButton.setText("Play");
+
 			
 	}
 

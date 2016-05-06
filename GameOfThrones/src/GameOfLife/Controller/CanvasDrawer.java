@@ -1,6 +1,7 @@
 package GameOfLife.Controller;
 
 import GameOfLife.Model.GameBoard;
+import GameOfLife.Model.GameBoardFactorySingleTon;
 
 import com.sun.javafx.scene.BoundsAccessor;
 
@@ -14,40 +15,77 @@ import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 
 public class CanvasDrawer {
-	private GraphicsContext gc;
+	private GraphicsContext graphicsContext;
 	protected GameBoard model;
 	private int cellSize = 5;
+	/**
+	 * The amount the user has dragged the canvas in the horizontal direction
+	 */
 	private int canvasDisplacedX;
+	/**
+	 * the amount the user has dragged the canvas in the vertical direction
+	 */
 	private int canvasDisplacedY;
 	private double windowWidth;
 	private double windowHeight;
+	/**
+	 * 
+	 */
+	boolean showBorder = false;
 	private RLEPattern pattern;
 
-	public CanvasDrawer(GameBoard model, GraphicsContext gc) {
-		this.model = model;
-		this.gc = gc;
+	/**
+	 * Responsible for drawing onto the game board.
+	 * 
+	 * 
+	 * @author Markus Hellestveit.
+	 * @param gameBoard
+	 *            instance of a GameBoard subclass
+	 * @param graphicsContext
+	 *            object associated with the canvas that displays the game.
+	 */
+	public CanvasDrawer(GraphicsContext graphicsContext) {
+		this.model = GameBoardFactorySingleTon.getInstance();
+		this.graphicsContext = graphicsContext;
 		canvasDisplacedX = 0;
 		canvasDisplacedY = 0;
-		gc.setStroke(Color.GRAY);
 
-		
+		graphicsContext.setStroke(Color.GRAY);
+
 	}
-	
-	public int getInsertedColumnsFromLeft(){
+
+	/**
+	 * if the current game board is an instance of DynamicGameBoard, then we
+	 * return the amount of columns that has been inserted to the left of the
+	 * board to account for the rightward shift in the drawing. If the board not
+	 * an instance of DynamicGameBoard then the method returns 0.
+	 * 
+	 * @return the amount of columns that has been added to the left of the
+	 *         board.
+	 */
+	public int getInsertedColumnsFromLeft() {
 		int insertedColumnsFromLeft = 0;
-		if(this.model instanceof DynamicGameBoard){
-			insertedColumnsFromLeft  = ((DynamicGameBoard) this.model).getInsertedColumnsFromLeft();
+		if (this.model instanceof DynamicGameBoard) {
+			insertedColumnsFromLeft = ((DynamicGameBoard) this.model).getInsertedColumnsFromLeft();
 		}
-		
+
 		return insertedColumnsFromLeft;
 	}
-	
-	public int getInsertedRowsFromTop(){
+
+	/**
+	 * If the current game board is an instance of DynamicGameBoard, then the
+	 * method return the amount of rows that has been inserted to the top of the
+	 * board to account for the downward shift in the drawing. If the board is
+	 * not an instance of DynamicGameBoard then the method returns 0.
+	 * 
+	 * @return the amount of rows that has been added to the top of the board.
+	 */
+	public int getInsertedRowsFromTop() {
 		int insertedRowsFromTop = 0;
-		if(this.model instanceof DynamicGameBoard){
-			insertedRowsFromTop  = ((DynamicGameBoard) this.model).getInsertedRowsFromTop();
+		if (this.model instanceof DynamicGameBoard) {
+			insertedRowsFromTop = ((DynamicGameBoard) this.model).getInsertedRowsFromTop();
 		}
-		
+
 		return insertedRowsFromTop;
 	}
 
@@ -63,75 +101,87 @@ public class CanvasDrawer {
 
 	}
 
-	public int getCorrepondingXArrayIndex(int x) {
-		return (x + getCanvasDisplacedX()) / cellSize;
+	/**
+	 * 
+	 * @param mouseClickX
+	 *            the horizontal position of the canvas the user clicked
+	 * @return the arrayindex of either container that corresponds to the
+	 *         horizontal position the user clicked.
+	 */
+	public int getCorrepondingXArrayIndex(int mouseClickX) {
+		// we add canvasDisplacedX to the mouseClickX and divide the sum by
+		// cellSize in order to get the x index
+		// that corresponds with where the user clicked.
+		return (mouseClickX + getCanvasDisplacedX()) / cellSize;
 	}
 
+	/**
+	 * 
+	 * @param mouseClickX
+	 *            the vertical position of the canvas the user clicked
+	 * @return the Array index the container that corresponds to the vertical
+	 *         position the user clicked.
+	 */
 	public int getCorrepondingYArrayIndex(int y) {
+		// we add canvasDisplacedY to the mouseClickY and divide the sum by
+		// cellSize in order to get the Y index
+		// that corresponds with where the user clicked.
 		return (y + getCanvasDisplacedY()) / cellSize;
 	}
 
-	public void drawCell(int mouseClickX, int mouseClickY) {
-		int x = getCorrepondingXArrayIndex(mouseClickX);
-		int y = getCorrepondingYArrayIndex(mouseClickY);
-		
-		int posX = x * cellSize - canvasDisplacedX;
-		int posY = y * cellSize - canvasDisplacedY;
-		
-		try{
-			boolean alive = !model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION);
-			model.setCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION, alive);
-			
-			if(this.model instanceof BitGameBoard)
-				model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, alive);
-
-			if (alive) {
-				gc.setFill(model.getColor());
-				gc.fillOval(posX, posY, cellSize, cellSize);
-			} else {
-				gc.setFill(Color.BLACK);
-				gc.fillOval(posX, posY, cellSize, cellSize);
-			}
-		}catch(IndexOutOfBoundsException e){
-			System.out.println("clicked outside of broder");
-		}
-		
-
-	}
-
-	public void drawCell(int mouseClickX, int mouseClickY, boolean dragDraw) {
+	/**
+	 * Changes the state of the cell at the position the user clicked and
+	 * updates the game board model to reflect this change.
+	 * 
+	 * @param mouseClickX
+	 *            horizontal position where the user clicked
+	 * @param mouseClickY
+	 *            vertical position where the user clicked
+	 * @param draw
+	 *            specifies whether the cell should be drawn and state to be set
+	 *            to true, or if the cell should be killed and state set to
+	 *            false.
+	 */
+	public void drawCell(int mouseClickX, int mouseClickY, boolean draw) {
 		int x = getCorrepondingXArrayIndex(mouseClickX);
 		int y = getCorrepondingYArrayIndex(mouseClickY);
 
 		int posX = x * cellSize - canvasDisplacedX;
 		int posY = y * cellSize - canvasDisplacedY;
 
-		try{
-			if (dragDraw) {
-				if (!model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION)) {
-					model.setCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION, true);
-					if(this.model instanceof BitGameBoard)
+		try {
+			if (draw) {
+				if (!model.getCellState(x + getInsertedColumnsFromLeft(), y + getInsertedRowsFromTop(),
+						BoardContainer.CURRENTGENERATION)) {
+					model.setCellState(x + getInsertedColumnsFromLeft(), y + getInsertedRowsFromTop(),
+							BoardContainer.CURRENTGENERATION, true);
+					if (this.model instanceof BitGameBoard)
 						model.setCellState(x, y, BoardContainer.ACTIVEGENERATION, true);
-					gc.setFill(model.getColor());
-					gc.fillOval(posX, posY, cellSize, cellSize);
+					graphicsContext.setFill(model.getColor());
+					graphicsContext.fillOval(posX, posY, cellSize, cellSize);
 				}
 
 			} else {
 
-				if (model.getCellState(x+getInsertedColumnsFromLeft(), y+getInsertedRowsFromTop(), BoardContainer.CURRENTGENERATION)) {
+				if (model.getCellState(x + getInsertedColumnsFromLeft(), y + getInsertedRowsFromTop(),
+						BoardContainer.CURRENTGENERATION)) {
 					model.setCellState(x, y, BoardContainer.CURRENTGENERATION, false);
-					gc.setFill(Color.BLACK);
-					gc.fillOval(posX, posY, cellSize, cellSize);
+					graphicsContext.setFill(Color.BLACK);
+					graphicsContext.fillOval(posX, posY, cellSize, cellSize);
 				}
 			}
 
-		}catch(IndexOutOfBoundsException e){
+		} catch (IndexOutOfBoundsException e) {
 			System.out.println("Clicked outside of the border");
 		}
-		
+
 	}
 
-	public void zoom(int zoom) {
+	/**
+	 * Zooms in the middle of the screen
+	 * @param zoom adds this number to the cellSize.
+	 */
+	public void zoomInMiddleOfScreen(int zoom) {
 		int cellSize = this.getCellSize();
 
 		int middleOfScreenX = (int) this.getWindowWidth() / 2;
@@ -145,99 +195,122 @@ public class CanvasDrawer {
 
 		this.setCellSize(this.getCellSize() + zoom);
 
-		this.drawNextGeneration();
+		this.drawBoard();
 
 	}
 
-	public void clearCanvas() {
-		int insertedColumnsFromLeft = 0;
-		int insertedRowsFromTop = 0;
-		if (model instanceof DynamicGameBoard) {
-			insertedColumnsFromLeft = ((DynamicGameBoard) this.model).getInsertedColumnsFromLeft();
-			insertedRowsFromTop = ((DynamicGameBoard) this.model).getInsertedRowsFromTop();
-		}
-		gc.setFill(Color.BLACK);
-		gc.fillRect(0, 0, windowWidth, windowHeight);
-		gc.setStroke(Color.GRAY);
-
-		
+	/**
+	 * Clears the canvas by drawing the visible canvas black.
+	 */
+	private void clearCanvas() {
+		graphicsContext.setFill(Color.BLACK);
+		graphicsContext.fillRect(0, 0, windowWidth, windowHeight);
 
 	}
 
+	/**
+	 * Moves displaces the canvas in the position set by the user
+	 * @param x the horizontal displacement of the canvas
+	 * @param y the vertical displacement of the canvas
+	 */
 	public void movePosition(int x, int y) {
 		this.setCanvasDisplacedX(this.getCanvasDisplacedX() + x);
 		this.setCanvasDisplacedY(this.getCanvasDisplacedY() + y);
-		this.drawNextGeneration();
+		this.drawBoard();
 	}
 
-	public void zoomOnCursor(int zoom, int mousePosX, int mousePosY) {
+	/**
+	 * Zooms in at the position the user currently hovers his cursor over
+	 * 
+	 * @param zoom
+	 *            either 1 or -1, the amount we change the size of the cells by
+	 * @param cursorPosX
+	 *            the horizontal position of the cursor
+	 * @param cursorPosY
+	 *            the vertical position of the cursor
+	 */
+	public void zoomOnCursor(int zoom, int cursorPosX, int cursorPosY) {
 		if ((this.getCellSize() + zoom) > 0 && (this.getCellSize() + zoom) <= 35) {
 
-			int x = getCorrepondingXArrayIndex(mousePosX);
-			int y = getCorrepondingYArrayIndex(mousePosY);
+			int x = getCorrepondingXArrayIndex(cursorPosX);
+			int y = getCorrepondingYArrayIndex(cursorPosY);
 
 			int cellSize = this.getCellSize();
 
 			this.setCellSize(this.getCellSize() + zoom);
 
 			this.setCanvasDisplacedX(
-					x * (cellSize + zoom) - mousePosX + (mousePosX + this.getCanvasDisplacedX()) % cellSize);
+					x * (cellSize + zoom) - cursorPosX + (cursorPosX + this.getCanvasDisplacedX()) % cellSize);
 			this.setCanvasDisplacedY(
-					y * (cellSize + zoom) - mousePosY + (mousePosY + this.getCanvasDisplacedY()) % cellSize);
+					y * (cellSize + zoom) - cursorPosY + (cursorPosY + this.getCanvasDisplacedY()) % cellSize);
 
-			this.drawNextGeneration();
+			this.drawBoard();
 		}
 
 	}
 
-	public void drawNextGeneration() {
+	private void drawBorder() {
+		graphicsContext.strokeRect(-this.getCanvasDisplacedX() - (getInsertedColumnsFromLeft() * cellSize),
+				-this.canvasDisplacedY - (getInsertedRowsFromTop() * cellSize), model.getWidth() * cellSize,
+				model.getHeight() * cellSize);
+	}
+
+	/**
+	 * Draws the game board from the current generation of cells
+	 * 
+	 */
+	public void drawBoard() {
 
 		clearCanvas();
-		int shiftedRightwards = getInsertedColumnsFromLeft();
-		int shiftedDownwards = getInsertedRowsFromTop();
-		
 
-		gc.setStroke(Color.GRAY);
-		gc.strokeRect(-this.getCanvasDisplacedX() - (shiftedRightwards * cellSize),
-				-this.canvasDisplacedY - (shiftedDownwards * cellSize), model.getWidth() * cellSize,
-				model.getHeight() * cellSize);
+		if (showBorder)
+			drawBorder();
 
-		
-		gc.setFill(model.getColor());
+		graphicsContext.setFill(model.getColor());
 		for (int x = 0; x < model.getWidth(); x++)
 			for (int y = 0; y < model.getHeight(); y++) {
 				if (model.getCellState(x, y, BoardContainer.CURRENTGENERATION)) {
-					gc.fillOval(cellSize * (x-shiftedRightwards) - canvasDisplacedX, cellSize * (y-shiftedDownwards) - canvasDisplacedY, cellSize,
-							cellSize);
+					graphicsContext.fillOval(cellSize * (x - getInsertedColumnsFromLeft()) - canvasDisplacedX,
+							cellSize * (y - getInsertedRowsFromTop()) - canvasDisplacedY, cellSize, cellSize);
 				}
 
 			}
 
+		/*if the user has loaded an RLE pattern and before
+		 * the user clicks enter, this method is called in order
+		 * to draw the pattern the user has selected.
+		 * 
+		 */
 		if (model.getSettingPattern())
 			drawPattern();
 
 	}
 
+	/**
+	 * draws pattern before its set by the user clicking enter
+	 */
 	public void drawPattern() {
 
-		gc.setStroke(Color.WHITE);
-		
-		//draws the border outlining the pattern.
-		gc.strokeRect(-this.canvasDisplacedX + pattern.getPatternTranslationX() * cellSize,
+		graphicsContext.setStroke(Color.WHITE);
+
+		// draws the border outlining the pattern.
+		graphicsContext.strokeRect(-this.canvasDisplacedX + pattern.getPatternTranslationX() * cellSize,
 				-this.canvasDisplacedY + pattern.getPatternTranslationY() * cellSize, pattern.getWidth() * cellSize,
 				pattern.getHeight() * cellSize);
 
+		//uses the affine object in order to move the pattern into the position set by the user through arrowkeys.
+		
 		Affine translateXY = new Affine();
 		translateXY.setTx(pattern.getPatternTranslationX() * cellSize);
 		translateXY.setTy(pattern.getPatternTranslationY() * cellSize);
-		gc.setTransform(translateXY);
-		gc.setFill(Color.RED);
-		
+		graphicsContext.setTransform(translateXY);
+		graphicsContext.setFill(Color.RED);
+
 		for (int x = 0; x < pattern.getWidth(); x++) {
 			for (int y = 0; y < pattern.getHeight(); y++) {
 				if (pattern.getPattern()[x][y]) {
-					gc.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY, cellSize,
-							cellSize);
+					graphicsContext.fillOval(cellSize * (x) - canvasDisplacedX, cellSize * (y) - canvasDisplacedY,
+							cellSize, cellSize);
 				}
 
 			}
@@ -245,7 +318,7 @@ public class CanvasDrawer {
 
 		translateXY.setTx(0.0);
 		translateXY.setTy(0.0);
-		gc.setTransform(translateXY);// reset
+		graphicsContext.setTransform(translateXY);// reset the transformation.
 	}
 
 	public double getWindowWidth() {
@@ -286,6 +359,12 @@ public class CanvasDrawer {
 
 	public void setCanvasDisplacedY(int y) {
 		this.canvasDisplacedY = y;
+	}
+
+	public void setShowBorder(boolean showBorder) {
+		this.showBorder = showBorder;
+		if(showBorder)
+			drawBorder();
 	}
 
 }

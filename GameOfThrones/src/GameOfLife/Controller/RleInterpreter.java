@@ -1,4 +1,4 @@
-package GameOfLife;
+package GameOfLife.Controller;
 
 import GameOfLife.Model.PatternFormatException;
 

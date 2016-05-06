@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import GameOfLife.Model.GameBoard.BoardContainer;
 import javafx.scene.paint.Color;
 
 /**
@@ -85,8 +86,31 @@ public class BitGameBoard extends GameBoard {
 	 * before its copies to the acticeCells array
 	 */
 	private long[][] newActiveCells;
-	public int yDiv64;
-	private int yMod64;
+	
+    private static BitGameBoard bitGameBoard;
+    
+    
+    public static BitGameBoard getInstance()
+    {
+      if (bitGameBoard == null)
+          bitGameBoard = new BitGameBoard(2000, 2000);
+      return bitGameBoard;
+    }
+    
+    /**
+     * Creates new arrays with specified width and height
+     * All cells will be killed.
+     * Used for unit testing.
+     */
+    public void setNewWidthAndHeight(int width, int height){
+    	super.setWidth(width);
+    	super.setHeight(height);
+    	CurrGeneration = new long[width][(height / 64) + 1];
+		nextGeneration = new long[width][(height / 64) + 1];
+		activeCells = new long[width][(height / 64) + 1];
+		newActiveCells = new long[width][(height / 64) + 1];
+    }
+
 
 	/**
 	 * Sets the width and height of the BitGameBoard instance. the width and
@@ -100,16 +124,18 @@ public class BitGameBoard extends GameBoard {
 	 * @param height
 	 *            the amount of horizontal cells the board supports.
 	 */
-	public BitGameBoard(int width, int height) {
+	private BitGameBoard(int width, int height) {
 		super(width, height);
 
-		this.yDiv64 = (height / 64) + 1;
-		this.yMod64 = height % 64;
-		CurrGeneration = new long[width][yDiv64];
-		nextGeneration = new long[width][yDiv64];
-		activeCells = new long[width][yDiv64];
-		newActiveCells = new long[width][yDiv64];
+		CurrGeneration = new long[width][(height / 64) + 1];
+		nextGeneration = new long[width][(height / 64) + 1];
+		activeCells = new long[width][(height / 64) + 1];
+		newActiveCells = new long[width][(height / 64) + 1];
 	}
+	
+
+    
+
 
 	/**
 	 * Loops trough all the cells in board and checks if they are active.
@@ -118,14 +144,15 @@ public class BitGameBoard extends GameBoard {
 	 * Since cells become active when they change state, any cell with no active neighbors will remain the same
 	 * through the next generation, that is why we only check the active cells and their neighbors.
 	 */
-	public void nextGenerationConcurrent() {
+	@Override
+	public void nextGeneration() {
 		
 		int aliveNeighbors = 0;
 
 		int height = super.getHeight()/64 + 1;
 		for (int x = 0; x < super.getWidth(); x++) {
 			for (int y = 0; y < height; y++) {
-				if (!(this.getActiveCells()[x][y] == 0)) {
+				if (!(this.activeCells[x][y] == 0)) {
 					int j = y * 64;
 					for (int bit = 0; bit < 64; bit++) {
 						//if a cell is active we loop through all of its neighbors including itself and count their neighbors and pass them as arguments
@@ -173,16 +200,14 @@ public class BitGameBoard extends GameBoard {
 	 */
 	private void updateGameBoard(){
 		for (int x = 0; x < super.getWidth(); x++) {
-			for (int y = 0; y < this.yDiv64; y++) {
+			for (int y = 0; y < (super.getHeight() / 64) + 1; y++) {
 				this.CurrGeneration[x][y] = this.nextGeneration[x][y];
 				this.newActiveCells[x][y] = this.newActiveCells[x][y];
 			}
 		}
 	}
 
-	public void determineNextGeneration() {
 
-	}
 
 	/**
 	 * Counts the amount of neighbors cell given by the parameters (x,y) has.
@@ -314,10 +339,10 @@ public class BitGameBoard extends GameBoard {
 		int cellsInLong = 64;
 		String bitString = "";
 
-		for (int y = 0; y < this.yDiv64; y++) {
+		for (int y = 0; y < (super.getHeight() / 64) + 1; y++) {
 
-			if (y == this.yDiv64 - 1)
-				cellsInLong = this.yMod64;
+			if (y == (super.getHeight() / 64) + 1 - 1)
+				cellsInLong = this.getHeight()%64;
 
 			for (int k = 0; k < cellsInLong; k++) {
 				for (int x = 0; x < super.getWidth(); x++) {
@@ -331,16 +356,14 @@ public class BitGameBoard extends GameBoard {
 	}
 
 
-	public int getY() {
-		return this.yDiv64;
-	}
+	
 
 	
 
 	/**
 	 * Return the two dimensional array specified by the boardContainer enum.
 	 * @param boardContainer the enum holding the predefined constants used to determine which array to be returned.
-	 * @return
+	 * @return two dimensional long array
 	 */
 	private long[][] selectArray(BoardContainer boardContainer) {
 
@@ -380,7 +403,7 @@ public class BitGameBoard extends GameBoard {
 		 * since the vertical position of a cell is its bit position relative to the first bit in the inner long array
 		 * we divide y by 64 to get which long element the cell is in, and we perform y%64 that gives us which bit position 
 		 * the cell is in in the relevant long element. So we shifted the long value y%64 position to the right, so that
-		 * the cell we are interested in is the rightmost bit of the bitmask. We then perform the bitwise & on the shifted bitmasked
+		 * the cell we are interested in is the rightmost bit of the bitmask. We then perform the bitwise & on the shifted bitmask
 		 * and a long binary digit with 1 as the rightmost bit. If the if the bitmask has 1 as the rightmost bit(alive) then the & operation
 		 * returns 1, but if it's 0(dead) it returns 0.
 		 */
@@ -389,14 +412,18 @@ public class BitGameBoard extends GameBoard {
 	}
 
 	/**
-	 * sets the state of the cell in the array specified by BoardContainer to the state specified by the boolean parameter
+	 * Sets the state of the cell in the array specified by BoardContainer to the state specified by the boolean parameter
+	 * If the cell being set is outside of the game board, then an IndexOutOFBoundException is thrown.
 	 * @param horizontal position of the cell
 	 * @param vertical position of the cell
+	 * @throws IndexOutOfBoundException When the cell's position is outside the border of the game.
 	 */
 	@Override
 	public void setCellState(int x, int y, BoardContainer bc, boolean alive) throws IndexOutOfBoundsException{
 		long[][] cells = selectArray(bc);
 		
+		
+		//checks if either the x or y position is outside of the border
 		if(x < 0 || y < 0 || x >= super.getWidth() || y >= super.getHeight()){
 			throw new IndexOutOfBoundsException();
 		}
@@ -412,7 +439,7 @@ public class BitGameBoard extends GameBoard {
 	}
 
 	/**
-	 * Kills every cell.
+	 * Kills all elements to zero, killing every cell.
 	 */
 	@Override
 	public void resetGameBoard() {
@@ -427,35 +454,33 @@ public class BitGameBoard extends GameBoard {
 
 	}
 
+	
 	@Override
-	public void transferPattern(int X, int startY) {
-		// TODO Auto-generated method stub
+	public void transferPattern(int startX, int startY) {
+		super.setSettingPattern(false);
+		RLEPattern pattern = super.getPattern();
+
+		for (int x = 0; x < pattern.getWidth(); x++) {
+			for (int y = 0; y < pattern.getHeight(); y++) {
+				{
+					setCellState(x + startX , y + startY ,BoardContainer.CURRENTGENERATION, pattern.getPattern()[x][y]);
+					setCellState(x + startX , y + startY ,BoardContainer.ACTIVEGENERATION, true);
+
+				}
+
+			}
+		}
 
 	}
 
-	@Override
-	public void createPattern() {
-		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void nextGeneration() {
-		nextGenerationConcurrent();
-
-	}
-
-	/*
-	 * @Override public void determineNextGenerationConcurrent(int x, int y) {
-	 * // TODO Auto-generated method stub
-	 * 
-	 * }
+	/**
+	 * This function is not yet supported
 	 */
-
 	@Override
-	public void determineNextGenerationOfSector(int start, int end) {
-		// TODO Auto-generated method stub
-
+	public void nextGenerationConcurrent() {
+		nextGeneration();
+		
 	}
 
 }

@@ -10,13 +10,12 @@ import GameOfLife.Model.GameBoard.BoardContainer;
 
 
 public class DynamicGameBoardTest {
-/*
+
 	
-	@Test
+	//DENNE TESTEN BLIE FEIL BTW
 	public void enlargeRightAndLeft(){
-		Rules rules = new Rules();
-		DynamicGameBoard dynamicBoard = new DynamicGameBoard(7,3, rules);
-		dynamicBoard.setExpansionPadding(0);
+		DynamicGameBoard dynamicBoard = DynamicGameBoard.getInstance();
+		dynamicBoard.setNewWidthAndHeight(7, 4);
 		
 		//glider going left and right
 		boolean[][] board = { 
@@ -45,8 +44,8 @@ public class DynamicGameBoardTest {
 	@Test
 	public void TestEnlargeToLeft() {
 		Rules rules = new Rules();
-		DynamicGameBoard dynamicBoard = new DynamicGameBoard(4,4, rules);
-		dynamicBoard.setExpansionPadding(0);
+		DynamicGameBoard dynamicBoard = DynamicGameBoard.getInstance();
+		dynamicBoard.setNewWidthAndHeight(4, 4);
 		
 		boolean[][] board = {
 				{false, false, false, false},
@@ -75,7 +74,7 @@ public class DynamicGameBoardTest {
 
 	}
 	
-	*/
+	
 	
 	
 	

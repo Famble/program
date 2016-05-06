@@ -93,6 +93,11 @@
   	fx-border-color: #a7d1f1; 
 }
 
+.text-area{
+	-fx-background-color: lightgray;
+		
+}
+
 
 .text-field {
 	-fx-background-color: lightgray;
