@@ -38,9 +38,6 @@ public class CanvasDrawer {
 	 * Responsible for drawing onto the game board.
 	 * 
 	 * 
-	 * @author Markus Hellestveit.
-	 * @param gameBoard
-	 *            instance of a GameBoard subclass
 	 * @param graphicsContext
 	 *            object associated with the canvas that displays the game.
 	 */
@@ -116,9 +113,7 @@ public class CanvasDrawer {
 	}
 
 	/**
-	 * 
-	 * @param mouseClickX
-	 *            the vertical position of the canvas the user clicked
+	 *
 	 * @return the Array index the container that corresponds to the vertical
 	 *         position the user clicked.
 	 */
