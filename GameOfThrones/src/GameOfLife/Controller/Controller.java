@@ -46,7 +46,7 @@ import javafx.stage.Stage;
  *
  * Event listener is all handel in controller.
  * 
- * @author Markus Hellestveit, Dusan Jacovic
+ * @author Markus Hellestveit, Dusan Jacovic have implime
  */
 
 
@@ -98,8 +98,8 @@ public class Controller implements Initializable {
 
 		GameBoardFactorySingleTon GameBoardFactorySingleton = new GameBoardFactorySingleTon();
 		
-		//creates an instance of the gameboard
-		gameBoard = GameBoardFactorySingleton.getInstance(GameBoardType.DynamicGameBoard);
+		//creates an instance of the game board
+		gameBoard = GameBoardFactorySingleTon.getInstance(GameBoardType.DynamicGameBoard);
 
 		//creates an instance of canvasdrawer, used to draw the game board.
 		canvasDrawer = new CanvasDrawer(canvas.getGraphicsContext2D());
@@ -176,13 +176,10 @@ public class Controller implements Initializable {
 
 			gameBoard.nextGeneration();
 			
-			Platform.runLater(new Runnable() {
-		        @Override
-		        public void run() {
-		        	canvas.requestFocus();
-		        	System.out.println("REQUESTER FOCUS");
-		        }
-		    });
+			Platform.runLater(() -> {
+                canvas.requestFocus();
+                System.out.println("REQUESTER FOCUS");
+            });
 
 		});
 		
@@ -190,8 +187,8 @@ public class Controller implements Initializable {
     } // end of Initialize
 
     /**
-     * Opens the window for file chooser, and interprets the file, and then
-     * draws the pattern from the file to the game board.
+     * Opens the window so the user can give a URL, and interprets the Url, and then
+     * draws the pattern from the file to the game board, if the connection was vaild.
      *
      * @see RleInterpreter
      */
@@ -216,15 +213,17 @@ public class Controller implements Initializable {
 					rleReading(rleString);
 				} else {
 					Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("URL ERROR");
+					alert.setTitle("ERROR");
 					alert.setContentText("Please enter a valid URL");
 					alert.showAndWait();
 				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("ERROR");
+				alert.setContentText("Something when wrong");
+				alert.showAndWait();
 			}
-
 
 
 		}else{
@@ -277,6 +276,14 @@ public class Controller implements Initializable {
 
 	}
 
+	/**
+	 * This method handles the interaction between FileHandler and RleInterpreter.
+	 * Sets the pattern into the board from what the FileHandler has read.
+	 *
+	 * @see FileHandler
+	 * @see RleInterpreter
+	 * @param rleString A String from a file/url that.
+     */
 	private void rleReading(String rleString){
 		RLEPattern pattern = new RLEPattern();
 		RleInterpreter rleInterp;
@@ -298,12 +305,12 @@ public class Controller implements Initializable {
 			StringBuilder description = new StringBuilder();
 			
 			if(pattern.hasAuthor())
-				description.append("Author: " + pattern.getAuthorOfPattern() + "\n\n");
+				description.append("Author: ").append(pattern.getAuthorOfPattern()).append("\n\n");
 			else
 				description.append("No author provided\n\n");
 			
 			if(pattern.hasComment()){
-				description.append(pattern.getCommentOfPattern() + "\n\n");
+				description.append(pattern.getCommentOfPattern()).append("\n\n");
 			}
 			
 			descriptionText.setText(description.toString());
@@ -425,12 +432,7 @@ public class Controller implements Initializable {
 	 */
 	public void mouseClicked(MouseEvent event) {
 		canvasDrawer.drawCell((int) event.getX(), (int) event.getY(),drawDrag.isSelected());
-		Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	canvas.requestFocus();
-	        }
-	    });
+		Platform.runLater(() -> canvas.requestFocus());
 		
 
 	}
@@ -488,12 +490,7 @@ public class Controller implements Initializable {
 			
 			}
 			}
-			Platform.runLater(new Runnable() {
-		        @Override
-		        public void run() {
-		        	canvas.requestFocus();
-		        }
-		    });
+			Platform.runLater(() -> canvas.requestFocus());
 	    	
 		
 	
@@ -515,7 +512,7 @@ public class Controller implements Initializable {
     		howTo.setResizable(false);
     		howTo.getIcons().add(new Image(getClass().getResourceAsStream("../View/golIcon.png")));
     		FXMLLoader loader = new FXMLLoader(getClass().getResource("../View/HowTo.fxml"));
-    		VBox root = (VBox)loader.load();
+    		VBox root = loader.load();
     		Scene scene = new Scene(root, 600, 400);
     		howTo.setScene(scene);
     		howTo.setTitle("HowTo");
@@ -527,7 +524,6 @@ public class Controller implements Initializable {
      * and then draws the board by calling on <b>drawNextGeneration</b>.
      *
      * @see GameBoard#resetGameBoard
-     * @see CanvasDrawer#drawNextGeneration
      */
     public void handleResetClick() {
 		executionControl.stop();
