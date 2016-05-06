@@ -2,9 +2,8 @@ package GameOfLife.Model;
 
 /**
  * This class ensures that only one instance of a GameBoard subclass can exist
- * and provides a global access point to that instance. Enables polymorphic
- * behaviour for classes that required an instance of either DyanmicaGameBoard
- * or BitGameBoard, like CanvasDrawer or ExecutionController
+ * and provides a global access point to that instance. It also creates objects
+ * without exposing the instantiation logic to the client that request an instance of a Game Board.
  * 
  * @see GameOfLife.Controller.CanvasDrawer
  * @see GameOfLife.Controller.ExecutionControl
@@ -13,6 +12,11 @@ package GameOfLife.Model;
  */
 public class GameBoardFactorySingleTon {
 
+	/**
+	 * Enum that lets clients decide which GameBoard they wish to instantiate.
+	 * @author Markus Hellestveit
+	 *
+	 */
 	public enum GameBoardType {
 		DynamicGameBoard, BitGameBoard
 	}

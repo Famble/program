@@ -97,7 +97,7 @@ public class BitGameBoard extends GameBoard {
 	 */
 	public static BitGameBoard getInstance() {
 		if (bitGameBoard == null)
-			bitGameBoard = new BitGameBoard(2000, 2000);
+			bitGameBoard = new BitGameBoard(1000, 1000);
 		return bitGameBoard;
 	}
 

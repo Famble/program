@@ -14,6 +14,14 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 
+/**
+ * Performs methods that alter the canvas. CanvasDrawer draws cells and changes their state if the user clicks on them or
+ * draws entire generation when a new generation has been determined. It also offers functionality for zooming the gameboard and manouvering
+ * around the game board.
+ * 
+ * @author Markus Hellestveit
+ *
+ */
 public class CanvasDrawer {
 	private GraphicsContext graphicsContext;
 	protected GameBoard model;
@@ -26,7 +34,13 @@ public class CanvasDrawer {
 	 * the amount the user has dragged the canvas in the vertical direction
 	 */
 	private int canvasDisplacedY;
+	/**
+	 * Width of visible canvas windows
+	 */
 	private double windowWidth;
+	/**
+	 * height of visible canvas window
+	 */
 	private double windowHeight;
 	/**
 	 * 

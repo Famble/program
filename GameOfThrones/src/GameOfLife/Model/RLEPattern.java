@@ -3,7 +3,8 @@ package GameOfLife.Model;
 import java.util.Arrays;
 
 /**
- * 
+ * Pattern loaded from an RLE File.
+ * Used to manipulate tha pattern and store the metadata of the pattern.
  * @author Johnny Lam, Markus Hellestveit.
  *
  */
@@ -18,17 +19,30 @@ public class RLEPattern implements Cloneable {
      */
     private int height;
 
-
+    /**
+     * The author of the pattern
+     */
     private String authorOfPattern;
+    /**
+     * the rule set of the pattern
+     */
     private String ruleOfPattern;
     private String nameOfPattern;
+    /**
+     * the description of the pattern.
+     */
     private String commentOfPattern;
 
     private boolean[][] pattern;
     public boolean settingPattern = false;
+    /**
+     * How much the pattern should be moved in the vertical direction before being set.
+     */
     private int patternTranslationX;
 
-
+    /**
+     * How much the pattern should be moved in the vertical direction before being set.
+     */
     private int patternTranslationY;
 
 
@@ -36,6 +50,11 @@ public class RLEPattern implements Cloneable {
 
     }
 
+    /**
+     * Sets a new patter with the width and height specifies by the parameters
+     * @param width of the pattern
+     * @param height of the pattern.
+     */
     public RLEPattern(int width, int height) {
         this.width = width;
         this.height = height;
