@@ -18,7 +18,6 @@ public class RleInterpreter {
     private String survivalOfRle;
     private int height;
     private int width;
-    private String rule;
     private String rleString;
     private StringBuilder commentOfRle = new StringBuilder();
     private boolean[][] initialRleGeneration;
@@ -130,15 +129,15 @@ public class RleInterpreter {
                     survivalOfRle = matcher.group(8);
 
                 }
-                this.rule = matcher.group(3).replaceAll("[^/0-9]", "");
             }
 
 
             lastIndexOfHeader = matcher.end() + amountOfSpaces;
         }
 
-        testDimensionAndRule.append("x = ").append(this.width).append(", y = ").append(this.height).append(", rule = ")
-                .append(this.rule).append("\n");
+        testDimensionAndRule.append("x = ").append(this.width).append(", y = ")
+                .append(this.height).append(", rule = ").append("B").append(birthOfRle)
+                .append("/").append("S").append(survivalOfRle).append("\n");
     }
 
     /**
