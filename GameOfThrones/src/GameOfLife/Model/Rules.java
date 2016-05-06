@@ -97,7 +97,7 @@ public class Rules implements Cloneable {
         this.survivalRules = new int[survivalRules.length()];
 
         for (int i = 0; i < survivalRules.length(); i++) {
-            this.survivalRules[i] = (int) Character.getNumericValue(survivalRules.charAt(i));
+            this.survivalRules[i] = Character.getNumericValue(survivalRules.charAt(i));
         }
 
     }
@@ -111,7 +111,7 @@ public class Rules implements Cloneable {
         this.survivalRules = new int[birthRules.length()];
 
         for (int i = 0; i < birthRules.length(); i++) {
-            this.survivalRules[i] = (int) Character.getNumericValue(birthRules.charAt(i));
+            this.survivalRules[i] = Character.getNumericValue(birthRules.charAt(i));
         }
     }
 

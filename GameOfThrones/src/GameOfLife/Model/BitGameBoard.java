@@ -56,10 +56,7 @@ import javafx.scene.paint.Color;
  * </p>
  *
  * @author Markus Hellestveit
- * @param width
- *            amount of cells vertically.
- * @param height
- *            amount of cell horizontally.
+
  */
 @Deprecated
 public class BitGameBoard extends GameBoard {
@@ -300,7 +297,7 @@ public class BitGameBoard extends GameBoard {
 			// to have in order to be born.
 			// if the living neighbors of the current cell matches any of these,
 			// then birth is set to true and the for loop ends.
-			for (int l = 0; l < super.getRules().getBirthRules().length && birth == false; l++)// (2)
+			for (int l = 0; l < super.getRules().getBirthRules().length && !birth; l++)// (2)
 				if (aliveNeighbours == super.getRules().getBirthRules()[l])
 					birth = true;
 
@@ -325,7 +322,7 @@ public class BitGameBoard extends GameBoard {
 
 			// if the living neighbors meets the condition set by survivalRules,
 			// then survive is set to true.
-			for (int l = 0; l < super.getRules().getSurvivalRules().length && survive == false; l++)
+			for (int l = 0; l < super.getRules().getSurvivalRules().length && !survive; l++)
 				if (aliveNeighbours == super.getRules().getSurvivalRules()[l])
 					survive = true;
 
@@ -348,8 +345,8 @@ public class BitGameBoard extends GameBoard {
 	 * @param board
 	 *            the 2d long array representing the game board. Used for
 	 *            testing.
-	 * @see BitGameBoardTest
 	 */
+
 	public void setBoard(long board[][]) {
 
 		for (int i = 0; i < board.length; i++)
@@ -439,11 +436,11 @@ public class BitGameBoard extends GameBoard {
 	 * the state specified by the boolean parameter If the cell being set is
 	 * outside of the game board, then an IndexOutOFBoundException is thrown.
 	 * 
-	 * @param horizontal
+	 * @param x
 	 *            position of the cell
-	 * @param vertical
+	 * @param y
 	 *            position of the cell
-	 * @throws IndexOutOfBoundException
+	 * @throws IndexOutOfBoundsException
 	 *             When the cell's position is outside the border of the game.
 	 */
 	@Override

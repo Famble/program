@@ -1,7 +1,5 @@
 package GameOfLife.Model;
 
-import java.util.Arrays;
-
 /**
  * Pattern loaded from an RLE File.
  * Used to manipulate tha pattern and store the metadata of the pattern.
@@ -51,17 +49,6 @@ public class RLEPattern implements Cloneable {
     }
 
     /**
-     * Sets a new patter with the width and height specifies by the parameters
-     * @param width of the pattern
-     * @param height of the pattern.
-     */
-    public RLEPattern(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.pattern = new boolean[width][height];
-    }
-
-    /**
      * Makes the pattern a small as a rectangle possible while still holding every living cell in the original pattern
  	*/
     public void trim() {
@@ -86,10 +73,7 @@ public class RLEPattern implements Cloneable {
         this.height = highestY - lowestY + 1;
 
         for (int x = 0; x < this.width; x++) {
-            for (int y = 0; y < this.height; y++) {
-                this.pattern[x][y] = this.pattern[x + lowestX][y + lowestY];
-
-            }
+            System.arraycopy(this.pattern[x + lowestX], lowestY, this.pattern[x], 0, this.height);
         }
     }
 
@@ -137,32 +121,20 @@ public class RLEPattern implements Cloneable {
         this.pattern = pattern;
     }
 
-    public boolean isSettingPattern() {
-        return settingPattern;
-    }
-
     public void setAuthorOfPattern(String authorOfPattern) {
         this.authorOfPattern = authorOfPattern;
-    }
-
-    public void setRuleOfPattern(String ruleOfPattern) {
-        this.ruleOfPattern = ruleOfPattern;
     }
 
     public void setNameOfPattern(String nameOfPattern) {
         this.nameOfPattern = nameOfPattern;
     }
 
-    public String getAuthorOfPattern() {
-        return authorOfPattern;
-    }
-
-    public String getRuleOfPattern() {
-        return ruleOfPattern;
-    }
-
     public String getNameOfPattern() {
         return nameOfPattern;
+    }
+
+    public String getAuthorOfPattern() {
+        return authorOfPattern;
     }
 
     public String getCommentOfPattern() {
@@ -173,13 +145,14 @@ public class RLEPattern implements Cloneable {
     	this.commentOfPattern = commentOfPattern;
     }
 
+
     public boolean hasName(){
         return nameOfPattern != null;
     }
     public boolean hasAuthor(){
-        return authorOfPattern != null || authorOfPattern != "";
+        return authorOfPattern != null ;
     }
     public boolean hasComment(){
-        return commentOfPattern != null || commentOfPattern != "";
+        return commentOfPattern != null ;
     }
 }

@@ -13,7 +13,8 @@ import javafx.scene.paint.Color;
  * Contains concrete and abstract methods that all subclasses of GameBoard shares.
  * By using this abstract class we can use polymorphism and treat subclass of GameBoard
  * as GameBoard allowing the instance to be determined at runtime.
- * @author Markus Hellestveit
+ * @author Markus Hellestveit impleted the class,
+ * Johnny Lam quality ensurance the class(not implimented anything).
  *
  */
 public abstract class GameBoard implements Cloneable
@@ -68,41 +69,36 @@ public abstract class GameBoard implements Cloneable
 	}
 	
 	/**
+	 * This method have to be override in child class
+	 *
 	 * Determines the next generation of the game board.
 	 */
 	public abstract void nextGeneration();
 	
 	/**
+	 * This method have to be override in child class
+	 *
 	 * Determines the next generation of the game board concurrently by using threads.
+	 *
 	 */
 	public abstract void nextGenerationConcurrent();
 	
 	/**
 	 * Sets the pattern.
-	 * @return
+	 * @return the pattern
 	 */
 	public RLEPattern getPattern(){
 		return this.pattern;
 	}
-	
-	/**
-	 * Sets the current game board to the board specified by the T element.
-	 * @param element
-	 */
-	public <T> void setBoard(T element){
-		
-	}
-	
-	
-	
-	
+
+
 	public abstract void transferPattern(int startX, int startY);
 	
 	/**
 	 * Gets the state of the cells specified by the parameters.
 	 * @param x horizontal position of cell to get the state of.
 	 * @param y vertical position of cell to get the state of.
-	 * @param bc the container the cell is within
+	 * @param container the container the cell is within
 	 * @return the state of the cell.
 	 */
 	public abstract boolean getCellState(int x, int y, BoardContainer container);

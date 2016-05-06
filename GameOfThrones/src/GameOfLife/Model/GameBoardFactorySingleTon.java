@@ -48,7 +48,7 @@ public class GameBoardFactorySingleTon {
 	 * if no parameters are specified this method will return an instance of
 	 * DynamicGameBoard or create on if it doesn't exist
 	 * 
-	 * @return
+	 * @return an instance of the class
 	 */
 	public static GameBoard getInstance() {
 		if (board == null)

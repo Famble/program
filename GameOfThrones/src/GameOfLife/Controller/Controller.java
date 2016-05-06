@@ -303,15 +303,23 @@ public class Controller implements Initializable {
 			canvasDrawer.drawBoard();
 			
 			StringBuilder description = new StringBuilder();
-			
+
+
 			if(pattern.hasAuthor())
 				description.append("Author: ").append(pattern.getAuthorOfPattern()).append("\n\n");
 			else
 				description.append("No author provided\n\n");
-			
-			if(pattern.hasComment()){
+
+			if(pattern.hasName())
+				description.append("Name: ").append(pattern.getNameOfPattern()).append("\n");
+			else
+				description.append("No name provided\n\n");
+
+
+			if(pattern.hasComment())
 				description.append(pattern.getCommentOfPattern()).append("\n\n");
-			}
+			else
+				description.append("No name provided\n\n");
 			
 			descriptionText.setText(description.toString());
 			
