@@ -19,6 +19,12 @@ public class GameBoardFactorySingleTon {
 
 	static GameBoard board = null;
 
+	/**
+	 * creates an instance of the game board specified by the GameBoardType enum if none exists,
+	 * or returns the exiting GameBoard instance if one exists
+	 * @param gameBoard enum that specifies which game board to get an instance of
+	 * @return instance of a GameBoard subclass.
+	 */
 	public static GameBoard getInstance(GameBoardType gameBoard) {
 		if (board == null) {
 			if (gameBoard == GameBoardType.DynamicGameBoard) {
@@ -36,7 +42,7 @@ public class GameBoardFactorySingleTon {
 
 	/**
 	 * if no parameters are specified this method will return an instance of
-	 * DynamicGameBoard or create on if it doesnt exist
+	 * DynamicGameBoard or create on if it doesn't exist
 	 * 
 	 * @return
 	 */

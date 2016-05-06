@@ -74,17 +74,7 @@ public class RLEPattern implements Cloneable {
         }
     }
 
-    public Object clone() {
-        RLEPattern patternCopy = null;
-        try {
-            patternCopy = (RLEPattern) super.clone();
-            patternCopy.pattern = Arrays.copyOf(this.pattern, pattern.length);
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
 
-        return patternCopy;
-    }
 
 
     public int getPatternTranslationX() {

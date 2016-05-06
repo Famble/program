@@ -170,24 +170,7 @@ public abstract class GameBoard implements Cloneable
 		this.cellColor = color;
 	}
 	
-	@Override
-	public Object clone(){
-		GameBoard gameBoardCopy;
-		try{
-			gameBoardCopy = (GameBoard)super.clone();
-			gameBoardCopy.rules = (Rules)rules.clone();
-			gameBoardCopy.cellColor = this.getColor();
-			//gameBoardCopy.pattern = (RLEPattern)pattern.clone();
-			
-			
-			
-		}catch(CloneNotSupportedException e){
-			System.out.println(e.getMessage());
-			return null;
-		}
-		
-		return gameBoardCopy;
-	}
+	
 	
 	public String toString(){
 		return String.format("Width: %d\nHeight: %d\n", this.getWidth(), this.getHeight());

@@ -17,7 +17,6 @@ import java.io.File;
 import java.nio.file.*;
 
 import GameOfLife.Controller.Controller;
-import GameOfLife.Controller.EditorController;
 
 public class Main extends Application {
 
@@ -36,7 +35,6 @@ public class Main extends Application {
 		scene.getStylesheets().add(getClass().getResource("View/Stylesheet.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		controller.setDimensions();
 		
 	}
 

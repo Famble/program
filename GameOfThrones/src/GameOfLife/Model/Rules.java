@@ -86,24 +86,5 @@ public class Rules implements Cloneable {
 		}
 	}
 	
-	public Object clone(){
-		
-		Rules rulesCopy;
-		try{
-			rulesCopy = (Rules)super.clone();
-			Map<String, int[][]> mapCopy = new HashMap<>();
-			for(HashMap.Entry<String, int[][]> entry : rules.entrySet()){
-				mapCopy.put(entry.getKey(), entry.getValue());
-			}
-			rulesCopy.rules = (HashMap<String, int[][]>) mapCopy;
-
-			
-		}catch(CloneNotSupportedException e){
-			return null;
-		}
-		
-		return rulesCopy;
-		
-	}
 
 }

@@ -33,8 +33,6 @@ import javafx.scene.paint.Color;
  * <ul>
  * <li>It minimizes the amount of memory used by the program, allowing greater
  * board sizes.</li>
- * <li>Allows us to check if 64 cells are dead by simply checking if a long
- * value is equal to zero</li>
  * </ul>
  * <h3>Drawbacks</h3>
  * <ul>
@@ -489,6 +487,12 @@ public class BitGameBoard extends GameBoard {
 	public void transferPattern(int startX, int startY) {
 		super.setSettingPattern(false);
 		RLEPattern pattern = super.getPattern();
+		
+		if(startX < 0 || startX >= super.getWidth())
+			startX = 0;
+		if(startY < 0 || startY >= super.getHeight()){
+			startY = 0;
+		}
 
 		for (int x = 0; x < pattern.getWidth(); x++) {
 			for (int y = 0; y < pattern.getHeight(); y++) {

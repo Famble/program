@@ -1,4 +1,4 @@
-package GameOfLife;
+package GameOfLife.Controller;
 
 import java.io.*;
 import java.net.MalformedURLException;

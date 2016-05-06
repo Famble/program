@@ -668,32 +668,6 @@ public class DynamicGameBoard extends GameBoard implements Cloneable {
 		this.insertedColumnsFromLeft = insertedColumnsFromLeft;
 	}
 
-	public Object clone() {
-		DynamicGameBoard DynamicGameBoardCopy = null;
-		DynamicGameBoardCopy = (DynamicGameBoard) super.clone();
-		ArrayList<ArrayList<Boolean>> currGenCopy = new ArrayList<ArrayList<Boolean>>();
-		ArrayList<ArrayList<Boolean>> nextGenCopy = new ArrayList<ArrayList<Boolean>>();
-		ArrayList<ArrayList<Boolean>> activeGenCopy = new ArrayList<ArrayList<Boolean>>();
-		ArrayList<ArrayList<Boolean>> NextActiveGenCopy = new ArrayList<ArrayList<Boolean>>();
-
-		for (int i = 0; i < super.getWidth(); i++) {
-			currGenCopy.add(i, new ArrayList<Boolean>());
-			nextGenCopy.add(i, new ArrayList<Boolean>());
-			activeGenCopy.add(i, new ArrayList<Boolean>());
-			NextActiveGenCopy.add(i, new ArrayList<Boolean>());
-
-			for (int j = 0; j < super.getHeight(); j++) {
-				currGenCopy.get(i).add(j, this.getCurrGeneration().get(i).get(j));
-				nextGenCopy.get(i).add(j, this.getNextGeneration().get(i).get(j));
-
-			}
-		}
-
-		DynamicGameBoardCopy.currGeneration = currGenCopy;
-		DynamicGameBoardCopy.nextGeneration = nextGenCopy;
-
-		return DynamicGameBoardCopy;
-	}
 
 	/**
 	 * Adds the required columns of dead cells to the left of the gameBoard and

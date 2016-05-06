@@ -10,7 +10,7 @@ import javafx.animation.AnimationTimer;
  * The ExecutionControl controls the speed of the game, can both change
  * the speed of the game, stop and start the game.
  * 
- * @author 
+ * @author Dusan Jakovic
  *
  */
 public class ExecutionControl extends AnimationTimer {

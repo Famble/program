@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-import GameOfLife.FileHandler;
 import GameOfLife.Model.BitGameBoard;
 import GameOfLife.Model.DynamicGameBoard;
 import GameOfLife.Model.GameBoard;
@@ -46,6 +45,8 @@ import javafx.stage.Stage;
  * This class controls how the view and model interacts.
  *
  * Event listener is all handel in controller.
+ * 
+ * @author Markus Hellestveit, Dusan Jacovic
  */
 
 
@@ -95,12 +96,10 @@ public class Controller implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-		
-
 		GameBoardFactorySingleTon GameBoardFactorySingleton = new GameBoardFactorySingleTon();
 		
 		//creates an instance of the gameboard
-		gameBoard = GameBoardFactorySingleton.getInstance(GameBoardType.BitGameBoard);
+		gameBoard = GameBoardFactorySingleton.getInstance(GameBoardType.DynamicGameBoard);
 
 		//creates an instance of canvasdrawer, used to draw the game board.
 		canvasDrawer = new CanvasDrawer(canvas.getGraphicsContext2D());
@@ -295,7 +294,21 @@ public class Controller implements Initializable {
 			gameBoard.setPattern(pattern);
 			canvasDrawer.setRLEPattern(pattern);
 			canvasDrawer.drawBoard();
-			descriptionText.setText("Author: " +pattern.getAuthorOfPattern() + "\n\n" +pattern.getCommentOfPattern());
+			
+			StringBuilder description = new StringBuilder();
+			
+			if(pattern.hasAuthor())
+				description.append("Author: " + pattern.getAuthorOfPattern() + "\n\n");
+			else
+				description.append("No author provided\n\n");
+			
+			if(pattern.hasComment()){
+				description.append(pattern.getCommentOfPattern() + "\n\n");
+			}
+			
+			descriptionText.setText(description.toString());
+			
+				
 			
 		
 
@@ -489,64 +502,12 @@ public class Controller implements Initializable {
 		
 	} // end of keyListener
 
-    /**
-     * Sets the <b>width</b> and <b>height</b> of the canvas,
-     * and draw the an array of next generation.
-     */
-
-    public void setDimensions(){
-    	/*
-		canvas.setWidth(vBoxRoot.getWidth()-150);
-		canvas.setHeight(canvasParent.getHeight());
-		cd.drawNextGeneration();
-		*/
-	}
+    
     
     public void handleShowBorder(){
     	canvasDrawer.setShowBorder(ShowBorder.isSelected());
     }
 
-    /**
-     *Opens up a new window for a pattern editor,
-     * where you can follow the next generation on a timeline.
-     *
-     * @throws IOException
-     * @see EditorController
-     */
-    public void handleEditorClick() throws IOException{
-		
-    	if(!(this.gameBoard instanceof DynamicGameBoard))
-    	{
-    		Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Pattern editor not supported");
-			alert.setContentText("Pattern editor is only supported by using the dynamic game board");
-			alert.showAndWait();
-    	}
-    	else
-    	{
-    		//stops the execution of the main game.
-    		executionControl.stop();	
-    		//creates a new stage for the pattern editor
-    		Stage editor = new Stage();
-    		editor.getIcons().add(new Image(getClass().getResourceAsStream("golIcon.png")));
-    		//loads the fxml file containen the GUI.
-    		FXMLLoader loader = new FXMLLoader(getClass().getResource("PatternEditor.fxml"));
-    		VBox root = loader.load();
-    		//gets the controller of PatternEditor.fxml.
-    		EditorController edController = loader.getController();
-    		//initializes the controller with the copy of the game board
-    		DynamicGameBoard gameBoardClone = (DynamicGameBoard)this.gameBoard.clone();
-    		//sendes the clone of the game board to be initialized in the editor controller
-    		edController.initialize(gameBoardClone);
-    		Scene scene = new Scene(root, 1000, 700);
-    		editor.setScene(scene);
-    		editor.setTitle("Pattern Editor");
-    		editor.show();
-    		edController.setDimensions();
-    		//draws the strip showing 20 subsequent generation of the pattern.
-    		edController.drawStrip(gameBoardClone);
-    	}
-	}
     
     public void handleHowToClick() throws IOException{
     		//creates a new stage for the pattern editor
